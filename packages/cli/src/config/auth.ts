@@ -9,6 +9,24 @@ import { loadEnvironment, loadSettings } from './settings.js';
 
 export function validateAuthMethod(authMethod: string): string | null {
   loadEnvironment(loadSettings().merged);
+
+  // Check OpenAI first
+  if (authMethod === AuthType.USE_OPENAI) {
+    if (!process.env['OPENAI_API_KEY']) {
+      return (
+        'When using OpenAI API, you must specify the OPENAI_API_KEY environment variable.\n' +
+        'You can also optionally set:\n' +
+        '• OPENAI_BASE_URL for custom API endpoints\n' +
+        '• OPENAI_MODEL to specify the model (default: gpt-3.5-turbo)\n' +
+        '• OPENAI_ORGANIZATION for organization ID\n' +
+        '• OPENAI_PROJECT for project ID\n' +
+        'Update your environment and try again (no reload needed if using .env)!'
+      );
+    }
+    return null;
+  }
+
+  // Check Google auth methods (they don't require environment variables)
   if (
     authMethod === AuthType.LOGIN_WITH_GOOGLE ||
     authMethod === AuthType.COMPUTE_ADC
@@ -16,6 +34,7 @@ export function validateAuthMethod(authMethod: string): string | null {
     return null;
   }
 
+  // Check Gemini
   if (authMethod === AuthType.USE_GEMINI) {
     if (!process.env['GEMINI_API_KEY']) {
       return (
@@ -26,6 +45,7 @@ export function validateAuthMethod(authMethod: string): string | null {
     return null;
   }
 
+  // Check Vertex AI
   if (authMethod === AuthType.USE_VERTEX_AI) {
     const hasVertexProjectLocationConfig =
       !!process.env['GOOGLE_CLOUD_PROJECT'] &&

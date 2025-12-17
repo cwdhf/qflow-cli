@@ -13,10 +13,12 @@ import {
   StartSessionEvent,
   logCliConfiguration,
   startupProfiler,
+  AuthType,
 } from '@google/gemini-cli-core';
 import { type LoadedSettings } from '../config/settings.js';
 import { performInitialAuth } from './auth.js';
 import { validateTheme } from './theme.js';
+import { SettingScope } from '../config/settings.js';
 
 export interface InitializationResult {
   authError: string | null;
@@ -36,16 +38,49 @@ export async function initializeApp(
   config: Config,
   settings: LoadedSettings,
 ): Promise<InitializationResult> {
+  // Auto-detect authentication type from environment variables
+  let effectiveAuthType = settings.merged.security?.auth?.selectedType;
+
+  // If no auth type is selected, try to auto-detect from environment
+  if (!effectiveAuthType) {
+    if (process.env['OPENAI_API_KEY']) {
+      effectiveAuthType = AuthType.USE_OPENAI;
+      // Automatically set the auth type in settings
+      settings.setValue(
+        SettingScope.User,
+        'security.auth.selectedType',
+        effectiveAuthType,
+      );
+    } else if (process.env['GEMINI_API_KEY']) {
+      effectiveAuthType = AuthType.USE_GEMINI;
+      settings.setValue(
+        SettingScope.User,
+        'security.auth.selectedType',
+        effectiveAuthType,
+      );
+    } else if (process.env['GOOGLE_GENAI_USE_GCA'] === 'true') {
+      effectiveAuthType = AuthType.LOGIN_WITH_GOOGLE;
+      settings.setValue(
+        SettingScope.User,
+        'security.auth.selectedType',
+        effectiveAuthType,
+      );
+    } else if (process.env['GOOGLE_GENAI_USE_VERTEXAI'] === 'true') {
+      effectiveAuthType = AuthType.USE_VERTEX_AI;
+      settings.setValue(
+        SettingScope.User,
+        'security.auth.selectedType',
+        effectiveAuthType,
+      );
+    }
+  }
+
   const authHandle = startupProfiler.start('authenticate');
-  const authError = await performInitialAuth(
-    config,
-    settings.merged.security?.auth?.selectedType,
-  );
+  const authError = await performInitialAuth(config, effectiveAuthType);
   authHandle?.end();
   const themeError = validateTheme(settings);
 
-  const shouldOpenAuthDialog =
-    settings.merged.security?.auth?.selectedType === undefined || !!authError;
+  const shouldOpenAuthDialog = effectiveAuthType === undefined || !!authError;
 
   logCliConfiguration(
     config,

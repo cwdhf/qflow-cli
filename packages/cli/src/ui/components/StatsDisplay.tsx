@@ -21,10 +21,7 @@ import {
   CACHE_EFFICIENCY_MEDIUM,
 } from '../utils/displayUtils.js';
 import { computeSessionStats } from '../utils/computeStats.js';
-import {
-  type RetrieveUserQuotaResponse,
-  VALID_GEMINI_MODELS,
-} from '@google/gemini-cli-core';
+import { type RetrieveUserQuotaResponse } from '@google/gemini-cli-core';
 
 // A more flexible and powerful StatRow component
 interface StatRowProps {
@@ -101,12 +98,7 @@ const buildModelRows = (
   // 2. Models with quota only
   const quotaRows =
     quotas?.buckets
-      ?.filter(
-        (b) =>
-          b.modelId &&
-          VALID_GEMINI_MODELS.has(b.modelId) &&
-          !usedModelNames.has(b.modelId),
-      )
+      ?.filter((b) => b.modelId && !usedModelNames.has(b.modelId))
       .map((bucket) => ({
         key: bucket.modelId!,
         modelName: bucket.modelId!,

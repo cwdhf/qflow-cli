@@ -74,6 +74,11 @@ export function AuthDialog({
       value: AuthType.USE_VERTEX_AI,
       key: AuthType.USE_VERTEX_AI,
     },
+    {
+      label: 'Use OpenAI API',
+      value: AuthType.USE_OPENAI,
+      key: AuthType.USE_OPENAI,
+    },
   ];
 
   if (settings.merged.security?.auth?.enforcedType) {
@@ -100,6 +105,10 @@ export function AuthDialog({
       return item.value === defaultAuthType;
     }
 
+    if (process.env['OPENAI_API_KEY']) {
+      return item.value === AuthType.USE_OPENAI;
+    }
+
     if (process.env['GEMINI_API_KEY']) {
       return item.value === AuthType.USE_GEMINI;
     }
@@ -119,6 +128,14 @@ export function AuthDialog({
         await clearCachedCredentialFile();
 
         settings.setValue(scope, 'security.auth.selectedType', authType);
+
+        if (authType === AuthType.USE_OPENAI) {
+          // For OpenAI, if API key is already set in environment, we can proceed directly
+          // No need for additional login steps
+          setAuthState(AuthState.Unauthenticated);
+          return;
+        }
+
         if (
           authType === AuthType.LOGIN_WITH_GOOGLE &&
           config.isBrowserLaunchSuppressed()

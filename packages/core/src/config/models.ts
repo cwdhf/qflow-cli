@@ -25,6 +25,27 @@ export const GEMINI_MODEL_ALIAS_FLASH_LITE = 'flash-lite';
 
 export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 
+// OpenAI model constants
+export const DEFAULT_OPENAI_MODEL = 'qwen3-max-preview';
+export const DEFAULT_OPENAI_EMBEDDING_MODEL = 'text-embedding-v4';
+
+// Common OpenAI models
+export const DEEEPSEEK_V32 = 'deepseek-v3.2';
+export const QWEN3_MAX_PREVIEW = 'qwen3-max-preview';
+export const GLM_46 = 'glm-4.6';
+// OpenAI model aliases for user convenience
+export const OPENAI_MODEL_ALIAS_STANDARD = 'standard';
+export const OPENAI_MODEL_ALIAS_TURBO = 'turbo';
+export const OPENAI_MODEL_ALIAS_PRO = 'pro';
+export const OPENAI_MODEL_ALIAS_MULTIMODAL = 'multimodal';
+
+// Valid OpenAI models
+export const VALID_OPENAI_MODELS = new Set([
+  QWEN3_MAX_PREVIEW,
+  DEEEPSEEK_V32,
+  GLM_46,
+]);
+
 // Cap the thinking at 8192 to prevent run-away thinking loops.
 export const DEFAULT_THINKING_MODE = 8192;
 
@@ -114,4 +135,67 @@ export function isGemini2Model(model: string): boolean {
  */
 export function supportsMultimodalFunctionResponse(model: string): boolean {
   return model.startsWith('gemini-3-');
+}
+
+/**
+ * Resolves OpenAI model alias to concrete model name.
+ *
+ * @param requestedModel The model alias or concrete model name requested by the user.
+ * @returns The resolved concrete model name.
+ */
+export function resolveOpenAIModel(requestedModel: string): string {
+  switch (requestedModel) {
+    case OPENAI_MODEL_ALIAS_STANDARD:
+    case OPENAI_MODEL_ALIAS_TURBO:
+      return DEEEPSEEK_V32;
+    case OPENAI_MODEL_ALIAS_PRO:
+      return QWEN3_MAX_PREVIEW;
+    case OPENAI_MODEL_ALIAS_MULTIMODAL:
+      return GLM_46;
+    default:
+      // Check if it's a valid OpenAI model
+      if (VALID_OPENAI_MODELS.has(requestedModel)) {
+        return requestedModel;
+      }
+      // If not a known OpenAI model, assume it's a custom model (like qwen3-max-preview)
+      return requestedModel;
+  }
+}
+
+/**
+ * Checks if a model is an OpenAI compatible model.
+ *
+ * @param model The model name to check.
+ * @returns True if the model is an OpenAI compatible model.
+ */
+export function isOpenAIModel(model: string): boolean {
+  // Check if it's a known OpenAI model
+  if (VALID_OPENAI_MODELS.has(model)) {
+    return true;
+  }
+
+  // Check if it's a custom model that might be OpenAI compatible
+  // This includes models like qwen3-max-preview, deepseek-chat, etc.
+  // We assume any model not starting with 'gemini-' is OpenAI compatible
+  return !model.startsWith('gemini-');
+}
+
+/**
+ * Gets the default OpenAI model based on environment variable or default.
+ *
+ * @returns The default OpenAI model to use.
+ */
+export function getDefaultOpenAIModel(): string {
+  return process.env['OPENAI_MODEL'] || DEFAULT_OPENAI_MODEL;
+}
+
+/**
+ * Gets the default OpenAI embedding model based on environment variable or default.
+ *
+ * @returns The default OpenAI embedding model to use.
+ */
+export function getDefaultOpenAIEmbeddingModel(): string {
+  return (
+    process.env['OPENAI_EMBEDDING_MODEL'] || DEFAULT_OPENAI_EMBEDDING_MODEL
+  );
 }

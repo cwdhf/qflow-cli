@@ -820,6 +820,10 @@ export class Config {
   }
 
   getModel(): string {
+    // If using OpenAI, return the OpenAI model from environment variable
+    if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
+      return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+    }
     return this.model;
   }
 
@@ -835,6 +839,10 @@ export class Config {
   }
 
   getActiveModel(): string {
+    // If using OpenAI, return the OpenAI model from environment variable
+    if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
+      return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+    }
     return this._activeModel ?? this.model;
   }
 

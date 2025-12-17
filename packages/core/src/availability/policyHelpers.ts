@@ -16,6 +16,7 @@ import type {
 import { createDefaultPolicy, getModelPolicyChain } from './policyCatalog.js';
 import { DEFAULT_GEMINI_MODEL, getEffectiveModel } from '../config/models.js';
 import type { ModelSelectionResult } from './modelAvailabilityService.js';
+import { AuthType } from '../core/contentGenerator.js';
 
 /**
  * Resolves the active policy chain for the given config, ensuring the
@@ -31,13 +32,18 @@ export function resolvePolicyChain(
   });
   // TODO: This will be replaced when we get rid of Fallback Modes.
   // Switch to getActiveModel()
-  const activeModel =
-    preferredModel ??
-    getEffectiveModel(
+  let activeModel = preferredModel ?? config.getModel();
+
+  // Only use getEffectiveModel for Gemini models
+  // For OpenAI models, use the model as-is
+  const authType = config.getContentGeneratorConfig()?.authType;
+  if (authType !== AuthType.USE_OPENAI) {
+    activeModel = getEffectiveModel(
       config.isInFallbackMode(),
-      config.getModel(),
+      activeModel,
       config.getPreviewFeatures(),
     );
+  }
 
   if (activeModel === 'auto') {
     return [...chain];

@@ -9,9 +9,8 @@ import { hideBin } from 'yargs/helpers';
 import process from 'node:process';
 import { mcpCommand } from '../commands/mcp.js';
 import type { OutputFormat } from '@google/gemini-cli-core';
-import { extensionsCommand } from '../commands/extensions.js';
-import { hooksCommand } from '../commands/hooks.js';
 import {
+  AuthType,
   Config,
   setGeminiMdFilename as setServerGeminiMdFilename,
   getCurrentGeminiMdFilename,
@@ -33,6 +32,8 @@ import {
   WEB_FETCH_TOOL_NAME,
   getVersion,
 } from '@google/gemini-cli-core';
+import { extensionsCommand } from '../commands/extensions.js';
+import { hooksCommand } from '../commands/hooks.js';
 import type { Settings } from './settings.js';
 
 import { loadSandboxConfig } from './sandboxConfig.js';
@@ -430,7 +431,7 @@ export async function loadCliConfig(
     requestSetting: promptForSetting,
     workspaceDir: cwd,
     enabledExtensionOverrides: argv.extensions,
-    eventEmitter: appEvents as EventEmitter<ExtensionEvents>,
+    eventEmitter: appEvents as unknown as EventEmitter<ExtensionEvents>,
   });
   await extensionManager.loadExtensions();
 
@@ -570,11 +571,25 @@ export async function loadCliConfig(
   );
 
   const defaultModel = DEFAULT_GEMINI_MODEL_AUTO;
-  const resolvedModel: string =
-    argv.model ||
-    process.env['GEMINI_MODEL'] ||
-    settings.model?.name ||
-    defaultModel;
+
+  // Check if using OpenAI authentication
+  const isUsingOpenAI =
+    settings.security?.auth?.selectedType === AuthType.USE_OPENAI ||
+    process.env['OPENAI_API_KEY'];
+
+  let resolvedModel: string;
+
+  if (isUsingOpenAI) {
+    // For OpenAI, use OPENAI_MODEL environment variable or default to gpt-3.5-turbo
+    resolvedModel = process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+  } else {
+    // For Gemini/Google authentication, use the existing logic
+    resolvedModel =
+      argv.model ||
+      process.env['GEMINI_MODEL'] ||
+      settings.model?.name ||
+      defaultModel;
+  }
 
   const sandboxConfig = await loadSandboxConfig(settings, argv);
   const screenReader =

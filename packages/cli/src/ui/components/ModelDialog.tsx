@@ -16,8 +16,13 @@ import {
   GEMINI_MODEL_ALIAS_FLASH,
   GEMINI_MODEL_ALIAS_FLASH_LITE,
   GEMINI_MODEL_ALIAS_PRO,
+  DEFAULT_OPENAI_MODEL,
+  DEEEPSEEK_V32,
+  QWEN3_MAX_PREVIEW,
+  GLM_46,
   ModelSlashCommandEvent,
   logModelSlashCommand,
+  AuthType,
 } from '@google/gemini-cli-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { theme } from '../semantic-colors.js';
@@ -44,65 +49,146 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     { isActive: true },
   );
 
-  const options = useMemo(
-    () => [
-      {
-        value: DEFAULT_GEMINI_MODEL_AUTO,
-        title: 'Auto',
-        description: 'Let the system choose the best model for your task.',
-        key: DEFAULT_GEMINI_MODEL_AUTO,
-      },
-      {
-        value: GEMINI_MODEL_ALIAS_PRO,
-        title: config?.getPreviewFeatures()
-          ? `Pro (${PREVIEW_GEMINI_MODEL}, ${DEFAULT_GEMINI_MODEL})`
-          : `Pro (${DEFAULT_GEMINI_MODEL})`,
-        description:
-          'For complex tasks that require deep reasoning and creativity',
-        key: GEMINI_MODEL_ALIAS_PRO,
-      },
-      {
-        value: GEMINI_MODEL_ALIAS_FLASH,
-        title: `Flash (${DEFAULT_GEMINI_FLASH_MODEL})`,
-        description: 'For tasks that need a balance of speed and reasoning',
-        key: GEMINI_MODEL_ALIAS_FLASH,
-      },
-      {
-        value: GEMINI_MODEL_ALIAS_FLASH_LITE,
-        title: `Flash-Lite (${DEFAULT_GEMINI_FLASH_LITE_MODEL})`,
-        description: 'For simple tasks that need to be done quickly',
-        key: GEMINI_MODEL_ALIAS_FLASH_LITE,
-      },
-    ],
-    [config],
-  );
+  // Check if using OpenAI authentication
+  const isUsingOpenAI = useMemo(() => {
+    const generatorConfig = config?.getContentGeneratorConfig?.();
+    const authType = generatorConfig?.authType;
+    return authType === AuthType.USE_OPENAI || process.env['OPENAI_API_KEY'];
+  }, [config]);
+
+  const options = useMemo(() => {
+    if (isUsingOpenAI) {
+      // OpenAI model options
+      const openaiModels = [
+        {
+          value: QWEN3_MAX_PREVIEW,
+          title: 'qwen3-max_preview',
+          description:
+            '通义千问3系列Max模型，本次发布的正式版模型达到领域SOTA水平，适配场景更加复杂的智能体需求。',
+          key: QWEN3_MAX_PREVIEW,
+        },
+        {
+          value: DEEEPSEEK_V32,
+          title: 'deeepseek-v3.2',
+          description:
+            'DeepSeek-V3.2是引入DeepSeek Sparse Attention（一种稀疏注意力机制）的正式版模型，也是DeepSeek推出的首个将思考融入工具使用的模型，同时支持思考模式与非思考模式的工具调用。',
+          key: DEEEPSEEK_V32,
+        },
+        {
+          value: GLM_46,
+          title: 'glm 4.6',
+          description: 'GLM是由智谱提供的开源模型',
+          key: GLM_46,
+        },
+      ];
+
+      // Add custom model from environment if specified
+      const customModel = process.env['OPENAI_MODEL'];
+      if (customModel && !openaiModels.some((m) => m.value === customModel)) {
+        openaiModels.unshift({
+          value: customModel,
+          title: `Custom (${customModel})`,
+          description: 'Your configured OpenAI compatible model',
+          key: customModel,
+        });
+      }
+
+      return openaiModels;
+    } else {
+      // Gemini model options
+      return [
+        {
+          value: DEFAULT_GEMINI_MODEL_AUTO,
+          title: 'Auto',
+          description: 'Let the system choose the best model for your task.',
+          key: DEFAULT_GEMINI_MODEL_AUTO,
+        },
+        {
+          value: GEMINI_MODEL_ALIAS_PRO,
+          title: config?.getPreviewFeatures()
+            ? `Pro (${PREVIEW_GEMINI_MODEL}, ${DEFAULT_GEMINI_MODEL})`
+            : `Pro (${DEFAULT_GEMINI_MODEL})`,
+          description:
+            'For complex tasks that require deep reasoning and creativity',
+          key: GEMINI_MODEL_ALIAS_PRO,
+        },
+        {
+          value: GEMINI_MODEL_ALIAS_FLASH,
+          title: `Flash (${DEFAULT_GEMINI_FLASH_MODEL})`,
+          description: 'For tasks that need a balance of speed and reasoning',
+          key: GEMINI_MODEL_ALIAS_FLASH,
+        },
+        {
+          value: GEMINI_MODEL_ALIAS_FLASH_LITE,
+          title: `Flash-Lite (${DEFAULT_GEMINI_FLASH_LITE_MODEL})`,
+          description: 'For simple tasks that need to be done quickly',
+          key: GEMINI_MODEL_ALIAS_FLASH_LITE,
+        },
+      ];
+    }
+  }, [config, isUsingOpenAI]);
 
   // Calculate the initial index based on the preferred model.
-  const initialIndex = useMemo(
-    () => options.findIndex((option) => option.value === preferredModel),
-    [preferredModel, options],
-  );
+  const initialIndex = useMemo(() => {
+    if (isUsingOpenAI) {
+      // For OpenAI, get the current model from environment or default
+      const currentModel = process.env['OPENAI_MODEL'] || DEFAULT_OPENAI_MODEL;
+      return options.findIndex((option) => option.value === currentModel);
+    } else {
+      // For Gemini, use the existing logic
+      return options.findIndex((option) => option.value === preferredModel);
+    }
+  }, [preferredModel, options, isUsingOpenAI]);
 
   // Handle selection internally (Autonomous Dialog).
   const handleSelect = useCallback(
-    (model: string) => {
+    async (model: string) => {
       if (config) {
-        config.setModel(model);
-        const event = new ModelSlashCommandEvent(model);
-        logModelSlashCommand(config, event);
+        if (isUsingOpenAI) {
+          // For OpenAI, we need to update the environment variable
+          // and refresh authentication to use the new model
+          try {
+            // Update environment variable (this will affect future API calls)
+            process.env['OPENAI_MODEL'] = model;
+
+            // Log the model change
+            console.log(`Switching to OpenAI model: ${model}`);
+
+            // Refresh authentication to apply the new model
+            // This will recreate the content generator with the new model
+            void config.refreshAuth(AuthType.USE_OPENAI);
+
+            // Log the model change event
+            const event = new ModelSlashCommandEvent(model);
+            logModelSlashCommand(config, event);
+
+            console.log(`✅ OpenAI model changed to: ${model}`);
+          } catch (error) {
+            console.error(`Failed to switch OpenAI model: ${error}`);
+          }
+        } else {
+          // For Gemini, use the existing config.setModel
+          config.setModel(model);
+          const event = new ModelSlashCommandEvent(model);
+          logModelSlashCommand(config, event);
+        }
       }
       onClose();
     },
-    [config, onClose],
+    [config, onClose, isUsingOpenAI],
   );
 
-  const header = config?.getPreviewFeatures()
-    ? 'Gemini 3 is now enabled.'
-    : 'Gemini 3 is now available.';
+  const header = isUsingOpenAI
+    ? 'Select OpenAI Model'
+    : config?.getPreviewFeatures()
+      ? 'Gemini 3 is now enabled.'
+      : 'Gemini 3 is now available.';
 
-  const subheader = config?.getPreviewFeatures()
-    ? `To disable Gemini 3, disable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features\n\nWhen you select Auto or Pro, Gemini CLI will attempt to use ${PREVIEW_GEMINI_MODEL} first, before falling back to ${DEFAULT_GEMINI_MODEL}.`
-    : `To use Gemini 3, enable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features`;
+  const subheader = isUsingOpenAI
+    ? `You are using OpenAI compatible API. Models can also be configured via OPENAI_MODEL environment variable.`
+    : config?.getPreviewFeatures()
+      ? `To disable Gemini 3, disable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features\n\nWhen you select Auto or Pro, Gemini CLI will attempt to use ${PREVIEW_GEMINI_MODEL} first, before falling back to ${DEFAULT_GEMINI_MODEL}.`
+      : `To use Gemini 3, enable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features`;
 
   return (
     <Box
@@ -124,14 +210,16 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       <Box marginTop={1}>
         <DescriptiveRadioButtonSelect
           items={options}
-          onSelect={handleSelect}
+          onSelect={(model) => void handleSelect(model)}
           initialIndex={initialIndex}
           showNumbers={true}
         />
       </Box>
       <Box marginTop={1} flexDirection="column">
         <Text color={theme.text.secondary}>
-          {'To use a specific Gemini model on startup, use the --model flag.'}
+          {isUsingOpenAI
+            ? 'To use a specific OpenAI model on startup, set the OPENAI_MODEL environment variable.'
+            : 'To use a specific Gemini model on startup, use the --model flag.'}
         </Text>
       </Box>
       <Box marginTop={1} flexDirection="column">

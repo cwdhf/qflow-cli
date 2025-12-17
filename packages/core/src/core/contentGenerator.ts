@@ -52,6 +52,7 @@ export enum AuthType {
   USE_VERTEX_AI = 'vertex-ai',
   LEGACY_CLOUD_SHELL = 'cloud-shell',
   COMPUTE_ADC = 'compute-default-credentials',
+  USE_OPENAI = 'openai-api-key',
 }
 
 export type ContentGeneratorConfig = {
@@ -59,6 +60,14 @@ export type ContentGeneratorConfig = {
   vertexai?: boolean;
   authType?: AuthType;
   proxy?: string;
+  openai?: {
+    apiKey?: string;
+    baseUrl?: string;
+    model?: string;
+    embeddingModel?: string;
+    organization?: string;
+    project?: string;
+  };
 };
 
 export async function createContentGeneratorConfig(
@@ -73,6 +82,13 @@ export async function createContentGeneratorConfig(
     process.env['GOOGLE_CLOUD_PROJECT_ID'] ||
     undefined;
   const googleCloudLocation = process.env['GOOGLE_CLOUD_LOCATION'] || undefined;
+  const openaiApiKey = process.env['OPENAI_API_KEY'] || undefined;
+  const openaiBaseUrl = process.env['OPENAI_BASE_URL'] || undefined;
+  const openaiModel = process.env['OPENAI_MODEL'] || undefined;
+  const openaiEmbeddingModel =
+    process.env['OPENAI_EMBEDDING_MODEL'] || undefined;
+  const openaiOrganization = process.env['OPENAI_ORGANIZATION'] || undefined;
+  const openaiProject = process.env['OPENAI_PROJECT'] || undefined;
 
   const contentGeneratorConfig: ContentGeneratorConfig = {
     authType,
@@ -104,6 +120,19 @@ export async function createContentGeneratorConfig(
     return contentGeneratorConfig;
   }
 
+  if (authType === AuthType.USE_OPENAI && openaiApiKey) {
+    contentGeneratorConfig.openai = {
+      apiKey: openaiApiKey,
+      baseUrl: openaiBaseUrl,
+      model: openaiModel,
+      embeddingModel: openaiEmbeddingModel,
+      organization: openaiOrganization,
+      project: openaiProject,
+    };
+
+    return contentGeneratorConfig;
+  }
+
   return contentGeneratorConfig;
 }
 
@@ -117,11 +146,21 @@ export async function createContentGenerator(
       return FakeContentGenerator.fromFile(gcConfig.fakeResponses);
     }
     const version = await getVersion();
-    const model = getEffectiveModel(
-      gcConfig.isInFallbackMode(),
-      gcConfig.getModel(),
-      gcConfig.getPreviewFeatures(),
-    );
+
+    // Determine the model to use based on authentication type
+    let model: string;
+    if (config.authType === AuthType.USE_OPENAI && config.openai?.model) {
+      // For OpenAI, use the model from config
+      model = config.openai.model;
+    } else {
+      // For Gemini/Google auth, use the effective model logic
+      model = getEffectiveModel(
+        gcConfig.isInFallbackMode(),
+        gcConfig.getModel(),
+        gcConfig.getPreviewFeatures(),
+      );
+    }
+
     const customHeadersEnv =
       process.env['GEMINI_CLI_CUSTOM_HEADERS'] || undefined;
     const userAgent = `GeminiCLI/${version}/${model} (${process.platform}; ${process.arch})`;
@@ -180,6 +219,28 @@ export async function createContentGenerator(
       });
       return new LoggingContentGenerator(googleGenAI.models, gcConfig);
     }
+
+    if (config.authType === AuthType.USE_OPENAI && config.openai?.apiKey) {
+      // Import the new OpenAI compatible content generator
+      const { OpenAICompatibleContentGenerator } = await import(
+        './openAICompatibleContentGenerator.js'
+      );
+
+      // Create OpenAI compatible content generator
+      const openaiContentGenerator = new OpenAICompatibleContentGenerator({
+        endpoint: config.openai.baseUrl || 'https://api.openai.com/v1',
+        model: config.openai.model || 'gpt-3.5-turbo',
+        embeddingModel:
+          config.openai.embeddingModel || 'text-embedding-ada-002',
+        apiKey: config.openai.apiKey,
+        organization: config.openai.organization,
+        project: config.openai.project,
+        userTier: gcConfig.getUserTier(),
+      });
+
+      return new LoggingContentGenerator(openaiContentGenerator, gcConfig);
+    }
+
     throw new Error(
       `Error creating contentGenerator: Unsupported authType: ${config.authType}`,
     );
