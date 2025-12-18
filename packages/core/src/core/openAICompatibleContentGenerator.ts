@@ -12,14 +12,25 @@ import type {
   EmbedContentParameters,
   Candidate,
   ContentEmbedding,
-  ContentListUnion,
-  PartUnion,
-  ToolListUnion,
 } from '@google/genai';
 import { GenerateContentResponse, FinishReason } from '@google/genai';
 
 import type { ContentGenerator } from './contentGenerator.js';
 import type { UserTierId } from '../code_assist/types.js';
+import type {
+  OpenAITool,
+  OpenAIMessageWithTools,
+  OpenAICompletionResponse,
+  OpenAIEmbeddingRequest,
+  OpenAIEmbeddingResponse,
+} from './openai-types.js';
+import {
+  convertToolsToOpenAI,
+  convertToOpenAIMessagesWithTools,
+  convertToOpenAIMessages,
+  convertToGenerateContentResponse,
+} from './openai-converter.js';
+import { OpenAIClient } from './openai-client.js';
 
 /**
  * OpenAI兼容的内容生成器配置
@@ -42,470 +53,20 @@ export interface OpenAICompatibleConfig {
 }
 
 /**
- * OpenAI函数定义
- */
-interface OpenAIFunction {
-  name: string;
-  description?: string;
-  parameters?: {
-    type: string;
-    properties: Record<string, unknown>;
-    required?: string[];
-  };
-}
-
-/**
- * OpenAI工具定义
- */
-interface OpenAITool {
-  type: 'function';
-  function: OpenAIFunction;
-}
-
-/**
- * OpenAI工具调用
- */
-interface OpenAIToolCall {
-  id: string;
-  type: 'function';
-  function: {
-    name: string;
-    arguments: string;
-  };
-}
-
-/**
- * OpenAI消息内容项（用于多模态内容）
- */
-interface OpenAIContentItem {
-  type: 'text';
-  text: string;
-}
-
-/**
- * OpenAI消息（支持工具调用）
- */
-interface OpenAIMessageWithTools {
-  role: 'system' | 'user' | 'assistant' | 'tool';
-  content: string | OpenAIContentItem[] | null;
-  tool_calls?: OpenAIToolCall[];
-  tool_call_id?: string;
-}
-
-/**
- * OpenAI聊天完成响应（支持工具调用）
- */
-interface OpenAICompletionResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    message: OpenAIMessageWithTools;
-    finish_reason: string;
-  }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
-/**
- * OpenAI Embedding请求
- */
-interface OpenAIEmbeddingRequest {
-  model: string;
-  input: string | string[];
-}
-
-/**
- * OpenAI Embedding响应
- */
-interface OpenAIEmbeddingResponse {
-  object: string;
-  data: Array<{
-    object: string;
-    embedding: number[];
-    index: number;
-  }>;
-  model: string;
-  usage: {
-    prompt_tokens: number;
-    total_tokens: number;
-  };
-}
-
-/**
- * OpenAI流式工具调用增量
- */
-interface OpenAIStreamToolCallDelta {
-  index: number;
-  id?: string;
-  type?: 'function';
-  function?: {
-    name?: string;
-    arguments?: string;
-  };
-}
-
-/**
- * OpenAI流式响应块
- */
-interface OpenAIStreamChunk {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: Array<{
-    index: number;
-    delta: {
-      role?: string;
-      content?: string;
-      tool_calls?: OpenAIStreamToolCallDelta[];
-    };
-    finish_reason: string | null;
-  }>;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
-/**
  * OpenAI兼容的内容生成器
  * 实现ContentGenerator接口，兼容OpenAI API规范
  */
 export class OpenAICompatibleContentGenerator implements ContentGenerator {
-  private endpoint: string;
   private model: string;
   private embeddingModel: string;
-  private apiKey: string;
-  private organization?: string;
-  private project?: string;
+  private client: OpenAIClient;
   userTier?: UserTierId;
 
   constructor(config: OpenAICompatibleConfig) {
-    this.endpoint = config.endpoint;
     this.model = config.model;
     this.embeddingModel = config.embeddingModel || 'text-embedding-ada-002';
-    this.apiKey = config.apiKey;
-    this.organization = config.organization;
-    this.project = config.project;
+    this.client = new OpenAIClient(config);
     this.userTier = config.userTier;
-  }
-
-  /**
-   * 将Gemini内容格式转换为OpenAI消息格式（向后兼容）
-   */
-  private convertToOpenAIMessages(
-    contents: ContentListUnion,
-  ): OpenAIMessageWithTools[] {
-    const messages = this.convertToOpenAIMessagesWithTools(contents);
-    // 转换为简单的消息格式用于countTokens和embedContent
-    return messages.map((msg) => {
-      const result: OpenAIMessageWithTools = {
-        role: msg.role,
-        content: '',
-      };
-
-      // 处理content字段
-      if (typeof msg.content === 'string') {
-        result.content = msg.content || '';
-      } else if (Array.isArray(msg.content)) {
-        // 如果是数组，提取文本内容
-        const textContent = msg.content
-          .filter((item) => item.type === 'text')
-          .map((item) => item.text)
-          .join('');
-        result.content = textContent || '';
-      }
-
-      // 只在有值时才添加这些字段
-      if (msg.tool_calls && msg.tool_calls.length > 0) {
-        result.tool_calls = msg.tool_calls;
-      }
-
-      if (msg.tool_call_id) {
-        result.tool_call_id = msg.tool_call_id;
-      }
-
-      return result;
-    });
-  }
-
-  /**
-   * 将Gemini工具转换为OpenAI工具格式
-   */
-  private convertToolsToOpenAI(tools: ToolListUnion | undefined): OpenAITool[] {
-    if (!tools || !Array.isArray(tools)) {
-      return [];
-    }
-
-    const openaiTools: OpenAITool[] = [];
-
-    for (const tool of tools) {
-      // 检查是否是具有functionDeclarations的工具类型
-      if (
-        'functionDeclarations' in tool &&
-        tool.functionDeclarations &&
-        Array.isArray(tool.functionDeclarations)
-      ) {
-        for (const funcDecl of tool.functionDeclarations) {
-          openaiTools.push({
-            type: 'function',
-            function: {
-              name: funcDecl.name || 'unknown',
-              description: funcDecl.description || '',
-              parameters: funcDecl.parameters
-                ? {
-                    type: funcDecl.parameters.type || 'object',
-                    properties: funcDecl.parameters.properties || {},
-                    required: funcDecl.parameters.required,
-                  }
-                : {
-                    type: 'object',
-                    properties: {},
-                  },
-            },
-          });
-        }
-      }
-    }
-
-    return openaiTools;
-  }
-
-  /**
-   * 将Gemini内容转换为OpenAI消息格式（支持工具调用）
-   */
-  private convertToOpenAIMessagesWithTools(
-    contents: ContentListUnion,
-  ): OpenAIMessageWithTools[] {
-    const messages: OpenAIMessageWithTools[] = [];
-
-    console.log(
-      'convertToOpenAIMessagesWithTools input:',
-      JSON.stringify(contents, null, 2),
-    );
-
-    // 辅助函数：从 PartUnion 提取信息
-    const extractFromPartUnion = (
-      part: PartUnion,
-    ): {
-      text?: string;
-      functionCall?: { name: string; args: Record<string, unknown> };
-      functionResponse?: { name: string; response: Record<string, unknown> };
-    } => {
-      if (typeof part === 'string') {
-        return { text: part };
-      }
-      if (part.text !== undefined) {
-        return { text: part.text };
-      }
-      if (part.functionCall) {
-        return {
-          functionCall: {
-            name: part.functionCall.name || 'unknown',
-            args: part.functionCall.args || {},
-          },
-        };
-      }
-      if (part.functionResponse) {
-        return {
-          functionResponse: {
-            name: part.functionResponse.name || 'unknown',
-            response: part.functionResponse.response || {},
-          },
-        };
-      }
-      return {};
-    };
-
-    // 处理 ContentListUnion 类型
-    if (typeof contents === 'string') {
-      // 字符串
-      messages.push({
-        role: 'user',
-        content: contents,
-      });
-    } else if (
-      contents &&
-      typeof contents === 'object' &&
-      'role' in contents &&
-      !Array.isArray(contents)
-    ) {
-      // 单个 Content 对象（不是数组）
-      const contentItem = contents as {
-        role: 'user' | 'model' | 'assistant' | 'tool';
-        parts: PartUnion[];
-      };
-      const message: OpenAIMessageWithTools = {
-        role: contentItem.role === 'model' ? 'assistant' : contentItem.role,
-        content: '',
-      };
-
-      if (contentItem.parts && Array.isArray(contentItem.parts)) {
-        let textContent = '';
-        const toolCalls: OpenAIToolCall[] = [];
-
-        for (const part of contentItem.parts) {
-          const extracted = extractFromPartUnion(part);
-
-          if (extracted.text) {
-            textContent += (textContent ? '\n' : '') + extracted.text;
-          }
-
-          if (extracted.functionCall) {
-            toolCalls.push({
-              id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              type: 'function',
-              function: {
-                name: extracted.functionCall.name,
-                arguments: JSON.stringify(extracted.functionCall.args || {}),
-              },
-            });
-          }
-
-          if (extracted.functionResponse) {
-            // 函数响应作为工具消息
-            const responseContent = extracted.functionResponse.response;
-
-            // 确保content是字符串
-            let contentString: string;
-            if (typeof responseContent === 'string') {
-              contentString = responseContent;
-            } else if (
-              typeof responseContent === 'object' &&
-              responseContent !== null
-            ) {
-              // 如果是对象，检查是否有特定的格式
-              // 工具返回的结果可能是一个包含output、stdout、stderr等的对象
-              if (responseContent['output'] !== undefined) {
-                contentString = String(responseContent['output']);
-              } else if (responseContent['stdout'] !== undefined) {
-                contentString = String(responseContent['stdout']);
-              } else if (responseContent['result'] !== undefined) {
-                contentString = String(responseContent['result']);
-              } else {
-                // 其他对象转换为JSON字符串
-                contentString = JSON.stringify(responseContent, null, 2);
-              }
-            } else {
-              // 其他类型转换为字符串
-              contentString = String(responseContent);
-            }
-
-            messages.push({
-              role: 'tool',
-              content: contentString,
-              tool_call_id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            });
-          }
-        }
-
-        message.content = textContent || '';
-        if (toolCalls.length > 0) {
-          message.tool_calls = toolCalls;
-        }
-      }
-
-      messages.push(message);
-    } else if (Array.isArray(contents)) {
-      // 数组
-      for (const item of contents) {
-        if (typeof item === 'string') {
-          // 字符串
-          messages.push({
-            role: 'user',
-            content: item,
-          });
-        } else if (item && typeof item === 'object' && 'role' in item) {
-          // Content 类型
-          const contentItem = item as {
-            role: 'user' | 'model' | 'assistant' | 'tool';
-            parts: PartUnion[];
-          };
-          const message: OpenAIMessageWithTools = {
-            role: contentItem.role === 'model' ? 'assistant' : contentItem.role,
-            content: '',
-          };
-
-          if (contentItem.parts && Array.isArray(contentItem.parts)) {
-            let textContent = '';
-            const toolCalls: OpenAIToolCall[] = [];
-
-            for (const part of contentItem.parts) {
-              const extracted = extractFromPartUnion(part);
-
-              if (extracted.text) {
-                textContent += (textContent ? '\n' : '') + extracted.text;
-              }
-
-              if (extracted.functionCall) {
-                toolCalls.push({
-                  id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                  type: 'function',
-                  function: {
-                    name: extracted.functionCall.name,
-                    arguments: JSON.stringify(
-                      extracted.functionCall.args || {},
-                    ),
-                  },
-                });
-              }
-
-              if (extracted.functionResponse) {
-                // 函数响应作为工具消息
-                const responseContent = extracted.functionResponse.response;
-
-                // 确保content是字符串
-                let contentString: string;
-                if (typeof responseContent === 'string') {
-                  contentString = responseContent;
-                } else if (
-                  typeof responseContent === 'object' &&
-                  responseContent !== null
-                ) {
-                  // 如果是对象，检查是否有特定的格式
-                  // 工具返回的结果可能是一个包含output、stdout、stderr等的对象
-                  if (responseContent['output'] !== undefined) {
-                    contentString = String(responseContent['output']);
-                  } else if (responseContent['stdout'] !== undefined) {
-                    contentString = String(responseContent['stdout']);
-                  } else if (responseContent['result'] !== undefined) {
-                    contentString = String(responseContent['result']);
-                  } else {
-                    // 其他对象转换为JSON字符串
-                    contentString = JSON.stringify(responseContent, null, 2);
-                  }
-                } else {
-                  // 其他类型转换为字符串
-                  contentString = String(responseContent);
-                }
-
-                messages.push({
-                  role: 'tool',
-                  content: contentString,
-                  tool_call_id: `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                });
-              }
-            }
-
-            message.content = textContent || '';
-            if (toolCalls.length > 0) {
-              message.tool_calls = toolCalls;
-            }
-          }
-
-          messages.push(message);
-        }
-      }
-    }
-
-    return messages;
   }
 
   /**
@@ -515,7 +76,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     request: GenerateContentParameters,
     _userPromptId: string,
   ): Promise<GenerateContentResponse> {
-    const messages = this.convertToOpenAIMessagesWithTools(request.contents);
+    const messages = convertToOpenAIMessagesWithTools(request.contents);
 
     // 提取生成配置
     const generationConfig = request.config;
@@ -543,7 +104,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
     // 添加工具支持
     if (generationConfig?.tools) {
-      const openaiTools = this.convertToolsToOpenAI(generationConfig.tools);
+      const openaiTools = convertToolsToOpenAI(generationConfig.tools);
       console.log(
         'OpenAI tools converted:',
         JSON.stringify(openaiTools, null, 2),
@@ -560,13 +121,13 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     );
     console.log('Full request:', JSON.stringify(completionRequest, null, 2));
 
-    const response = await this.makeRequest<OpenAICompletionResponse>(
-      `${this.endpoint}/chat/completions`,
+    const response = await this.client.makeRequest<OpenAICompletionResponse>(
+      `${this.client.endpoint}/chat/completions`,
       completionRequest,
     );
 
     // 转换为Gemini格式的响应
-    return this.convertToGenerateContentResponse(response);
+    return convertToGenerateContentResponse(response);
   }
 
   /**
@@ -604,7 +165,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       'OpenAI generateContentStream called, using incremental streaming mode',
     );
 
-    const messages = this.convertToOpenAIMessagesWithTools(request.contents);
+    const messages = convertToOpenAIMessagesWithTools(request.contents);
     const generationConfig = request.config;
 
     const completionRequest: {
@@ -630,7 +191,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
     // 添加工具支持
     if (generationConfig?.tools) {
-      const openaiTools = this.convertToolsToOpenAI(generationConfig.tools);
+      const openaiTools = convertToolsToOpenAI(generationConfig.tools);
       console.log(
         'OpenAI tools converted for streaming:',
         JSON.stringify(openaiTools, null, 2),
@@ -647,8 +208,8 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     );
 
     // 调用真正的流式请求
-    const stream = await this.makeStreamRequestExperimental(
-      `${this.endpoint}/chat/completions`,
+    const stream = await this.client.makeStreamRequestExperimental(
+      `${this.client.endpoint}/chat/completions`,
       completionRequest,
     );
 
@@ -864,7 +425,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     request: CountTokensParameters,
   ): Promise<CountTokensResponse> {
     // OpenAI没有专门的token计数端点，这里进行估算
-    const contents = this.convertToOpenAIMessages(request.contents);
+    const contents = convertToOpenAIMessages(request.contents);
     const text = contents.map((msg) => msg.content).join('');
 
     // 粗略估算：英文约4个字符一个token
@@ -881,7 +442,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
   async embedContent(
     request: EmbedContentParameters,
   ): Promise<EmbedContentResponse> {
-    const contents = this.convertToOpenAIMessages(request.contents);
+    const contents = convertToOpenAIMessages(request.contents);
     const text = contents.map((msg) => msg.content).join('');
 
     const embeddingRequest: OpenAIEmbeddingRequest = {
@@ -889,8 +450,8 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       input: text,
     };
 
-    const response = await this.makeRequest<OpenAIEmbeddingResponse>(
-      `${this.endpoint}/embeddings`,
+    const response = await this.client.makeRequest<OpenAIEmbeddingResponse>(
+      `${this.client.endpoint}/embeddings`,
       embeddingRequest,
     );
 
@@ -901,249 +462,5 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     return {
       embeddings: [embedding],
     };
-  }
-
-  /**
-   * 发送HTTP请求
-   */
-  private async makeRequest<T>(url: string, body: unknown): Promise<T> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiKey}`,
-    };
-
-    if (this.organization) {
-      headers['OpenAI-Organization'] = this.organization;
-    }
-
-    if (this.project) {
-      headers['OpenAI-Project'] = this.project;
-    }
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `OpenAI API request failed: ${response.status} ${response.statusText} - ${errorText}`,
-      );
-    }
-
-    return response.json();
-  }
-
-  /**
-   * 发送流式HTTP请求（实验性）
-   * 用于真正的流式处理
-   */
-  private async makeStreamRequestExperimental(
-    url: string,
-    body: unknown,
-  ): Promise<AsyncIterable<OpenAIStreamChunk>> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiKey}`,
-    };
-
-    if (this.organization) {
-      headers['OpenAI-Organization'] = this.organization;
-    }
-
-    if (this.project) {
-      headers['OpenAI-Project'] = this.project;
-    }
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `OpenAI API stream request failed: ${response.status} ${response.statusText} - ${errorText}`,
-      );
-    }
-
-    if (!response.body) {
-      throw new Error('Response body is null');
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    async function* generate(): AsyncGenerator<OpenAIStreamChunk> {
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            console.log('Stream reading done');
-            break;
-          }
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n').filter((line) => line.trim());
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') {
-                console.log('Stream finished with [DONE]');
-                return;
-              }
-              try {
-                const parsed = JSON.parse(data);
-                yield parsed;
-              } catch (e) {
-                console.error(
-                  'Failed to parse stream chunk:',
-                  e,
-                  'Data:',
-                  data,
-                );
-              }
-            }
-          }
-        }
-      } finally {
-        console.log('Releasing stream reader lock');
-        reader.releaseLock();
-      }
-    }
-
-    return generate();
-  }
-
-  /**
-   * 将OpenAI响应转换为GenerateContentResponse
-   */
-  private convertToGenerateContentResponse(
-    response: OpenAICompletionResponse,
-  ): GenerateContentResponse {
-    console.log(
-      'OpenAI API Response received:',
-      JSON.stringify(response, null, 2),
-    );
-
-    // 检查响应结构
-    if (
-      !response.choices ||
-      !Array.isArray(response.choices) ||
-      response.choices.length === 0
-    ) {
-      console.error(
-        'Invalid OpenAI response structure - choices is empty or undefined:',
-        response,
-      );
-      // 返回一个空的响应
-      const candidate = {
-        content: {
-          role: 'model',
-          parts: [{ text: 'Error: Invalid response from OpenAI API' }],
-        },
-        finishReason: FinishReason.STOP,
-        index: 0,
-        safetyRatings: [],
-        citationMetadata: undefined,
-        groundingMetadata: undefined,
-        finishMessage: undefined,
-      } as Candidate;
-
-      const generateContentResponse = new GenerateContentResponse();
-      generateContentResponse.candidates = [candidate];
-      generateContentResponse.modelVersion = response.model || 'unknown';
-      return generateContentResponse;
-    }
-
-    const candidate = {
-      content: {
-        role: 'model',
-        parts: [],
-      },
-      finishReason:
-        (response.choices[0]?.finish_reason as FinishReason) ||
-        FinishReason.STOP,
-      index: 0,
-      safetyRatings: [],
-      citationMetadata: undefined,
-      groundingMetadata: undefined,
-      finishMessage: undefined,
-    } as Candidate;
-
-    const message = response.choices[0]?.message;
-
-    // 处理文本内容
-    if (message?.content) {
-      let textContent = '';
-
-      if (typeof message.content === 'string') {
-        textContent = message.content;
-      } else if (Array.isArray(message.content)) {
-        // 如果是数组，提取文本内容
-        textContent = message.content
-          .filter((item) => item.type === 'text')
-          .map((item) => item.text)
-          .join('');
-      }
-
-      if (textContent) {
-        candidate.content!.parts!.push({
-          text: textContent,
-        });
-      }
-    }
-
-    // 处理工具调用
-    if (message?.tool_calls && Array.isArray(message.tool_calls)) {
-      for (const toolCall of message.tool_calls) {
-        if (toolCall.type === 'function') {
-          try {
-            const args = JSON.parse(toolCall.function.arguments || '{}');
-            candidate.content!.parts!.push({
-              functionCall: {
-                name: toolCall.function.name,
-                args,
-              },
-            });
-          } catch (error) {
-            console.error('Failed to parse tool call arguments:', error);
-            candidate.content!.parts!.push({
-              functionCall: {
-                name: toolCall.function.name,
-                args: {},
-              },
-            });
-          }
-        }
-      }
-    }
-
-    // 如果没有parts，添加一个空的文本part
-    if (candidate.content!.parts!.length === 0) {
-      candidate.content!.parts!.push({
-        text: '',
-      });
-    }
-
-    const generateContentResponse = new GenerateContentResponse();
-    generateContentResponse.candidates = [candidate];
-    generateContentResponse.modelVersion =
-      response.model || this.model || 'unknown';
-
-    // 设置 usageMetadata 如果存在
-    if (response.usage) {
-      generateContentResponse.usageMetadata = {
-        promptTokenCount: response.usage.prompt_tokens || 0,
-        candidatesTokenCount: response.usage.completion_tokens || 0,
-        totalTokenCount: response.usage.total_tokens || 0,
-      };
-    }
-
-    return generateContentResponse;
   }
 }
