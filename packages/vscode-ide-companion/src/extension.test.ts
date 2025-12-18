@@ -131,17 +131,17 @@ describe('activate', () => {
     expect(vscode.workspace.onDidGrantWorkspaceTrust).toHaveBeenCalled();
   });
 
-  it('should launch the Gemini CLI when the user clicks the button', async () => {
+  it('should launch the Hanfeng CLI when the user clicks the button', async () => {
     const showInformationMessageMock = vi
       .mocked(vscode.window.showInformationMessage)
-      .mockResolvedValue('Re-launch Gemini CLI' as never);
+      .mockResolvedValue('Re-launch Hanfeng CLI' as never);
     vi.mocked(context.globalState.get).mockReturnValue(undefined);
     vi.mocked(vscode.extensions.getExtension).mockReturnValue({
       packageJSON: { version: '1.1.0' },
     } as vscode.Extension<unknown>);
     await activate(context);
     expect(showInformationMessageMock).toHaveBeenCalledWith(
-      'Gemini CLI Companion extension successfully installed.',
+      'Hanfeng CLI Companion extension successfully installed.',
     );
   });
 

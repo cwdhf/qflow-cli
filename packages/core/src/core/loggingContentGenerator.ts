@@ -314,9 +314,11 @@ export class LoggingContentGenerator implements ContentGenerator {
       this._logApiResponse(
         requestContents,
         durationMs,
-        responses[0]?.modelVersion || req.model,
+        responses.length > 0
+          ? responses[0]?.modelVersion || req.model
+          : req.model,
         userPromptId,
-        responses[0]?.responseId,
+        responses.length > 0 ? responses[0]?.responseId : undefined,
         responses.flatMap((response) => response.candidates || []),
         lastUsageMetadata,
         JSON.stringify(responses),
@@ -336,7 +338,9 @@ export class LoggingContentGenerator implements ContentGenerator {
       this._logApiError(
         durationMs,
         error,
-        responses[0]?.modelVersion || req.model,
+        responses.length > 0
+          ? responses[0]?.modelVersion || req.model
+          : req.model,
         userPromptId,
         requestContents,
         req.config,

@@ -657,7 +657,7 @@ const SETTINGS_SCHEMA = {
         category: 'Model',
         requiresRestart: false,
         default: undefined as string | undefined,
-        description: 'The Gemini model to use for conversations.',
+        description: 'The Hanfeng model to use for conversations.',
         showInDialog: false,
       },
       maxSessionTurns: {

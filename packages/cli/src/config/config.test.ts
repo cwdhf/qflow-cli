@@ -1272,7 +1272,7 @@ describe('loadCliConfig model selection', () => {
     expect(config.getModel()).toBe('gemini-2.5-pro');
   });
 
-  it('uses the default gemini model if nothing is set', async () => {
+  it('uses the default Hanfeng model if nothing is set', async () => {
     process.argv = ['node', 'script.js']; // No model set.
     const argv = await parseArguments({} as Settings);
     const config = await loadCliConfig(

@@ -231,7 +231,8 @@ export function useAtCompletion(props: UseAtCompletionProps): void {
         if (state.pattern !== null) {
           dispatch({ type: 'SEARCH', payload: state.pattern });
         }
-      } catch (_) {
+      } catch (error) {
+        console.error('File search initialization failed:', error);
         dispatch({ type: 'ERROR' });
       }
     };
@@ -253,10 +254,26 @@ export function useAtCompletion(props: UseAtCompletionProps): void {
       }, 200);
 
       try {
-        const results = await fileSearch.current.search(state.pattern, {
+        // 添加10秒超时防止搜索挂起
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('File search timeout after 10 seconds'));
+            controller.abort();
+          }, 10000);
+          // 清理超时，防止内存泄漏
+          const cleanup = () => {
+            clearTimeout(timeoutId);
+            controller.signal.removeEventListener('abort', cleanup);
+          };
+          controller.signal.addEventListener('abort', cleanup);
+        });
+
+        const searchPromise = fileSearch.current.search(state.pattern, {
           signal: controller.signal,
           maxResults: MAX_SUGGESTIONS_TO_SHOW * 3,
         });
+
+        const results = await Promise.race([searchPromise, timeoutPromise]);
 
         if (slowSearchTimer.current) {
           clearTimeout(slowSearchTimer.current);
@@ -290,6 +307,7 @@ export function useAtCompletion(props: UseAtCompletionProps): void {
         dispatch({ type: 'SEARCH_SUCCESS', payload: combinedSuggestions });
       } catch (error) {
         if (!(error instanceof Error && error.name === 'AbortError')) {
+          console.error('File search failed:', error);
           dispatch({ type: 'ERROR' });
         }
       }

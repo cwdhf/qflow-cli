@@ -832,6 +832,12 @@ export class Config {
       this.model = newModel;
       // When the user explicitly sets a model, that becomes the active model.
       this._activeModel = newModel;
+
+      // If using OpenAI, also update the environment variable
+      if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
+        process.env['OPENAI_MODEL'] = newModel;
+      }
+
       coreEvents.emitModelChanged(newModel);
     }
     this.setFallbackMode(false);
@@ -849,6 +855,12 @@ export class Config {
   setActiveModel(model: string): void {
     if (this._activeModel !== model) {
       this._activeModel = model;
+
+      // If using OpenAI, also update the environment variable
+      if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
+        process.env['OPENAI_MODEL'] = model;
+      }
+
       coreEvents.emitModelChanged(model);
     }
   }

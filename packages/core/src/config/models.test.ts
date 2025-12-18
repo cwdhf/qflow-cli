@@ -125,7 +125,7 @@ describe('getEffectiveModel', () => {
         expect(model).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
       });
 
-      it('should return the default gemini model when the model is explicitly set and preview is on', () => {
+      it('should return the default Hanfeng model when the model is explicitly set and preview is on', () => {
         const model = getEffectiveModel(
           isInFallbackMode,
           DEFAULT_GEMINI_MODEL,
@@ -206,7 +206,7 @@ describe('getEffectiveModel', () => {
         expect(model).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
       });
 
-      it('should downgrade the default Gemini model to the Flash model', () => {
+      it('should downgrade the default Hanfeng model to the Flash model', () => {
         const model = getEffectiveModel(
           isInFallbackMode,
           DEFAULT_GEMINI_MODEL,

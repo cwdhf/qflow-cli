@@ -2,7 +2,7 @@
 
 The Gemini CLI core (`packages/core`) features a robust system for defining,
 registering, and executing tools. These tools extend the capabilities of the
-Gemini model, allowing it to interact with the local environment, fetch web
+Hanfeng model, allowing it to interact with the local environment, fetch web
 content, and perform various actions beyond simple text generation.
 
 ## Core concepts
@@ -12,9 +12,9 @@ content, and perform various actions beyond simple text generation.
   - `name`: A unique internal name (used in API calls to Gemini).
   - `displayName`: A user-friendly name.
   - `description`: A clear explanation of what the tool does, which is provided
-    to the Gemini model.
+    to the Hanfeng model.
   - `parameterSchema`: A JSON schema defining the parameters that the tool
-    accepts. This is crucial for the Gemini model to understand how to call the
+    accepts. This is crucial for the Hanfeng model to understand how to call the
     tool correctly.
   - `validateToolParams()`: A method to validate incoming parameters.
   - `getDescription()`: A method to provide a human-readable description of what
@@ -50,7 +50,7 @@ content, and perform various actions beyond simple text generation.
       registry can connect to a Model Context Protocol (MCP) server to list and
       register tools (`DiscoveredMCPTool`).
   - **Providing schemas:** Exposing the `FunctionDeclaration` schemas of all
-    registered tools to the Gemini model, so it knows what tools are available
+    registered tools to the Hanfeng model, so it knows what tools are available
     and how to use them.
   - **Retrieving tools:** Allowing the core to get a specific tool by name for
     execution.
@@ -84,7 +84,7 @@ its specific functionality.
 
 ## Tool execution flow
 
-1.  **Model request:** The Gemini model, based on the user's prompt and the
+1.  **Model request:** The Hanfeng model, based on the user's prompt and the
     provided tool schemas, decides to use a tool and returns a `FunctionCall`
     part in its response, specifying the tool name and arguments.
 2.  **Core receives request:** The core parses this `FunctionCall`.
@@ -102,7 +102,7 @@ its specific functionality.
 7.  **Result processing:** The `ToolResult` from `execute()` is received by the
     core.
 8.  **Response to model:** The `llmContent` from the `ToolResult` is packaged as
-    a `FunctionResponse` and sent back to the Gemini model so it can continue
+    a `FunctionResponse` and sent back to the Hanfeng model so it can continue
     generating a user-facing response.
 9.  **Display to user:** The `returnDisplay` from the `ToolResult` is sent to
     the CLI to show the user what the tool did.

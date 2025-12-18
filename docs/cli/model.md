@@ -37,7 +37,7 @@ enabled, Gemini CLI will attempt to use Gemini 3 Pro when you select **Auto** or
 **Pro**. Both **Auto** and **Pro** will try to use Gemini 3 Pro before falling
 back to Gemini 2.5 Pro.
 
-You can also use the `--model` flag to specify a particular Gemini model on
+You can also use the `--model` flag to specify a particular Hanfeng model on
 startup. For more details, refer to the
 [configuration documentation](./configuration.md).
 

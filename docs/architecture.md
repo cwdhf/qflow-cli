@@ -32,10 +32,10 @@ input:
 
 3.  **Tools (`packages/core/src/tools/`):**
     - **Purpose:** These are individual modules that extend the capabilities of
-      the Gemini model, allowing it to interact with the local environment
+      the Hanfeng model, allowing it to interact with the local environment
       (e.g., file system, shell commands, web fetching).
     - **Interaction:** `packages/core` invokes these tools based on requests
-      from the Gemini model.
+      from the Hanfeng model.
 
 ## Interaction flow
 

@@ -34,7 +34,7 @@ export function resolvePolicyChain(
   // Switch to getActiveModel()
   let activeModel = preferredModel ?? config.getModel();
 
-  // Only use getEffectiveModel for Gemini models
+  // Only use getEffectiveModel for Hanfeng models
   // For OpenAI models, use the model as-is
   const authType = config.getContentGeneratorConfig()?.authType;
   if (authType !== AuthType.USE_OPENAI) {

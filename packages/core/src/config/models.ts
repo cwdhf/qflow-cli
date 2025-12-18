@@ -26,13 +26,13 @@ export const GEMINI_MODEL_ALIAS_FLASH_LITE = 'flash-lite';
 export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 
 // OpenAI model constants
-export const DEFAULT_OPENAI_MODEL = 'qwen3-max-preview';
-export const DEFAULT_OPENAI_EMBEDDING_MODEL = 'text-embedding-v4';
+export const DEFAULT_OPENAI_MODEL = 'doubao-seed-1-8-251215"';
+export const DEFAULT_OPENAI_EMBEDDING_MODEL = 'doubao-embedding-vision-250615';
 
 // Common OpenAI models
-export const DEEEPSEEK_V32 = 'deepseek-v3.2';
-export const QWEN3_MAX_PREVIEW = 'qwen3-max-preview';
-export const GLM_46 = 'glm-4.6';
+export const DEEEPSEEK_V32 = 'deepseek-v3-2-251201';
+export const DOUBAO_SEED_18 = 'doubao-seed-1-8-251215"';
+export const KIMI_K2 = 'kimi-k2-thinking-251104';
 // OpenAI model aliases for user convenience
 export const OPENAI_MODEL_ALIAS_STANDARD = 'standard';
 export const OPENAI_MODEL_ALIAS_TURBO = 'turbo';
@@ -41,9 +41,9 @@ export const OPENAI_MODEL_ALIAS_MULTIMODAL = 'multimodal';
 
 // Valid OpenAI models
 export const VALID_OPENAI_MODELS = new Set([
-  QWEN3_MAX_PREVIEW,
+  DOUBAO_SEED_18,
   DEEEPSEEK_V32,
-  GLM_46,
+  KIMI_K2,
 ]);
 
 // Cap the thinking at 8192 to prevent run-away thinking loops.
@@ -149,9 +149,9 @@ export function resolveOpenAIModel(requestedModel: string): string {
     case OPENAI_MODEL_ALIAS_TURBO:
       return DEEEPSEEK_V32;
     case OPENAI_MODEL_ALIAS_PRO:
-      return QWEN3_MAX_PREVIEW;
+      return DOUBAO_SEED_18;
     case OPENAI_MODEL_ALIAS_MULTIMODAL:
-      return GLM_46;
+      return KIMI_K2;
     default:
       // Check if it's a valid OpenAI model
       if (VALID_OPENAI_MODELS.has(requestedModel)) {

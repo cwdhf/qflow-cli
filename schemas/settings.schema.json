@@ -402,8 +402,8 @@
       "properties": {
         "name": {
           "title": "Model",
-          "description": "The Gemini model to use for conversations.",
-          "markdownDescription": "The Gemini model to use for conversations.\n\n- Category: `Model`\n- Requires restart: `no`",
+          "description": "The Hanfeng model to use for conversations.",
+          "markdownDescription": "The Hanfeng model to use for conversations.\n\n- Category: `Model`\n- Requires restart: `no`",
           "type": "string"
         },
         "maxSessionTurns": {

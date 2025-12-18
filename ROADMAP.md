@@ -31,7 +31,7 @@ roadmap based on community discussions as well as when our priorities evolve.
 
 Our development is guided by the following principles:
 
-- **Power & Simplicity:** Deliver access to state-of-the-art Gemini models with
+- **Power & Simplicity:** Deliver access to state-of-the-art Hanfeng models with
   an intuitive and easy-to-use lightweight command-line interface.
 - **Extensibility:** An adaptable agent to help you with a variety of use cases
   and environments along with the ability to run these agents anywhere.
@@ -69,7 +69,7 @@ initiatives that interest you.
 
 - **Authentication:** Secure user access via API keys, Gemini Code Assist login,
   etc.
-- **Model:** Support new Gemini models, multi-modality, local execution, and
+- **Model:** Support new Hanfeng models, multi-modality, local execution, and
   performance tuning.
 - **User Experience:** Improve the CLI's usability, performance, interactive
   features, and documentation.

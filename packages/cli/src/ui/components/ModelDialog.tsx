@@ -18,8 +18,8 @@ import {
   GEMINI_MODEL_ALIAS_PRO,
   DEFAULT_OPENAI_MODEL,
   DEEEPSEEK_V32,
-  QWEN3_MAX_PREVIEW,
-  GLM_46,
+  DOUBAO_SEED_18,
+  KIMI_K2,
   ModelSlashCommandEvent,
   logModelSlashCommand,
   AuthType,
@@ -61,24 +61,24 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
       // OpenAI model options
       const openaiModels = [
         {
-          value: QWEN3_MAX_PREVIEW,
-          title: 'qwen3-max_preview',
-          description:
-            '通义千问3系列Max模型，本次发布的正式版模型达到领域SOTA水平，适配场景更加复杂的智能体需求。',
-          key: QWEN3_MAX_PREVIEW,
+          value: DOUBAO_SEED_18,
+          title: 'doubao-seed-v1.8',
+          description: '豆包1.8·深度思考模型',
+          key: DOUBAO_SEED_18,
         },
         {
           value: DEEEPSEEK_V32,
-          title: 'deeepseek-v3.2',
+          title: 'deepseek-v3.2',
           description:
-            'DeepSeek-V3.2是引入DeepSeek Sparse Attention（一种稀疏注意力机制）的正式版模型，也是DeepSeek推出的首个将思考融入工具使用的模型，同时支持思考模式与非思考模式的工具调用。',
+            'DSA稀疏注意力机制 | 可扩展的强化学习框架 | 思考融入工具调用',
           key: DEEEPSEEK_V32,
         },
         {
-          value: GLM_46,
-          title: 'glm 4.6',
-          description: 'GLM是由智谱提供的开源模型',
-          key: GLM_46,
+          value: KIMI_K2,
+          title: 'kimi-k2-thinking',
+          description:
+            'Kimi-K2 是一款Moonshot AI推出的具备超强代码和 Agent 能力的 MoE 架构基础模型，总参数 1T，激活参数 32B',
+          key: KIMI_K2,
         },
       ];
 
@@ -95,7 +95,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
       return openaiModels;
     } else {
-      // Gemini model options
+      // Hanfeng model options
       return [
         {
           value: DEFAULT_GEMINI_MODEL_AUTO,
@@ -145,14 +145,14 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     async (model: string) => {
       if (config) {
         if (isUsingOpenAI) {
-          // For OpenAI, we need to update the environment variable
-          // and refresh authentication to use the new model
+          // For OpenAI, we need to update the config and refresh authentication
           try {
-            // Update environment variable (this will affect future API calls)
-            process.env['OPENAI_MODEL'] = model;
-
             // Log the model change
             console.log(`Switching to OpenAI model: ${model}`);
+
+            // Update the config to trigger UI updates and set environment variable
+            // This ensures the footer displays the correct model
+            config.setModel(model);
 
             // Refresh authentication to apply the new model
             // This will recreate the content generator with the new model
@@ -219,7 +219,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
         <Text color={theme.text.secondary}>
           {isUsingOpenAI
             ? 'To use a specific OpenAI model on startup, set the OPENAI_MODEL environment variable.'
-            : 'To use a specific Gemini model on startup, use the --model flag.'}
+            : 'To use a specific Hanfeng model on startup, use the --model flag.'}
         </Text>
       </Box>
       <Box marginTop={1} flexDirection="column">
