@@ -24,6 +24,7 @@ import {
   ModelSlashCommandEvent,
   logModelSlashCommand,
   AuthType,
+  isOpenAIModel,
 } from '@google/gemini-cli-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { theme } from '../semantic-colors.js';
@@ -90,7 +91,11 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
       // Add custom model from environment if specified
       const customModel = process.env['OPENAI_MODEL'];
-      if (customModel && !openaiModels.some((m) => m.value === customModel)) {
+      if (
+        customModel &&
+        isOpenAIModel(customModel) &&
+        !openaiModels.some((m) => m.value === customModel)
+      ) {
         openaiModels.unshift({
           value: customModel,
           title: `Custom (${customModel})`,
@@ -139,7 +144,11 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     if (isUsingOpenAI) {
       // For OpenAI, get the current model from environment or default
       const currentModel = process.env['OPENAI_MODEL'] || DEFAULT_OPENAI_MODEL;
-      return options.findIndex((option) => option.value === currentModel);
+      // Check if current model is a valid OpenAI model, if not use default
+      const validCurrentModel = isOpenAIModel(currentModel)
+        ? currentModel
+        : DEFAULT_OPENAI_MODEL;
+      return options.findIndex((option) => option.value === validCurrentModel);
     } else {
       // For Gemini, use the existing logic
       return options.findIndex((option) => option.value === preferredModel);
