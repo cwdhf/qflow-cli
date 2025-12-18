@@ -155,12 +155,10 @@ export async function createContentGenerator(
     } else {
       // For Gemini/Google auth, use the effective model logic
       model = getEffectiveModel(
-        gcConfig.isInFallbackMode(),
         gcConfig.getModel(),
         gcConfig.getPreviewFeatures(),
       );
     }
-
     const customHeadersEnv =
       process.env['GEMINI_CLI_CUSTOM_HEADERS'] || undefined;
     const userAgent = `GeminiCLI/${version}/${model} (${process.platform}; ${process.arch})`;

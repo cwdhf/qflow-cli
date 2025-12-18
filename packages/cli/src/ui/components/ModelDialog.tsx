@@ -5,10 +5,11 @@
  */
 
 import type React from 'react';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { Box, Text } from 'ink';
 import {
   PREVIEW_GEMINI_MODEL,
+  // PREVIEW_GEMINI_FLASH_MODEL,
   DEFAULT_GEMINI_MODEL,
   DEFAULT_GEMINI_FLASH_MODEL,
   DEFAULT_GEMINI_FLASH_LITE_MODEL,
@@ -36,6 +37,7 @@ interface ModelDialogProps {
 
 export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   const config = useContext(ConfigContext);
+  const [view, setView] = useState<'main' | 'manual'>('main');
 
   // Determine the Preferred Model (read once when the dialog opens).
   const preferredModel = config?.getModel() || DEFAULT_GEMINI_MODEL_AUTO;
@@ -43,7 +45,11 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   useKeypress(
     (key) => {
       if (key.name === 'escape') {
-        onClose();
+        if (view === 'manual') {
+          setView('main');
+        } else {
+          onClose();
+        }
       }
     },
     { isActive: true },
@@ -200,11 +206,15 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
     >
       <Text bold>Select Model</Text>
 
-      <Box marginTop={1} marginBottom={1} flexDirection="column">
-        <ThemedGradient>
-          <Text>{header}</Text>
-        </ThemedGradient>
-        <Text>{subheader}</Text>
+      <Box flexDirection="column">
+        {header && (
+          <Box marginTop={1}>
+            <ThemedGradient>
+              <Text>{header}</Text>
+            </ThemedGradient>
+          </Box>
+        )}
+        {subheader && <Text>{subheader}</Text>}
       </Box>
 
       <Box marginTop={1}>

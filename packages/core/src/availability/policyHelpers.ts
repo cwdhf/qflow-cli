@@ -13,8 +13,18 @@ import type {
   ModelPolicyChain,
   RetryAvailabilityContext,
 } from './modelPolicy.js';
-import { createDefaultPolicy, getModelPolicyChain } from './policyCatalog.js';
-import { DEFAULT_GEMINI_MODEL, getEffectiveModel } from '../config/models.js';
+import {
+  createDefaultPolicy,
+  createSingleModelChain,
+  getModelPolicyChain,
+} from './policyCatalog.js';
+import {
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_MODEL_AUTO,
+  PREVIEW_GEMINI_MODEL_AUTO,
+  getEffectiveModel,
+} from '../config/models.js';
+import type { ModelConfigKey } from '../services/modelConfigService.js';
 import type { ModelSelectionResult } from './modelAvailabilityService.js';
 import { AuthType } from '../core/contentGenerator.js';
 
@@ -25,11 +35,8 @@ import { AuthType } from '../core/contentGenerator.js';
 export function resolvePolicyChain(
   config: Config,
   preferredModel?: string,
+  wrapsAround: boolean = false,
 ): ModelPolicyChain {
-  const chain = getModelPolicyChain({
-    previewEnabled: !!config.getPreviewFeatures(),
-    userTier: config.getUserTier(),
-  });
   // TODO: This will be replaced when we get rid of Fallback Modes.
   // Switch to getActiveModel()
   let activeModel = preferredModel ?? config.getModel();
@@ -38,19 +45,30 @@ export function resolvePolicyChain(
   // For OpenAI models, use the model as-is
   const authType = config.getContentGeneratorConfig()?.authType;
   if (authType !== AuthType.USE_OPENAI) {
-    activeModel = getEffectiveModel(
-      config.isInFallbackMode(),
-      activeModel,
-      config.getPreviewFeatures(),
-    );
+    activeModel = getEffectiveModel(activeModel, config.getPreviewFeatures());
   }
 
-  if (activeModel === 'auto') {
-    return [...chain];
+  let chain;
+
+  if (
+    config.getModel() === PREVIEW_GEMINI_MODEL_AUTO ||
+    config.getModel() === DEFAULT_GEMINI_MODEL_AUTO
+  ) {
+    chain = getModelPolicyChain({
+      previewEnabled: config.getModel() === PREVIEW_GEMINI_MODEL_AUTO,
+      userTier: config.getUserTier(),
+    });
+  } else {
+    chain = createSingleModelChain(config.getModel());
   }
 
-  if (chain.some((policy) => policy.model === activeModel)) {
-    return [...chain];
+  // const resolvedActiveModel = resolveModel(config.getModel());
+
+  const activeIndex = chain.findIndex((policy) => policy.model === activeModel);
+  if (activeIndex !== -1) {
+    return wrapsAround
+      ? [...chain.slice(activeIndex), ...chain.slice(0, activeIndex)]
+      : [...chain.slice(activeIndex)];
   }
 
   // If the user specified a model not in the default chain, we assume they want
@@ -61,10 +79,14 @@ export function resolvePolicyChain(
 /**
  * Produces the failed policy (if it exists in the chain) and the list of
  * fallback candidates that follow it.
+ * @param chain - The ordered list of available model policies.
+ * @param failedModel - The identifier of the model that failed.
+ * @param wrapsAround - If true, treats the chain as a circular buffer.
  */
 export function buildFallbackPolicyContext(
   chain: ModelPolicyChain,
   failedModel: string,
+  wrapsAround: boolean = false,
 ): {
   failedPolicy?: ModelPolicy;
   candidates: ModelPolicy[];
@@ -75,9 +97,12 @@ export function buildFallbackPolicyContext(
   }
   // Return [candidates_after, candidates_before] to prioritize downgrades
   // (continuing the chain) before wrapping around to upgrades.
+  const candidates = wrapsAround
+    ? [...chain.slice(index + 1), ...chain.slice(0, index)]
+    : [...chain.slice(index + 1)];
   return {
     failedPolicy: chain[index],
-    candidates: [...chain.slice(index + 1), ...chain.slice(0, index)],
+    candidates,
   };
 }
 
@@ -100,9 +125,6 @@ export function createAvailabilityContextProvider(
   modelGetter: () => string,
 ): () => RetryAvailabilityContext | undefined {
   return () => {
-    if (!config.isModelAvailabilityServiceEnabled()) {
-      return undefined;
-    }
     const service = config.getModelAvailabilityService();
     const currentModel = modelGetter();
 
@@ -121,11 +143,7 @@ export function createAvailabilityContextProvider(
 export function selectModelForAvailability(
   config: Config,
   requestedModel: string,
-): ModelSelectionResult | undefined {
-  if (!config.isModelAvailabilityServiceEnabled()) {
-    return undefined;
-  }
-
+): ModelSelectionResult {
   const chain = resolvePolicyChain(config, requestedModel);
   const selection = config
     .getModelAvailabilityService()
@@ -145,31 +163,26 @@ export function selectModelForAvailability(
  */
 export function applyModelSelection(
   config: Config,
-  requestedModel: string,
-  currentConfig?: GenerateContentConfig,
-  overrideScope?: string,
+  modelConfigKey: ModelConfigKey,
   options: { consumeAttempt?: boolean } = {},
-): { model: string; config?: GenerateContentConfig; maxAttempts?: number } {
-  const selection = selectModelForAvailability(config, requestedModel);
+): { model: string; config: GenerateContentConfig; maxAttempts?: number } {
+  const resolved = config.modelConfigService.getResolvedConfig(modelConfigKey);
+  const model = resolved.model;
+  const selection = selectModelForAvailability(config, model);
 
-  if (!selection?.selectedModel) {
-    return { model: requestedModel, config: currentConfig };
+  if (!selection) {
+    return { model, config: resolved.generateContentConfig };
   }
 
-  const finalModel = selection.selectedModel;
-  let finalConfig = currentConfig;
+  const finalModel = selection.selectedModel ?? model;
+  let generateContentConfig = resolved.generateContentConfig;
 
-  // If model changed, re-resolve config
-  if (finalModel !== requestedModel) {
-    const { generateContentConfig } =
-      config.modelConfigService.getResolvedConfig({
-        overrideScope,
-        model: finalModel,
-      });
-
-    finalConfig = currentConfig
-      ? { ...currentConfig, ...generateContentConfig }
-      : generateContentConfig;
+  if (finalModel !== model) {
+    const fallbackResolved = config.modelConfigService.getResolvedConfig({
+      ...modelConfigKey,
+      model: finalModel,
+    });
+    generateContentConfig = fallbackResolved.generateContentConfig;
   }
 
   config.setActiveModel(finalModel);
@@ -180,7 +193,7 @@ export function applyModelSelection(
 
   return {
     model: finalModel,
-    config: finalConfig,
+    config: generateContentConfig,
     maxAttempts: selection.attempts,
   };
 }
