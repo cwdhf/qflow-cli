@@ -119,6 +119,7 @@
     "yargs": "^17.7.2"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "ink": "npm:@jrichman/ink@6.4.6",
     "latest-version": "^9.0.0",
     "simple-git": "^3.28.0"
