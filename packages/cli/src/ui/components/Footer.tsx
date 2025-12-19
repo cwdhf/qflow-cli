@@ -11,6 +11,7 @@ import {
   shortenPath,
   tildeifyPath,
   getDisplayString,
+  AuthType,
 } from '@google/gemini-cli-core';
 import { ConsoleSummaryDisplay } from './ConsoleSummaryDisplay.js';
 import process from 'node:process';
@@ -30,6 +31,20 @@ export const Footer: React.FC = () => {
   const settings = useSettings();
   const { vimEnabled, vimMode } = useVimMode();
 
+  // Get the correct model based on authentication type
+  const getCorrectModel = () => {
+    try {
+      const generatorConfig = config.getContentGeneratorConfig();
+      if (generatorConfig.authType === AuthType.USE_OPENAI) {
+        return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+      }
+    } catch (error) {
+      // Fallback to uiState model if config is not initialized
+      console.warn('Failed to get content generator config:', error);
+    }
+    return uiState.currentModel;
+  };
+
   const {
     model,
     targetDir,
@@ -44,7 +59,7 @@ export const Footer: React.FC = () => {
     isTrustedFolder,
     mainAreaWidth,
   } = {
-    model: uiState.currentModel,
+    model: getCorrectModel(),
     targetDir: config.getTargetDir(),
     debugMode: config.getDebugMode(),
     branchName: uiState.branchName,
@@ -57,6 +72,8 @@ export const Footer: React.FC = () => {
     isTrustedFolder: uiState.isTrustedFolder,
     mainAreaWidth: uiState.mainAreaWidth,
   };
+
+  const silentMode = config.getSilentMode();
 
   const showMemoryUsage =
     config.getDebugMode() || settings.merged.ui?.showMemoryUsage || false;
@@ -165,6 +182,14 @@ export const Footer: React.FC = () => {
             {showMemoryUsage && <MemoryUsageDisplay />}
           </Box>
           <Box alignItems="center">
+            {silentMode && (
+              <Box paddingLeft={1} flexDirection="row">
+                <Text>
+                  <Text color={theme.ui.symbol}>| </Text>
+                  <Text color={theme.status.warning}>silent</Text>
+                </Text>
+              </Box>
+            )}
             {corgiMode && (
               <Box paddingLeft={1} flexDirection="row">
                 <Text>

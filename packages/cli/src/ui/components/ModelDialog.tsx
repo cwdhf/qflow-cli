@@ -60,7 +60,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   const isUsingOpenAI = useMemo(() => {
     const generatorConfig = config?.getContentGeneratorConfig?.();
     const authType = generatorConfig?.authType;
-    return authType === AuthType.USE_OPENAI || process.env['OPENAI_API_KEY'];
+    return authType === AuthType.USE_OPENAI || !!process.env['OPENAI_API_KEY'];
   }, [config]);
 
   const options = useMemo(() => {

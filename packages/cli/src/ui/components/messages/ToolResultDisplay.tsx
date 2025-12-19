@@ -14,6 +14,7 @@ import { theme } from '../../semantic-colors.js';
 import type { AnsiOutput } from '@google/gemini-cli-core';
 import { useUIState } from '../../contexts/UIStateContext.js';
 import { useAlternateBuffer } from '../../hooks/useAlternateBuffer.js';
+import { useConfig } from '../../contexts/ConfigContext.js';
 
 const STATIC_HEIGHT = 1;
 const RESERVED_LINE_COUNT = 5; // for tool name, status, padding etc.
@@ -43,6 +44,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
 }) => {
   const { renderMarkdown } = useUIState();
   const isAlternateBuffer = useAlternateBuffer();
+  const config = useConfig();
 
   const availableHeight = availableTerminalHeight
     ? Math.max(
@@ -109,6 +111,7 @@ export const ToolResultDisplay: React.FC<ToolResultDisplayProps> = ({
             filename={(truncatedResultDisplay as FileDiffResult).fileName}
             availableTerminalHeight={availableHeight}
             terminalWidth={childWidth}
+            silentMode={config?.getSilentMode()}
           />
         ) : typeof truncatedResultDisplay === 'object' &&
           'todos' in truncatedResultDisplay ? (

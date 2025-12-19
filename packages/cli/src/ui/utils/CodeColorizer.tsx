@@ -28,23 +28,29 @@ import { isAlternateBufferEnabled } from '../hooks/useAlternateBuffer.js';
 const lowlight = createLowlight(common);
 
 function renderHastNode(
-  node: Root | Element | HastText | RootContent,
+  node: Root | Element | HastText | ElementContent | RootContent,
   theme: Theme,
   inheritedColor: string | undefined,
+  depth: number = 0,
 ): React.ReactNode {
+  // Prevent infinite recursion by limiting depth
+  if (depth > 40000) {
+    console.error('renderHastNode: Maximum depth reached');
+    return null;
+  }
+
+  // Type guard for text nodes
   if (node.type === 'text') {
-    // Use the color passed down from parent element, or the theme's default.
     const color = inheritedColor || theme.defaultColor;
     return <Text color={color}>{node.value}</Text>;
   }
 
-  // Handle Element Nodes: Determine color and pass it down, don't wrap
+  // Type guard for element nodes
   if (node.type === 'element') {
     const nodeClasses: string[] =
       (node.properties?.['className'] as string[]) || [];
     let elementColor: string | undefined = undefined;
 
-    // Find color defined specifically for this element's class
     for (let i = nodeClasses.length - 1; i >= 0; i--) {
       const color = theme.getInkColor(nodeClasses[i]);
       if (color) {
@@ -53,42 +59,46 @@ function renderHastNode(
       }
     }
 
-    // Determine the color to pass down: Use this element's specific color
-    // if found; otherwise, continue passing down the already inherited color.
     const colorToPassDown = elementColor || inheritedColor;
 
-    // Recursively render children, passing the determined color down
-    // Ensure child type matches expected HAST structure (ElementContent is common)
+    // Process only valid children that are ElementContent
     const children = node.children?.map(
-      (child: ElementContent, index: number) => (
-        <React.Fragment key={index}>
-          {renderHastNode(child, theme, colorToPassDown)}
-        </React.Fragment>
-      ),
+      (child: ElementContent, index: number) => {
+        // Only process text and element nodes to prevent infinite recursion
+        if (child.type === 'text' || child.type === 'element') {
+          return (
+            <React.Fragment key={index}>
+              {renderHastNode(child, theme, colorToPassDown, depth + 1)}
+            </React.Fragment>
+          );
+        }
+        return null;
+      },
     );
 
-    // Element nodes now only group children; color is applied by Text nodes.
-    // Use a React Fragment to avoid adding unnecessary elements.
     return <React.Fragment>{children}</React.Fragment>;
   }
 
-  // Handle Root Node: Start recursion with initially inherited color
+  // Type guard for root nodes
   if (node.type === 'root') {
-    // Check if children array is empty - this happens when lowlight can't detect language – fall back to plain text
     if (!node.children || node.children.length === 0) {
       return null;
     }
 
-    // Pass down the initial inheritedColor (likely undefined from the top call)
-    // Ensure child type matches expected HAST structure (RootContent is common)
-    return node.children?.map((child: RootContent, index: number) => (
-      <React.Fragment key={index}>
-        {renderHastNode(child, theme, inheritedColor)}
-      </React.Fragment>
-    ));
+    // Process only valid root content nodes
+    return node.children?.map((child: RootContent, index: number) => {
+      if (child.type === 'text' || child.type === 'element') {
+        return (
+          <React.Fragment key={index}>
+            {renderHastNode(child, theme, inheritedColor, depth + 1)}
+          </React.Fragment>
+        );
+      }
+      return null;
+    });
   }
 
-  // Handle unknown or unsupported node types
+  // Handle other node types (doctype, comment, etc.) by returning null
   return null;
 }
 
@@ -103,11 +113,13 @@ function highlightAndRenderLine(
         ? lowlight.highlightAuto(line)
         : lowlight.highlight(language, line);
 
-    const renderedNode = renderHastNode(getHighlightedLine(), theme, undefined);
+    const highlighted = getHighlightedLine();
+    const renderedNode = renderHastNode(highlighted, theme, undefined);
 
-    return renderedNode !== null ? renderedNode : line;
+    // Fall back to plain text if rendering fails or returns null
+    return renderedNode !== null ? renderedNode : <Text>{line}</Text>;
   } catch (_error) {
-    return line;
+    return <Text>{line}</Text>;
   }
 }
 

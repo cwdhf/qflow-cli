@@ -255,13 +255,17 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         // 累积token使用信息（如果chunk中包含）
         if (chunk.usage) {
           accumulatedUsage = {
-            prompt_tokens:
-              chunk.usage.prompt_tokens || accumulatedUsage.prompt_tokens,
-            completion_tokens:
-              chunk.usage.completion_tokens ||
-              accumulatedUsage.completion_tokens,
-            total_tokens:
-              chunk.usage.total_tokens || accumulatedUsage.total_tokens,
+            prompt_tokens: chunk.usage.prompt_tokens,
+            completion_tokens: chunk.usage.completion_tokens,
+            total_tokens: chunk.usage.total_tokens,
+          };
+        } else if (chunk.choices[0]?.usage) {
+          // 某些API可能将usage放在choices[0]中
+          const choiceUsage = chunk.choices[0].usage;
+          accumulatedUsage = {
+            prompt_tokens: choiceUsage.prompt_tokens,
+            completion_tokens: choiceUsage.completion_tokens,
+            total_tokens: choiceUsage.total_tokens,
           };
         }
 
@@ -283,7 +287,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
             finishReason: isFinished
               ? (chunk.choices[0]?.finish_reason as FinishReason) ||
                 FinishReason.STOP
-              : FinishReason.STOP,
+              : undefined,
             index: 0,
             safetyRatings: [],
             citationMetadata: undefined,
@@ -384,6 +388,15 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
           generateContentResponse.modelVersion =
             chunk['model'] || this.model || 'unknown';
 
+          // 如果有累积的token使用信息，添加到响应中
+          if (accumulatedUsage.total_tokens > 0) {
+            generateContentResponse.usageMetadata = {
+              promptTokenCount: accumulatedUsage.prompt_tokens,
+              candidatesTokenCount: accumulatedUsage.completion_tokens,
+              totalTokenCount: accumulatedUsage.total_tokens,
+            };
+          }
+
           yield generateContentResponse;
         }
       }
@@ -410,6 +423,15 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         const generateContentResponse = new GenerateContentResponse();
         generateContentResponse.candidates = [candidate];
         generateContentResponse.modelVersion = this.model || 'unknown';
+
+        // 如果有累积的token使用信息，即使是空响应也添加
+        if (accumulatedUsage.total_tokens > 0) {
+          generateContentResponse.usageMetadata = {
+            promptTokenCount: accumulatedUsage.prompt_tokens,
+            candidatesTokenCount: accumulatedUsage.completion_tokens,
+            totalTokenCount: accumulatedUsage.total_tokens,
+          };
+        }
 
         yield generateContentResponse;
       }

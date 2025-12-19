@@ -140,6 +140,11 @@ export function getDisplayString(
   model: string,
   previewFeaturesEnabled: boolean = false,
 ) {
+  // Check if it's an OpenAI model
+  if (isOpenAIModel(model)) {
+    return `Manual (${model})`;
+  }
+
   switch (model) {
     case PREVIEW_GEMINI_MODEL_AUTO:
       return 'Auto (Gemini 3)';

@@ -89,6 +89,7 @@ interface DiffRendererProps {
   availableTerminalHeight?: number;
   terminalWidth: number;
   theme?: Theme;
+  silentMode?: boolean;
 }
 
 const DEFAULT_TAB_WIDTH = 4; // Spaces per tab for normalization
@@ -100,6 +101,7 @@ export const DiffRenderer: React.FC<DiffRendererProps> = ({
   availableTerminalHeight,
   terminalWidth,
   theme,
+  silentMode = false,
 }) => {
   const settings = useSettings();
   const isAlternateBuffer = useAlternateBuffer();
@@ -126,6 +128,14 @@ export const DiffRenderer: React.FC<DiffRendererProps> = ({
   }, [parsedLines]);
 
   const renderedOutput = useMemo(() => {
+    if (silentMode) {
+      return (
+        <Text color={semanticTheme.text.secondary}>
+          Diff rendering skipped (silent mode enabled).
+        </Text>
+      );
+    }
+
     if (!diffContent || typeof diffContent !== 'string') {
       return <Text color={semanticTheme.status.warning}>No diff content.</Text>;
     }
@@ -194,6 +204,7 @@ export const DiffRenderer: React.FC<DiffRendererProps> = ({
     settings,
     isAlternateBuffer,
     tabWidth,
+    silentMode,
   ]);
 
   return renderedOutput;

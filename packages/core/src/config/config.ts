@@ -389,6 +389,7 @@ export class Config {
   private ideMode: boolean;
 
   private _activeModel: string;
+  private silentMode: boolean = false;
   private readonly maxSessionTurns: number;
   private readonly listSessions: boolean;
   private readonly deleteSession: string | undefined;
@@ -1357,6 +1358,14 @@ export class Config {
 
   setIdeMode(value: boolean): void {
     this.ideMode = value;
+  }
+
+  getSilentMode(): boolean {
+    return this.silentMode;
+  }
+
+  setSilentMode(silentMode: boolean): void {
+    this.silentMode = silentMode;
   }
 
   /**
