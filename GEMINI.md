@@ -397,4 +397,4 @@ comments.
   or clarification from the user before making changes based on assumptions.
 - Use hyphens instead of underscores in flag names (e.g. `my-flag` instead of
   `my_flag`).
-- Always refer to Hanfeng CLI as `Hanfeng CLI`, never `the Hanfeng CLI`.
+- Always refer to Qflow CLI as `Qflow CLI`, never `the Qflow CLI`.

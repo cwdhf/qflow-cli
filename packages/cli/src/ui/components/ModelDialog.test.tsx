@@ -91,7 +91,7 @@ describe('<ModelDialog />', () => {
     expect(lastFrame()).toContain('Select Model');
     expect(lastFrame()).toContain('(Press Esc to close)');
     expect(lastFrame()).toContain(
-      'To use a specific Hanfeng model on startup, use the --model flag.',
+      'To use a specific Qflow model on startup, use the --model flag.',
     );
     expect(lastFrame()).toContain('Auto');
     expect(lastFrame()).toContain('Manual');

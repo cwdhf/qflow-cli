@@ -39,7 +39,7 @@ describe('extensionsCommand', () => {
   it('should have correct command and aliases', () => {
     expect(extensionsCommand.command).toBe('extensions <command>');
     expect(extensionsCommand.aliases).toEqual(['extension']);
-    expect(extensionsCommand.describe).toBe('Manage Hanfeng CLI extensions.');
+    expect(extensionsCommand.describe).toBe('Manage Qflow CLI extensions.');
   });
 
   it('should register all subcommands in builder', () => {

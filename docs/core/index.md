@@ -21,16 +21,15 @@ While the `packages/cli` portion of Gemini CLI provides the user interface,
 
 - **Gemini API interaction:** Securely communicating with the Google Gemini API,
   sending user prompts, and receiving model responses.
-- **Prompt engineering:** Constructing effective prompts for the Hanfeng model,
+- **Prompt engineering:** Constructing effective prompts for the Qflow model,
   potentially incorporating conversation history, tool definitions, and
   instructional context from `GEMINI.md` files.
 - **Tool management & orchestration:**
   - Registering available tools (e.g., file system tools, shell command
     execution).
-  - Interpreting tool use requests from the Hanfeng model.
+  - Interpreting tool use requests from the Qflow model.
   - Executing the requested tools with the provided arguments.
-  - Returning tool execution results to the Hanfeng model for further
-    processing.
+  - Returning tool execution results to the Qflow model for further processing.
 - **Session and state management:** Keeping track of the conversation state,
   including history and any relevant context required for coherent interactions.
 - **Configuration:** Managing core-specific configurations, such as API key

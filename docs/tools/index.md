@@ -1,6 +1,6 @@
 # Gemini CLI tools
 
-The Gemini CLI includes built-in tools that the Hanfeng model uses to interact
+The Gemini CLI includes built-in tools that the Qflow model uses to interact
 with your local environment, access information, and perform actions. These
 tools enhance the CLI's capabilities, enabling it to go beyond text generation
 and assist with a wide range of tasks.
@@ -8,13 +8,13 @@ and assist with a wide range of tasks.
 ## Overview of Gemini CLI tools
 
 In the context of the Gemini CLI, tools are specific functions or modules that
-the Hanfeng model can request to be executed. For example, if you ask Gemini to
+the Qflow model can request to be executed. For example, if you ask Gemini to
 "Summarize the contents of `my_document.txt`," the model will likely identify
 the need to read that file and will request the execution of the `read_file`
 tool.
 
 The core component (`packages/core`) manages these tools, presents their
-definitions (schemas) to the Hanfeng model, executes them when requested, and
+definitions (schemas) to the Qflow model, executes them when requested, and
 returns the results to the model for further processing into a user-facing
 response.
 
@@ -40,14 +40,14 @@ as follows:
 2.  The CLI sends the prompt to the core.
 3.  The core, along with your prompt and conversation history, sends a list of
     available tools and their descriptions/schemas to the Gemini API.
-4.  The Hanfeng model analyzes your request. If it determines that a tool is
+4.  The Qflow model analyzes your request. If it determines that a tool is
     needed, its response will include a request to execute a specific tool with
     certain parameters.
 5.  The core receives this tool request, validates it, and (often after user
     confirmation for sensitive operations) executes the tool.
-6.  The output from the tool is sent back to the Hanfeng model.
-7.  The Hanfeng model uses the tool's output to formulate its final answer,
-    which is then sent back through the core to the CLI and displayed to you.
+6.  The output from the tool is sent back to the Qflow model.
+7.  The Qflow model uses the tool's output to formulate its final answer, which
+    is then sent back through the core to the CLI and displayed to you.
 
 You will typically see messages in the CLI indicating when a tool is being
 called and whether it succeeded or failed.
@@ -90,6 +90,6 @@ Gemini CLI's built-in tools can be broadly categorized as follows:
 Additionally, these tools incorporate:
 
 - **[MCP servers](./mcp-server.md)**: MCP servers act as a bridge between the
-  Hanfeng model and your local environment or other services like APIs.
+  Qflow model and your local environment or other services like APIs.
 - **[Sandboxing](../cli/sandbox.md)**: Sandboxing isolates the model and its
   changes from your environment to reduce potential risk.

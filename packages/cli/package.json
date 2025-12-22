@@ -10,7 +10,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "hfcli": "dist/index.js"
+    "qflow": "dist/index.js"
   },
   "scripts": {
     "build": "node ../../scripts/build_package.js",

@@ -36,7 +36,7 @@ export interface LoadHistoryActionReturn<HistoryType = unknown> {
 
 /**
  * The return type for a command action that should immediately submit
- * content as a prompt to the Hanfeng model.
+ * content as a prompt to the Qflow model.
  */
 export interface SubmitPromptActionReturn {
   type: 'submit_prompt';

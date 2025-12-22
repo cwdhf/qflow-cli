@@ -106,7 +106,7 @@ contain other project-specific files related to Gemini CLI's operation, such as:
     for tools that support it, like the `ShellTool`. For example,
     `"coreTools": ["ShellTool(ls -l)"]` will only allow the `ls -l` command to
     be executed.
-  - **Default:** All tools available for use by the Hanfeng model.
+  - **Default:** All tools available for use by the Qflow model.
   - **Example:** `"coreTools": ["ReadFileTool", "GlobTool", "ShellTool(ls)"]`.
 
 - **`excludeTools`** (array of strings):
@@ -128,7 +128,7 @@ contain other project-specific files related to Gemini CLI's operation, such as:
     should be made available to the model. This can be used to restrict the set
     of MCP servers to connect to. Note that this will be ignored if
     `--allowed-mcp-server-names` is set.
-  - **Default:** All MCP servers are available for use by the Hanfeng model.
+  - **Default:** All MCP servers are available for use by the Qflow model.
   - **Example:** `"allowMCPServers": ["myPythonServer"]`.
   - **Security Note:** This uses simple string matching on MCP server names,
     which can be modified. If you're a system administrator looking to prevent
@@ -461,7 +461,7 @@ the `excludedProjectEnvVars` setting in your `settings.json` file.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env`
     file.
 - **`GEMINI_MODEL`**:
-  - Specifies the default Hanfeng model to use.
+  - Specifies the default Qflow model to use.
   - Overrides the hardcoded default
   - Example: `export GEMINI_MODEL="gemini-2.5-flash"`
 - **`GEMINI_CLI_CUSTOM_HEADERS`**:
@@ -553,7 +553,7 @@ Arguments passed directly when running the CLI can override other configurations
 for that specific session.
 
 - **`--model <model_name>`** (**`-m <model_name>`**):
-  - Specifies the Hanfeng model to use for this session.
+  - Specifies the Qflow model to use for this session.
   - Example: `npm start -- --model gemini-1.5-pro-latest`
 - **`--prompt <your_prompt>`** (**`-p <your_prompt>`**):
   - Used to pass a prompt directly to the command. This invokes Gemini CLI in a
@@ -611,15 +611,15 @@ for that specific session.
 While not strictly configuration for the CLI's _behavior_, context files
 (defaulting to `GEMINI.md` but configurable via the `contextFileName` setting)
 are crucial for configuring the _instructional context_ (also referred to as
-"memory") provided to the Hanfeng model. This powerful feature allows you to
-give project-specific instructions, coding style guides, or any relevant
-background information to the AI, making its responses more tailored and
-accurate to your needs. The CLI includes UI elements, such as an indicator in
-the footer showing the number of loaded context files, to keep you informed
-about the active context.
+"memory") provided to the Qflow model. This powerful feature allows you to give
+project-specific instructions, coding style guides, or any relevant background
+information to the AI, making its responses more tailored and accurate to your
+needs. The CLI includes UI elements, such as an indicator in the footer showing
+the number of loaded context files, to keep you informed about the active
+context.
 
 - **Purpose:** These Markdown files contain instructions, guidelines, or context
-  that you want the Hanfeng model to be aware of during your interactions. The
+  that you want the Qflow model to be aware of during your interactions. The
   system is designed to manage this instructional context hierarchically.
 
 ### Example context file content (e.g., `GEMINI.md`)
@@ -689,7 +689,7 @@ conventions and context.
         component, module, or subsection of your project.
 - **Concatenation and UI indication:** The contents of all found context files
   are concatenated (with separators indicating their origin and path) and
-  provided as part of the system prompt to the Hanfeng model. The CLI footer
+  provided as part of the system prompt to the Qflow model. The CLI footer
   displays the count of loaded context files, giving you a quick visual cue
   about the active instructional context.
 - **Importing content:** You can modularize your context files by importing
@@ -753,7 +753,7 @@ prioritize new features.
 - **Tool calls:** We log the names of the tools that are called, whether they
   succeed or fail, and how long they take to execute. We do not collect the
   arguments passed to the tools or any data returned by them.
-- **API requests:** We log the Hanfeng model used for each request, the duration
+- **API requests:** We log the Qflow model used for each request, the duration
   of the request, and whether it was successful. We do not collect the content
   of the prompts or responses.
 - **Session information:** We collect information about the configuration of the
@@ -764,7 +764,7 @@ prioritize new features.
 - **Personally identifiable information (PII):** We do not collect any personal
   information, such as your name, email address, or API keys.
 - **Prompt and response content:** We do not log the content of your prompts or
-  the responses from the Hanfeng model.
+  the responses from the Qflow model.
 - **File content:** We do not log the content of any files that are read or
   written by the CLI.
 

@@ -372,7 +372,7 @@ export interface ConsoleMessageItem {
 
 /**
  * Result type for a slash command that should immediately result in a prompt
- * being submitted to the Hanfeng model.
+ * being submitted to the Qflow model.
  */
 export interface SubmitPromptResult {
   type: 'submit_prompt';

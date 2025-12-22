@@ -79,7 +79,7 @@ const cliConfig = {
     js: `import { createRequire } from 'module'; const require = createRequire(import.meta.url); globalThis.__filename = require('url').fileURLToPath(import.meta.url); globalThis.__dirname = require('path').dirname(globalThis.__filename);`,
   },
   entryPoints: ['packages/cli/index.ts'],
-  outfile: 'bundle/hanfeng.js',
+  outfile: 'bundle/qflow.js',
   define: {
     'process.env.CLI_VERSION': JSON.stringify(pkg.version),
   },

@@ -69,14 +69,14 @@ Use an environment variable to store your GitHub PAT:
 GITHUB_PERSONAL_ACCESS_TOKEN="pat_YourActualGitHubTokenHere"
 ```
 
-Hanfeng CLI uses this value in the `mcpServers` configuration that you defined
-in the `settings.json` file.
+Qflow CLI uses this value in the `mcpServers` configuration that you defined in
+the `settings.json` file.
 
 #### Launch Gemini CLI and verify the connection
 
-When you launch Hanfeng CLI, it automatically reads your configuration and
+When you launch Qflow CLI, it automatically reads your configuration and
 launches the GitHub MCP server in the background. You can then use natural
-language prompts to ask Hanfeng CLI to perform GitHub actions. For example:
+language prompts to ask Qflow CLI to perform GitHub actions. For example:
 
 ```bash
 "get all open issues assigned to me in the 'foo/bar' repo and prioritize them"

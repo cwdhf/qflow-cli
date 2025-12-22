@@ -99,7 +99,7 @@ describe('getEffectiveModel', () => {
         expect(model).toBe(DEFAULT_GEMINI_FLASH_LITE_MODEL);
       });
 
-      it('should return the default Hanfeng model when the model is explicitly set and preview is on', () => {
+      it('should return the default Qflow model when the model is explicitly set and preview is on', () => {
         const model = getEffectiveModel(DEFAULT_GEMINI_MODEL, true);
         expect(model).toBe(DEFAULT_GEMINI_MODEL);
       });

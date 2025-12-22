@@ -7,7 +7,7 @@ This document provides a guide to configuring and using Model Context Protocol
 
 An MCP server is an application that exposes tools and resources to the Gemini
 CLI through the Model Context Protocol, allowing it to interact with external
-systems and data sources. MCP servers act as a bridge between the Hanfeng model
+systems and data sources. MCP servers act as a bridge between the Qflow model
 and your local environment or other services like APIs.
 
 An MCP server enables the Gemini CLI to:
@@ -536,7 +536,7 @@ After discovery:
 
 ## Tool execution flow
 
-When the Hanfeng model decides to use an MCP tool, the following execution flow
+When the Qflow model decides to use an MCP tool, the following execution flow
 occurs:
 
 ### 1. Tool invocation
@@ -644,8 +644,8 @@ Discovery State: COMPLETED
 
 ### Tool usage
 
-Once discovered, MCP tools are available to the Hanfeng model like built-in
-tools. The model will automatically:
+Once discovered, MCP tools are available to the Qflow model like built-in tools.
+The model will automatically:
 
 1. **Select appropriate tools** based on your requests
 2. **Present confirmation dialogs** (unless the server is trusted)
@@ -830,7 +830,7 @@ When the Gemini CLI receives this response, it will:
     and an image were received.
 
 This enables you to build sophisticated tools that can provide rich, multi-modal
-context to the Hanfeng model.
+context to the Qflow model.
 
 ## MCP prompts as slash commands
 

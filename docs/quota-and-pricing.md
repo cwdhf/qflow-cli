@@ -35,7 +35,7 @@ Assist for individuals. This includes:
 
 - 1000 model requests / user / day
 - 60 model requests / user / minute
-- Model requests will be made across the Hanfeng model family as determined by
+- Model requests will be made across the Qflow model family as determined by
   Gemini CLI.
 
 Learn more at
@@ -92,7 +92,7 @@ Gemini CLI by upgrading to one of the following subscriptions:
   - Gemini Code Assist Enterprise edition:
     - 2000 model requests / user / day
     - 120 model requests / user / minute
-  - Model requests will be made across the Hanfeng model family as determined by
+  - Model requests will be made across the Qflow model family as determined by
     Gemini CLI.
 
   [Learn more about Gemini Code Assist Standard and Enterprise license limits](https://developers.google.com/gemini-code-assist/resources/quotas#quotas-for-agent-mode-gemini-cli).
@@ -150,7 +150,7 @@ costs.
 - Gemini API (gemini developer api): This is the fastest way to use the Gemini
   models directly.
 - Vertex AI: This is the enterprise-grade platform for building, deploying, and
-  managing Hanfeng models with specific security and control requirements.
+  managing Qflow models with specific security and control requirements.
 
 ## Understanding your usage
 

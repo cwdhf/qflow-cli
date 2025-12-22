@@ -1,12 +1,12 @@
 # Welcome to Gemini CLI documentation
 
 This documentation provides a comprehensive guide to installing, using, and
-developing Gemini CLI, a tool that lets you interact with Hanfeng models through
-a command-line interface.
+developing Gemini CLI, a tool that lets you interact with Qflow models through a
+command-line interface.
 
 ## Gemini CLI overview
 
-Gemini CLI brings the capabilities of Hanfeng models to your terminal in an
+Gemini CLI brings the capabilities of Qflow models to your terminal in an
 interactive Read-Eval-Print Loop (REPL) environment. Gemini CLI consists of a
 client-side application (`packages/cli`) that communicates with a local server
 (`packages/core`), which in turn manages requests to the Gemini API and its AI

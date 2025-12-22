@@ -402,8 +402,8 @@
       "properties": {
         "name": {
           "title": "Model",
-          "description": "The Hanfeng model to use for conversations.",
-          "markdownDescription": "The Hanfeng model to use for conversations.\n\n- Category: `Model`\n- Requires restart: `no`",
+          "description": "The Qflow model to use for conversations.",
+          "markdownDescription": "The Qflow model to use for conversations.\n\n- Category: `Model`\n- Requires restart: `no`",
           "type": "string"
         },
         "maxSessionTurns": {

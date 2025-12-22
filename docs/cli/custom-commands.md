@@ -37,7 +37,7 @@ Your command definition files must be written in the TOML format and use the
 
 ### Required fields
 
-- `prompt` (String): The prompt that will be sent to the Hanfeng model when the
+- `prompt` (String): The prompt that will be sent to the Qflow model when the
   command is executed. This can be a single-line or multi-line string.
 
 ### Optional fields

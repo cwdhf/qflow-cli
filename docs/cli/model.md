@@ -37,7 +37,7 @@ select **Manual** to select a specific model from those available.
 To enable Gemini 3 Pro and Gemini 3 Flash (if available), enable
 [**Preview Features** by using the `settings` command](../cli/settings.md).
 
-You can also use the `--model` flag to specify a particular Hanfeng model on
+You can also use the `--model` flag to specify a particular Qflow model on
 startup. For more details, refer to the
 [configuration documentation](./configuration.md).
 

@@ -209,7 +209,7 @@ jobs:
             Definition of Areas
             area/ux:
               - Issues concerning user-facing elements like command usability, interactive features, help docs, and perceived performance.
-              - I am seeing my screen flicker when using Hanfeng CLI
+              - I am seeing my screen flicker when using Qflow CLI
               - I am seeing the output malformed
               - Theme changes aren't taking effect
               - My keyboard inputs arent' being recognzied

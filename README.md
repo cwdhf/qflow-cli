@@ -165,7 +165,7 @@ gemini
 **Benefits:**
 
 - **Free tier**: 100 requests/day with Gemini 2.5 Pro
-- **Model selection**: Choose specific Hanfeng models
+- **Model selection**: Choose specific Qflow models
 - **Usage-based billing**: Upgrade for higher limits when needed
 
 ```bash

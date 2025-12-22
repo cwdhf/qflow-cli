@@ -20,7 +20,7 @@ import { initializeOutputListenersAndFlush } from '../gemini.js';
 export const extensionsCommand: CommandModule = {
   command: 'extensions <command>',
   aliases: ['extension'],
-  describe: 'Manage Hanfeng CLI extensions.',
+  describe: 'Manage Qflow CLI extensions.',
   builder: (yargs) =>
     yargs
       .middleware(() => initializeOutputListenersAndFlush())

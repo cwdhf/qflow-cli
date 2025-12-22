@@ -106,7 +106,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
       return openaiModels;
     } else {
-      // Hanfeng model options
+      // Qflow model options
       return [
         {
           value: DEFAULT_GEMINI_MODEL_AUTO,
@@ -238,7 +238,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
         <Text color={theme.text.secondary}>
           {isUsingOpenAI
             ? 'To use a specific OpenAI model on startup, set the OPENAI_MODEL environment variable.'
-            : 'To use a specific Hanfeng model on startup, use the --model flag.'}
+            : 'To use a specific Qflow model on startup, use the --model flag.'}
         </Text>
       </Box>
       <Box marginTop={1} flexDirection="column">
