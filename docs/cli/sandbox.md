@@ -1,11 +1,11 @@
-# Sandboxing in the Gemini CLI
+# Sandboxing in the Qflow CLI
 
-This document provides a guide to sandboxing in the Gemini CLI, including
+This document provides a guide to sandboxing in the Qflow CLI, including
 prerequisites, quickstart, and configuration.
 
 ## Prerequisites
 
-Before using sandboxing, you need to install and set up the Gemini CLI:
+Before using sandboxing, you need to install and set up the Qflow CLI:
 
 ```bash
 npm install -g @google/gemini-cli

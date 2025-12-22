@@ -24,7 +24,7 @@ import { logger } from '../utils/logger.js';
 
 export class InitCommand implements Command {
   name = 'init';
-  description = 'Analyzes the project and creates a tailored GEMINI.md file';
+  description = 'Analyzes the project and creates a tailored QFLOW.md file';
   requiresWorkspace = true;
   streaming = true;
 
@@ -136,7 +136,7 @@ export class InitCommand implements Command {
 
     const geminiMdPath = path.join(
       process.env['CODER_AGENT_WORKSPACE_PATH']!,
-      'GEMINI.md',
+      'QFLOW.md',
     );
     const result = performInit(fs.existsSync(geminiMdPath));
 

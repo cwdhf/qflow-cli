@@ -1,9 +1,9 @@
-# Gemini CLI model selection (`/model` command)
+# Qflow CLI model selection (`/model` command)
 
-Select your Gemini CLI model. The `/model` command lets you configure the model
-used by Gemini CLI, giving you more control over your results. Use **Pro**
-models for complex tasks and reasoning, **Flash** models for high speed results,
-or the (recommended) **Auto** setting to choose the best model for your tasks.
+Select your Qflow CLI model. The `/model` command lets you configure the model
+used by Qflow CLI, giving you more control over your results. Use **Pro** models
+for complex tasks and reasoning, **Flash** models for high speed results, or the
+(recommended) **Auto** setting to choose the best model for your tasks.
 
 > **Note:** The `/model` command (and the `--model` flag) does not override the
 > model used by sub-agents. Consequently, even when using the `/model` flag you
@@ -11,7 +11,7 @@ or the (recommended) **Auto** setting to choose the best model for your tasks.
 
 ## How to use the `/model` command
 
-Use the following command in Gemini CLI:
+Use the following command in Qflow CLI:
 
 ```
 /model
@@ -32,7 +32,7 @@ select **Manual** to select a specific model from those available.
 
 > **Note:** Gemini 3 is not currently available on all account types. To learn
 > more about Gemini 3 access, refer to
-> [Gemini 3 on Gemini CLI](../get-started/gemini-3.md).
+> [Gemini 3 on Qflow CLI](../get-started/gemini-3.md).
 
 To enable Gemini 3 Pro and Gemini 3 Flash (if available), enable
 [**Preview Features** by using the `settings` command](../cli/settings.md).
@@ -42,7 +42,7 @@ startup. For more details, refer to the
 [configuration documentation](./configuration.md).
 
 Changes to these settings will be applied to all subsequent interactions with
-Gemini CLI.
+Qflow CLI.
 
 ## Best practices for model selection
 

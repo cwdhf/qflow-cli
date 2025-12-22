@@ -40,7 +40,7 @@ describe('ContextManager', () => {
     it('should load and format global memory', async () => {
       const mockResult: memoryDiscovery.MemoryLoadResult = {
         files: [
-          { path: '/home/user/.gemini/GEMINI.md', content: 'Global Content' },
+          { path: '/home/user/.gemini/QFLOW.md', content: 'Global Content' },
         ],
       };
       vi.mocked(memoryDiscovery.loadGlobalMemory).mockResolvedValue(mockResult);
@@ -49,10 +49,10 @@ describe('ContextManager', () => {
 
       expect(memoryDiscovery.loadGlobalMemory).toHaveBeenCalledWith(false);
       // The path will be relative to CWD (/app), so it might contain ../
-      expect(result).toMatch(/--- Context from: .*GEMINI.md ---/);
+      expect(result).toMatch(/--- Context from: .*QFLOW.md ---/);
       expect(result).toContain('Global Content');
       expect(contextManager.getLoadedPaths()).toContain(
-        '/home/user/.gemini/GEMINI.md',
+        '/home/user/.gemini/QFLOW.md',
       );
       expect(contextManager.getGlobalMemory()).toBe(result);
     });
@@ -61,7 +61,7 @@ describe('ContextManager', () => {
   describe('loadEnvironmentMemory', () => {
     it('should load and format environment memory', async () => {
       const mockResult: memoryDiscovery.MemoryLoadResult = {
-        files: [{ path: '/app/GEMINI.md', content: 'Env Content' }],
+        files: [{ path: '/app/QFLOW.md', content: 'Env Content' }],
       };
       vi.mocked(memoryDiscovery.loadEnvironmentMemory).mockResolvedValue(
         mockResult,
@@ -78,9 +78,9 @@ describe('ContextManager', () => {
         mockExtensionLoader,
         false,
       );
-      expect(result).toContain('--- Context from: GEMINI.md ---');
+      expect(result).toContain('--- Context from: QFLOW.md ---');
       expect(result).toContain('Env Content');
-      expect(contextManager.getLoadedPaths()).toContain('/app/GEMINI.md');
+      expect(contextManager.getLoadedPaths()).toContain('/app/QFLOW.md');
       expect(contextManager.getEnvironmentMemory()).toBe(result);
     });
   });
@@ -88,7 +88,7 @@ describe('ContextManager', () => {
   describe('discoverContext', () => {
     it('should discover and load new context', async () => {
       const mockResult: memoryDiscovery.MemoryLoadResult = {
-        files: [{ path: '/app/src/GEMINI.md', content: 'Src Content' }],
+        files: [{ path: '/app/src/QFLOW.md', content: 'Src Content' }],
       };
       vi.mocked(memoryDiscovery.loadJitSubdirectoryMemory).mockResolvedValue(
         mockResult,
@@ -106,7 +106,7 @@ describe('ContextManager', () => {
       );
       expect(result).toMatch(/--- Context from: src[\\/]GEMINI\.md ---/);
       expect(result).toContain('Src Content');
-      expect(contextManager.getLoadedPaths()).toContain('/app/src/GEMINI.md');
+      expect(contextManager.getLoadedPaths()).toContain('/app/src/QFLOW.md');
     });
 
     it('should return empty string if no new files found', async () => {
@@ -128,7 +128,7 @@ describe('ContextManager', () => {
       // Setup some state
       const mockResult: memoryDiscovery.MemoryLoadResult = {
         files: [
-          { path: '/home/user/.gemini/GEMINI.md', content: 'Global Content' },
+          { path: '/home/user/.gemini/QFLOW.md', content: 'Global Content' },
         ],
       };
       vi.mocked(memoryDiscovery.loadGlobalMemory).mockResolvedValue(mockResult);

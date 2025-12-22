@@ -1,8 +1,8 @@
 # Advanced Model Configuration
 
-This guide details the Model Configuration system within the Gemini CLI.
-Designed for researchers, AI quality engineers, and advanced users, this system
-provides a rigorous framework for managing generative model hyperparameters and
+This guide details the Model Configuration system within the Qflow CLI. Designed
+for researchers, AI quality engineers, and advanced users, this system provides
+a rigorous framework for managing generative model hyperparameters and
 behaviors.
 
 > **Warning**: This is a power-user feature. Configuration values are passed

@@ -1,6 +1,6 @@
 # Todo tool (`write_todos`)
 
-This document describes the `write_todos` tool for the Gemini CLI.
+This document describes the `write_todos` tool for the Qflow CLI.
 
 ## Description
 

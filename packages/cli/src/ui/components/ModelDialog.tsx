@@ -202,7 +202,7 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   const subheader = isUsingOpenAI
     ? `You are using OpenAI compatible API. Models can also be configured via OPENAI_MODEL environment variable.`
     : config?.getPreviewFeatures()
-      ? `To disable Gemini 3, disable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features\n\nWhen you select Auto or Pro, Gemini CLI will attempt to use ${PREVIEW_GEMINI_MODEL} first, before falling back to ${DEFAULT_GEMINI_MODEL}.`
+      ? `To disable Gemini 3, disable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features\n\nWhen you select Auto or Pro, Qflow CLI will attempt to use ${PREVIEW_GEMINI_MODEL} first, before falling back to ${DEFAULT_GEMINI_MODEL}.`
       : `To use Gemini 3, enable "Preview features" in /settings.\nLearn more at https://goo.gle/enable-preview-features`;
 
   return (

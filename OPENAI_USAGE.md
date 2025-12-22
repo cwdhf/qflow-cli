@@ -26,7 +26,7 @@ code .env
 OPENAI_API_KEY=sk-你的实际API密钥
 ```
 
-### 3. 启动 Gemini CLI
+### 3. 启动 Qflow CLI
 
 ```bash
 npm run start

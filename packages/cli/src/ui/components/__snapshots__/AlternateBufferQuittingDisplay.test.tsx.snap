@@ -14,7 +14,7 @@ exports[`AlternateBufferQuittingDisplay > renders with active and pending tool m
 Tips for getting started:
 1. Ask questions, edit files, or run commands.
 2. Be specific for the best results.
-3. Create GEMINI.md files to customize your interactions with Gemini.
+3. Create QFLOW.md files to customize your interactions with Qflow.
 4. /help for more information.
 ╭─────────────────────────────────────────────────────────────────────────────╮
 │ ✓  tool1 Description for tool 1                                             │
@@ -44,7 +44,7 @@ exports[`AlternateBufferQuittingDisplay > renders with empty history and no pend
 Tips for getting started:
 1. Ask questions, edit files, or run commands.
 2. Be specific for the best results.
-3. Create GEMINI.md files to customize your interactions with Gemini.
+3. Create QFLOW.md files to customize your interactions with Gemini.
 4. /help for more information."
 `;
 
@@ -62,7 +62,7 @@ exports[`AlternateBufferQuittingDisplay > renders with history but no pending it
 Tips for getting started:
 1. Ask questions, edit files, or run commands.
 2. Be specific for the best results.
-3. Create GEMINI.md files to customize your interactions with Gemini.
+3. Create QFLOW.md files to customize your interactions with Gemini.
 4. /help for more information.
 ╭─────────────────────────────────────────────────────────────────────────────╮
 │ ✓  tool1 Description for tool 1                                             │
@@ -88,7 +88,7 @@ exports[`AlternateBufferQuittingDisplay > renders with pending items but no hist
 Tips for getting started:
 1. Ask questions, edit files, or run commands.
 2. Be specific for the best results.
-3. Create GEMINI.md files to customize your interactions with Gemini.
+3. Create QFLOW.md files to customize your interactions with Qflow.
 4. /help for more information.
 ╭─────────────────────────────────────────────────────────────────────────────╮
 │ o  tool3 Description for tool 3                                             │
@@ -110,7 +110,7 @@ exports[`AlternateBufferQuittingDisplay > renders with user and gemini messages 
 Tips for getting started:
 1. Ask questions, edit files, or run commands.
 2. Be specific for the best results.
-3. Create GEMINI.md files to customize your interactions with Gemini.
+3. Create QFLOW.md files to customize your interactions with Qflow.
 4. /help for more information.
 
 > Hello Gemini

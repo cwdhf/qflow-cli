@@ -142,7 +142,7 @@ export class IdeClient {
     if (!this.currentIde) {
       this.setState(
         IDEConnectionStatus.Disconnected,
-        `IDE integration is not supported in your current environment. To use this feature, run Gemini CLI in one of these supported IDEs: Antigravity, VS Code, or VS Code forks.`,
+        `IDE integration is not supported in your current environment. To use this feature, run Qflow CLI in one of these supported IDEs: Antigravity, VS Code, or VS Code forks.`,
         false,
       );
       return;
@@ -531,7 +531,7 @@ export class IdeClient {
     if (!isWithinWorkspace) {
       return {
         isValid: false,
-        error: `Directory mismatch. Gemini CLI is running in a different location than the open workspace in the IDE. Please run the CLI from one of the following directories: ${ideWorkspacePaths.join(
+        error: `Directory mismatch. Qflow CLI is running in a different location than the open workspace in the IDE. Please run the CLI from one of the following directories: ${ideWorkspacePaths.join(
           ', ',
         )}`,
       };

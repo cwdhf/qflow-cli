@@ -14,7 +14,7 @@ sources.
 
 - `query` (string, required): The search query.
 
-## How to use `google_web_search` with the Gemini CLI
+## How to use `google_web_search` with the Qflow CLI
 
 The `google_web_search` tool sends a query to the Gemini API, which then
 performs a web search. `google_web_search` will return a generated response

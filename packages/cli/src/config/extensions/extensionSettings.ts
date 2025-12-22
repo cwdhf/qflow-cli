@@ -34,7 +34,7 @@ const getKeychainStorageName = (
   extensionId: string,
   scope: ExtensionSettingScope,
 ): string => {
-  const base = `Gemini CLI Extensions ${extensionName} ${extensionId}`;
+  const base = `Qflow CLI Extensions ${extensionName} ${extensionId}`;
   if (scope === ExtensionSettingScope.WORKSPACE) {
     return `${base} ${process.cwd()}`;
   }

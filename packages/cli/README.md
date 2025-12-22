@@ -1,20 +1,20 @@
-# Gemini CLI
+# Qflow CLI
 
-[![Gemini CLI CI](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml)
-[![Gemini CLI E2E (Chained)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml)
+[![Qflow CLI CI](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml)
+[![Qflow CLI E2E (Chained)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml)
 [![Version](https://img.shields.io/npm/v/@google/gemini-cli)](https://www.npmjs.com/package/@google/gemini-cli)
 [![License](https://img.shields.io/github/license/google-gemini/gemini-cli)](https://github.com/google-gemini/gemini-cli/blob/main/LICENSE)
 [![View Code Wiki](https://www.gstatic.com/_/boq-sdlc-agents-ui/_/r/YUi5dj2UWvE.svg)](https://codewiki.google/github.com/google-gemini/gemini-cli)
 
-![Gemini CLI Screenshot](./docs/assets/gemini-screenshot.png)
+![Qflow CLI Screenshot](./docs/assets/gemini-screenshot.png)
 
-Gemini CLI is an open-source AI agent that brings the power of Gemini directly
+Qflow CLI is an open-source AI agent that brings the power of Gemini directly
 into your terminal. It provides lightweight access to Gemini, giving you the
 most direct path from your prompt to our model.
 
-Learn all about Gemini CLI in our [documentation](https://geminicli.com/docs/).
+Learn all about Qflow CLI in our [documentation](https://geminicli.com/docs/).
 
-## 🚀 Why Gemini CLI?
+## 🚀 Why Qflow CLI?
 
 - **🎯 Free tier**: 60 requests/min and 1,000 requests/day with personal Google
   account.
@@ -110,12 +110,12 @@ npm install -g @google/gemini-cli@nightly
   [Google Search](https://ai.google.dev/gemini-api/docs/grounding) for real-time
   information
 - Conversation checkpointing to save and resume complex sessions
-- Custom context files (GEMINI.md) to tailor behavior for your projects
+- Custom context files (QFLOW.md) to tailor behavior for your projects
 
 ### GitHub Integration
 
-Integrate Gemini CLI directly into your GitHub workflows with
-[**Gemini CLI GitHub Action**](https://github.com/google-github-actions/run-gemini-cli):
+Integrate Qflow CLI directly into your GitHub workflows with
+[**Qflow CLI GitHub Action**](https://github.com/google-github-actions/run-gemini-cli):
 
 - **Pull Request Reviews**: Automated code review with contextual feedback and
   suggestions
@@ -144,7 +144,7 @@ for details)
 - **No API key management** - just sign in with your Google account
 - **Automatic updates** to latest models
 
-#### Start Gemini CLI, then choose _Login with Google_ and follow the browser authentication flow when prompted
+#### Start Qflow CLI, then choose _Login with Google_ and follow the browser authentication flow when prompted
 
 ```bash
 gemini
@@ -276,8 +276,8 @@ gemini
   (`/help`, `/chat`, etc).
 - [**Custom Commands**](./docs/cli/custom-commands.md) - Create your own
   reusable commands.
-- [**Context Files (GEMINI.md)**](./docs/cli/gemini-md.md) - Provide persistent
-  context to Gemini CLI.
+- [**Context Files (QFLOW.md)**](./docs/cli/gemini-md.md) - Provide persistent
+  context to Qflow CLI.
 - [**Checkpointing**](./docs/cli/checkpointing.md) - Save and resume
   conversations.
 - [**Token Caching**](./docs/cli/token-caching.md) - Optimize token usage.
@@ -295,9 +295,9 @@ gemini
 
 ### Advanced Topics
 
-- [**Headless Mode (Scripting)**](./docs/cli/headless.md) - Use Gemini CLI in
+- [**Headless Mode (Scripting)**](./docs/cli/headless.md) - Use Qflow CLI in
   automated workflows.
-- [**Architecture Overview**](./docs/architecture.md) - How Gemini CLI works.
+- [**Architecture Overview**](./docs/architecture.md) - How Qflow CLI works.
 - [**IDE Integration**](./docs/ide-integration/index.md) - VS Code companion.
 - [**Sandboxing & Security**](./docs/cli/sandbox.md) - Safe execution
   environments.
@@ -319,7 +319,7 @@ gemini
 
 ### Using MCP Servers
 
-Configure MCP servers in `~/.gemini/settings.json` to extend Gemini CLI with
+Configure MCP servers in `~/.gemini/settings.json` to extend Qflow CLI with
 custom tools:
 
 ```text
@@ -333,7 +333,7 @@ instructions.
 
 ## 🤝 Contributing
 
-We welcome contributions! Gemini CLI is fully open source (Apache 2.0), and we
+We welcome contributions! Qflow CLI is fully open source (Apache 2.0), and we
 encourage the community to:
 
 - Report bugs and suggest features.

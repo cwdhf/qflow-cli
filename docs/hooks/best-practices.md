@@ -1,8 +1,8 @@
-# Hooks on Gemini CLI: Best practices
+# Hooks on Qflow CLI: Best practices
 
 This guide covers security considerations, performance optimization, debugging
 techniques, and privacy considerations for developing and deploying hooks in
-Gemini CLI.
+Qflow CLI.
 
 ## Security considerations
 
@@ -716,7 +716,7 @@ fi
 
 ## Privacy considerations
 
-Hook inputs and outputs may contain sensitive information. Gemini CLI respects
+Hook inputs and outputs may contain sensitive information. Qflow CLI respects
 the `telemetry.logPrompts` setting for hook data logging.
 
 ### What data is collected
@@ -802,5 +802,5 @@ console.log(JSON.stringify(sanitizeOutput(hookOutput)));
 
 - [Hooks Reference](index.md) - Complete API reference
 - [Writing Hooks](writing-hooks.md) - Tutorial and examples
-- [Configuration](../cli/configuration.md) - Gemini CLI settings
+- [Configuration](../cli/configuration.md) - Qflow CLI settings
 - [Hooks Design Document](../hooks-design.md) - Technical architecture

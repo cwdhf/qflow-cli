@@ -11,10 +11,10 @@ npm install -g @google/gemini-cli
 
 ## Highlights
 
-- **⚡️⚡️⚡️ Gemini 3 Flash + Gemini CLI:** If you are a paid user, you can now
+- **⚡️⚡️⚡️ Gemini 3 Flash + Qflow CLI:** If you are a paid user, you can now
   enable Gemini 3 Pro and Gemini 3 Flash. Go to `/settings` and set **Preview
   Features** to `true` to enable Gemini 3. For more information:
-  [Gemini 3 Flash is now available in Gemini CLI](https://developers.googleblog.com/gemini-3-flash-is-now-available-in-gemini-cli/).
+  [Gemini 3 Flash is now available in Qflow CLI](https://developers.googleblog.com/gemini-3-flash-is-now-available-in-gemini-cli/).
 
 ## What's Changed
 
@@ -141,7 +141,7 @@ npm install -g @google/gemini-cli
   https://github.com/google-gemini/gemini-cli/pull/14593
 - Fully detach autoupgrade process by @scidomino in
   https://github.com/google-gemini/gemini-cli/pull/14595
-- Docs: Update Gemini 3 on Gemini CLI documentation by @jkcinouye in
+- Docs: Update Gemini 3 on Qflow CLI documentation by @jkcinouye in
   https://github.com/google-gemini/gemini-cli/pull/14601
 - Disallow floating promises. by @gundermanc in
   https://github.com/google-gemini/gemini-cli/pull/14605
@@ -152,7 +152,7 @@ npm install -g @google/gemini-cli
   https://github.com/google-gemini/gemini-cli/pull/14470
 - Add prompt_id propagation in a2a-server task by @koxkox111 in
   https://github.com/google-gemini/gemini-cli/pull/14581
-- Fix: Prevent freezing in non-interactive Gemini CLI when debug mode is enabled
+- Fix: Prevent freezing in non-interactive Qflow CLI when debug mode is enabled
   by @parthasaradhie in https://github.com/google-gemini/gemini-cli/pull/14580
 - fix(audio): improve reading of audio files by @jackwotherspoon in
   https://github.com/google-gemini/gemini-cli/pull/14658

@@ -1,10 +1,10 @@
-# Gemini CLI authentication setup
+# Qflow CLI authentication setup
 
-To use Gemini CLI, you'll need to authenticate with Google. This guide helps you
+To use Qflow CLI, you'll need to authenticate with Google. This guide helps you
 quickly find the best way to sign in based on your account type and how you're
 using the CLI.
 
-For most users, we recommend starting Gemini CLI and logging in with your
+For most users, we recommend starting Qflow CLI and logging in with your
 personal Google account.
 
 ## Choose your authentication method <a id="auth-methods"></a>
@@ -34,15 +34,15 @@ Select the authentication method that matches your situation in the table below:
 
 ## (Recommended) Login with Google <a id="login-google"></a>
 
-If you run Gemini CLI on your local machine, the simplest authentication method
+If you run Qflow CLI on your local machine, the simplest authentication method
 is logging in with your Google account. This method requires a web browser on a
-machine that can communicate with the terminal running Gemini CLI (e.g., your
+machine that can communicate with the terminal running Qflow CLI (e.g., your
 local machine).
 
 > **Important:** If you are a **Google AI Pro** or **Google AI Ultra**
 > subscriber, use the Google account associated with your subscription.
 
-To authenticate and use Gemini CLI:
+To authenticate and use Qflow CLI:
 
 1. Start the CLI:
 
@@ -50,7 +50,7 @@ To authenticate and use Gemini CLI:
    gemini
    ```
 
-2. Select **Login with Google**. Gemini CLI opens a login prompt using your web
+2. Select **Login with Google**. Qflow CLI opens a login prompt using your web
    browser. Follow the on-screen instructions. Your credentials will be cached
    locally for future sessions.
 
@@ -71,7 +71,7 @@ For instructions, see [Set your Google Cloud Project](#set-gcp).
 If you don't want to authenticate using your Google account, you can use an API
 key from Google AI Studio.
 
-To authenticate and use Gemini CLI with a Gemini API key:
+To authenticate and use Qflow CLI with a Gemini API key:
 
 1. Obtain your API key from
    [Google AI Studio](https://aistudio.google.com/app/apikey).
@@ -100,7 +100,7 @@ To authenticate and use Gemini CLI with a Gemini API key:
 
 ## Use Vertex AI <a id="vertex-ai"></a>
 
-To use Gemini CLI with Google Cloud's Vertex AI platform, choose from the
+To use Qflow CLI with Google Cloud's Vertex AI platform, choose from the
 following authentication options:
 
 - A. Application Default Credentials (ADC) using `gcloud`.
@@ -221,14 +221,14 @@ pipelines, or if your organization restricts user-based ADC or API key creation.
 > Google Cloud project for authentication.
 
 When you sign in using your Google account, you may need to configure a Google
-Cloud project for Gemini CLI to use. This applies when you meet at least one of
+Cloud project for Qflow CLI to use. This applies when you meet at least one of
 the following conditions:
 
 - You are using a Company, School, or Google Workspace account.
 - You are using a Gemini Code Assist license from the Google Developer Program.
 - You are using a license from a Gemini Code Assist subscription.
 
-To configure Gemini CLI to use a Google Cloud project, do the following:
+To configure Qflow CLI to use a Google Cloud project, do the following:
 
 1.  [Find your Google Cloud Project ID](https://support.google.com/googleapi/answer/7014113).
 
@@ -238,7 +238,7 @@ To configure Gemini CLI to use a Google Cloud project, do the following:
 
 4.  Configure your environment variables. Set either the `GOOGLE_CLOUD_PROJECT`
     or `GOOGLE_CLOUD_PROJECT_ID` variable to the project ID to use with Gemini
-    CLI. Gemini CLI checks for `GOOGLE_CLOUD_PROJECT` first, then falls back to
+    CLI. Qflow CLI checks for `GOOGLE_CLOUD_PROJECT` first, then falls back to
     `GOOGLE_CLOUD_PROJECT_ID`.
 
     For example, to set the `GOOGLE_CLOUD_PROJECT_ID` variable:
@@ -272,7 +272,7 @@ persist them with the following methods:
     > shell can read them.
 
 2.  **Use a `.env` file:** Create a `.gemini/.env` file in your project
-    directory or home directory. Gemini CLI automatically loads variables from
+    directory or home directory. Qflow CLI automatically loads variables from
     the first `.env` file it finds, searching up from the current directory,
     then in `~/.gemini/.env` or `~/.env`. `.gemini/.env` is recommended.
 
@@ -290,13 +290,13 @@ Variables are loaded from the first file found, not merged.
 
 ## Running in Google Cloud environments <a id="cloud-env"></a>
 
-When running Gemini CLI within certain Google Cloud environments, authentication
+When running Qflow CLI within certain Google Cloud environments, authentication
 is automatic.
 
-In a Google Cloud Shell environment, Gemini CLI typically authenticates
+In a Google Cloud Shell environment, Qflow CLI typically authenticates
 automatically using your Cloud Shell credentials. In Compute Engine
-environments, Gemini CLI automatically uses Application Default Credentials
-(ADC) from the environment's metadata server.
+environments, Qflow CLI automatically uses Application Default Credentials (ADC)
+from the environment's metadata server.
 
 If automatic authentication fails, use one of the interactive methods described
 on this page.
@@ -317,5 +317,5 @@ configure authentication using environment variables:
 Your authentication method affects your quotas, pricing, Terms of Service, and
 privacy notices. Review the following pages to learn more:
 
-- [Gemini CLI: Quotas and Pricing](../quota-and-pricing.md).
-- [Gemini CLI: Terms of Service and Privacy Notice](../tos-privacy.md).
+- [Qflow CLI: Quotas and Pricing](../quota-and-pricing.md).
+- [Qflow CLI: Terms of Service and Privacy Notice](../tos-privacy.md).

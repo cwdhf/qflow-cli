@@ -1,6 +1,6 @@
 ## Model routing
 
-Gemini CLI includes a model routing feature that automatically switches to a
+Qflow CLI includes a model routing feature that automatically switches to a
 fallback model in case of a model failure. This feature is enabled by default
 and provides resilience when the primary model is unavailable.
 
@@ -23,7 +23,7 @@ policies.
 
 ### Model selection precedence
 
-The model used by Gemini CLI is determined by the following order of precedence:
+The model used by Qflow CLI is determined by the following order of precedence:
 
 1.  **`--model` command-line flag:** A model specified with the `--model` flag
     when launching the CLI will always be used.

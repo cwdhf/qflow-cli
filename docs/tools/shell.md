@@ -1,6 +1,6 @@
 # Shell tool (`run_shell_command`)
 
-This document describes the `run_shell_command` tool for the Gemini CLI.
+This document describes the `run_shell_command` tool for the Qflow CLI.
 
 ## Description
 
@@ -25,7 +25,7 @@ they are executed with `bash -c`.
   in which to execute the command. If not provided, the command runs in the
   project root.
 
-## How to use `run_shell_command` with the Gemini CLI
+## How to use `run_shell_command` with the Qflow CLI
 
 When using `run_shell_command`, the command is executed as a subprocess.
 `run_shell_command` can start background processes using `&`. The tool returns
@@ -69,7 +69,7 @@ run_shell_command(command="npm run dev &", description="Start development server
 ## Configuration
 
 You can configure the behavior of the `run_shell_command` tool by modifying your
-`settings.json` file or by using the `/settings` command in the Gemini CLI.
+`settings.json` file or by using the `/settings` command in the Qflow CLI.
 
 ### Enabling interactive commands
 
@@ -153,7 +153,7 @@ including complex TUIs, will be rendered correctly.
 
 When `run_shell_command` executes a command, it sets the `GEMINI_CLI=1`
 environment variable in the subprocess's environment. This allows scripts or
-tools to detect if they are being run from within the Gemini CLI.
+tools to detect if they are being run from within the Qflow CLI.
 
 ## Command restrictions
 

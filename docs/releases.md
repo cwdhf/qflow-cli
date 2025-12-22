@@ -1,4 +1,4 @@
-# Gemini CLI releases
+# Qflow CLI releases
 
 ## `dev` vs `prod` environment
 

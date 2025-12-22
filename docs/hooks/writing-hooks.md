@@ -1,6 +1,6 @@
-# Writing hooks for Gemini CLI
+# Writing hooks for Qflow CLI
 
-This guide will walk you through creating hooks for Gemini CLI, from a simple
+This guide will walk you through creating hooks for Qflow CLI, from a simple
 logging hook to a comprehensive workflow assistant that demonstrates all hook
 events working together.
 
@@ -8,7 +8,7 @@ events working together.
 
 Before you start, make sure you have:
 
-- Gemini CLI installed and configured
+- Qflow CLI installed and configured
 - Basic understanding of shell scripting or JavaScript/Node.js
 - Familiarity with JSON for hook input/output
 
@@ -67,7 +67,7 @@ Add the hook configuration to `.gemini/settings.json`:
 
 ### Step 3: Test your hook
 
-Run Gemini CLI and execute any command that uses tools:
+Run Qflow CLI and execute any command that uses tools:
 
 ```
 > Read the README.md file
@@ -315,7 +315,7 @@ SessionEnd → Extract and store memories
 **Prerequisites:**
 
 - Node.js 18+
-- Gemini CLI installed
+- Qflow CLI installed
 
 **Setup:**
 
@@ -1022,5 +1022,5 @@ const SECRET_PATTERNS = [
 
 - [Hooks Reference](index.md) - Complete API reference and configuration
 - [Best Practices](best-practices.md) - Security, performance, and debugging
-- [Configuration](../cli/configuration.md) - Gemini CLI settings
+- [Configuration](../cli/configuration.md) - Qflow CLI settings
 - [Custom Commands](../cli/custom-commands.md) - Create custom commands

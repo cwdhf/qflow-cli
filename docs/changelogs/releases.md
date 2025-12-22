@@ -1,6 +1,6 @@
-# Gemini CLI changelog
+# Qflow CLI changelog
 
-Gemini CLI has three major release channels: nightly, preview, and stable. For
+Qflow CLI has three major release channels: nightly, preview, and stable. For
 most users, we recommend the stable release.
 
 On this page, you can find information regarding the current releases and
@@ -22,10 +22,10 @@ on GitHub.
 
 ### Highlights
 
-- **⚡️⚡️⚡️ Gemini 3 Flash + Gemini CLI:** If you are a paid user, you can now
+- **⚡️⚡️⚡️ Gemini 3 Flash + Qflow CLI:** If you are a paid user, you can now
   enable Gemini 3 Pro and Gemini 3 Flash. Go to `/settings` and set **Preview
   Features** to `true` to enable Gemini 3. For more information:
-  [Gemini 3 Flash is now available in Gemini CLI](https://developers.googleblog.com/gemini-3-flash-is-now-available-in-gemini-cli/).
+  [Gemini 3 Flash is now available in Qflow CLI](https://developers.googleblog.com/gemini-3-flash-is-now-available-in-gemini-cli/).
 
 ### What's Changed
 
@@ -152,7 +152,7 @@ on GitHub.
   https://github.com/google-gemini/gemini-cli/pull/14593
 - Fully detach autoupgrade process by @scidomino in
   https://github.com/google-gemini/gemini-cli/pull/14595
-- Docs: Update Gemini 3 on Gemini CLI documentation by @jkcinouye in
+- Docs: Update Gemini 3 on Qflow CLI documentation by @jkcinouye in
   https://github.com/google-gemini/gemini-cli/pull/14601
 - Disallow floating promises. by @gundermanc in
   https://github.com/google-gemini/gemini-cli/pull/14605
@@ -163,7 +163,7 @@ on GitHub.
   https://github.com/google-gemini/gemini-cli/pull/14470
 - Add prompt_id propagation in a2a-server task by @koxkox111 in
   https://github.com/google-gemini/gemini-cli/pull/14581
-- Fix: Prevent freezing in non-interactive Gemini CLI when debug mode is enabled
+- Fix: Prevent freezing in non-interactive Qflow CLI when debug mode is enabled
   by @parthasaradhie in https://github.com/google-gemini/gemini-cli/pull/14580
 - fix(audio): improve reading of audio files by @jackwotherspoon in
   https://github.com/google-gemini/gemini-cli/pull/14658
@@ -465,7 +465,7 @@ https://github.com/google-gemini/gemini-cli/compare/v0.21.0-preview.6...v0.22.0-
   https://github.com/google-gemini/gemini-cli/pull/14324
 - Use polling for extensions-reload integration test by @chrstnb in
   https://github.com/google-gemini/gemini-cli/pull/14391
-- Add docs directive to GEMINI.md by @g-samroberts in
+- Add docs directive to QFLOW.md by @g-samroberts in
   https://github.com/google-gemini/gemini-cli/pull/14327
 - Hide sessions that don't have user messages by @bl-ue in
   https://github.com/google-gemini/gemini-cli/pull/13994
@@ -767,13 +767,13 @@ https://github.com/google-gemini/gemini-cli/compare/v0.18.0-preview.4...v0.19.0-
 ### Highlights
 
 - **Experimental permission improvements**: We're experimenting with a new
-  policy engine in Gemini CLI, letting users and administrators create
+  policy engine in Qflow CLI, letting users and administrators create
   fine-grained policies for tool calls. This setting is currently behind a flag.
   See our [policy engine documentation](../core/policy-engine.md) to learn how
   to use this feature.
 - **Gemini 3 support rolled out for some users**: Some users can now enable
   Gemini 3 by using the `/settings` flag and toggling **Preview Features**. See
-  our [Gemini 3 on Gemini CLI documentation](../get-started/gemini-3.md) to find
+  our [Gemini 3 on Qflow CLI documentation](../get-started/gemini-3.md) to find
   out more about using Gemini 3.
 - **Updated UI rollback:** We've temporarily rolled back a previous UI update,
   which enabled embedded scrolling and mouse support. This can be re-enabled by
@@ -855,7 +855,7 @@ https://github.com/google-gemini/gemini-cli/compare/v0.18.0-preview.4...v0.19.0-
   by @SandyTao520 in https://github.com/google-gemini/gemini-cli/pull/13473
 - Revert "feat(core): Fix bug with incorrect model overriding." by @adamfweidman
   in https://github.com/google-gemini/gemini-cli/pull/13483
-- Fix: Update system instruction when GEMINI.md memory is loaded or refreshed by
+- Fix: Update system instruction when QFLOW.md memory is loaded or refreshed by
   @lifefloating in https://github.com/google-gemini/gemini-cli/pull/12136
 - fix(zed-integration): Ensure that the zed integration is classified as
   interactive by @benbrandt in

@@ -1,6 +1,6 @@
-# Gemini CLI keyboard shortcuts
+# Qflow CLI keyboard shortcuts
 
-Gemini CLI ships with a set of default keyboard shortcuts for editing input,
+Qflow CLI ships with a set of default keyboard shortcuts for editing input,
 navigating history, and controlling the UI. Use this reference to learn the
 available combinations.
 

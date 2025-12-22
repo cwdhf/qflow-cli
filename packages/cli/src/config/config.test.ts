@@ -662,7 +662,7 @@ describe('Hierarchical Memory Loading (config.ts) - Placeholder Suite', () => {
         name: 'ext1',
         id: 'ext1-id',
         version: '1.0.0',
-        contextFiles: ['/path/to/ext1/GEMINI.md'],
+        contextFiles: ['/path/to/ext1/QFLOW.md'],
         isActive: true,
       },
       {

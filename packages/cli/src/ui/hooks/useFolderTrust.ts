@@ -74,7 +74,7 @@ export const useFolderTrust = (
       } catch (_e) {
         coreEvents.emitFeedback(
           'error',
-          'Failed to save trust settings. Exiting Gemini CLI.',
+          'Failed to save trust settings. Exiting Qflow CLI.',
         );
         setTimeout(async () => {
           await runExitCleanup();

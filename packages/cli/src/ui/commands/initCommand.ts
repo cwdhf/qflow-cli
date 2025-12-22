@@ -16,7 +16,7 @@ import { performInit } from '@google/gemini-cli-core';
 
 export const initCommand: SlashCommand = {
   name: 'init',
-  description: 'Analyzes the project and creates a tailored GEMINI.md file',
+  description: 'Analyzes the project and creates a tailored QFLOW.md file',
   kind: CommandKind.BUILT_IN,
   autoExecute: true,
   action: async (
@@ -31,18 +31,18 @@ export const initCommand: SlashCommand = {
       };
     }
     const targetDir = context.services.config.getTargetDir();
-    const geminiMdPath = path.join(targetDir, 'GEMINI.md');
+    const geminiMdPath = path.join(targetDir, 'QFLOW.md');
 
     const result = performInit(fs.existsSync(geminiMdPath));
 
     if (result.type === 'submit_prompt') {
-      // Create an empty GEMINI.md file
+      // Create an empty QFLOW.md file
       fs.writeFileSync(geminiMdPath, '', 'utf8');
 
       context.ui.addItem(
         {
           type: 'info',
-          text: 'Empty GEMINI.md created. Now analyzing the project to populate it.',
+          text: 'Empty QFLOW.md created. Now analyzing the project to populate it.',
         },
         Date.now(),
       );

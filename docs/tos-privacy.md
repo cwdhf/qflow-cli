@@ -1,22 +1,22 @@
-# Gemini CLI: License, Terms of Service, and Privacy Notices
+# Qflow CLI: License, Terms of Service, and Privacy Notices
 
-Gemini CLI is an open-source tool that lets you interact with Google's powerful
-AI services directly from your command-line interface. The Gemini CLI software
-is licensed under the
+Qflow CLI is an open-source tool that lets you interact with Google's powerful
+AI services directly from your command-line interface. The Qflow CLI software is
+licensed under the
 [Apache 2.0 license](https://github.com/google-gemini/gemini-cli/blob/main/LICENSE).
-When you use Gemini CLI to access or use Google’s services, the Terms of Service
+When you use Qflow CLI to access or use Google’s services, the Terms of Service
 and Privacy Notices applicable to those services apply to such access and use.
 
-Your Gemini CLI Usage Statistics are handled in accordance with Google's Privacy
+Your Qflow CLI Usage Statistics are handled in accordance with Google's Privacy
 Policy.
 
 **Note:** See [quotas and pricing](/docs/quota-and-pricing.md) for the quota and
-pricing details that apply to your usage of the Gemini CLI.
+pricing details that apply to your usage of the Qflow CLI.
 
 ## Supported authentication methods
 
 Your authentication method refers to the method you use to log into and access
-Google’s services with Gemini CLI. Supported authentication methods include:
+Google’s services with Qflow CLI. Supported authentication methods include:
 
 - Logging in with your Google account to Gemini Code Assist.
 - Using an API key with Gemini Developer API.
@@ -68,7 +68,7 @@ If you are using a Gemini API key for authentication with the
 [Gemini Developer API](https://ai.google.dev/gemini-api/docs), these Terms of
 Service and Privacy Notice documents apply:
 
-- Terms of Service: Your use of the Gemini CLI is governed by the
+- Terms of Service: Your use of the Qflow CLI is governed by the
   [Gemini API Terms of Service](https://ai.google.dev/gemini-api/terms). These
   terms may differ depending on whether you are using an unpaid or paid service:
   - For unpaid services, refer to the
@@ -84,13 +84,13 @@ If you are using a Gemini API key for authentication with a
 [Vertex AI GenAI API](https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest)
 backend, these Terms of Service and Privacy Notice documents apply:
 
-- Terms of Service: Your use of the Gemini CLI is governed by the
+- Terms of Service: Your use of the Qflow CLI is governed by the
   [Google Cloud Platform Service Terms](https://cloud.google.com/terms/service-terms/).
 - Privacy Notice: The collection and use of your data is described in the
   [Google Cloud Privacy Notice](https://cloud.google.com/terms/cloud-privacy-notice).
 
 ## Usage statistics opt-out
 
-You may opt-out from sending Gemini CLI Usage Statistics to Google by following
+You may opt-out from sending Qflow CLI Usage Statistics to Google by following
 the instructions available here:
 [Usage Statistics Configuration](https://github.com/google-gemini/gemini-cli/blob/main/docs/get-started/configuration.md#usage-statistics).

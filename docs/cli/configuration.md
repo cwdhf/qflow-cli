@@ -1,6 +1,6 @@
-# Gemini CLI configuration
+# Qflow CLI configuration
 
-Gemini CLI offers several ways to configure its behavior, including environment
+Qflow CLI offers several ways to configure its behavior, including environment
 variables, command-line arguments, and settings files. This document outlines
 the different configuration methods and available settings.
 
@@ -19,15 +19,15 @@ overridden by higher numbers):
 
 ## Settings files
 
-Gemini CLI uses `settings.json` files for persistent configuration. There are
+Qflow CLI uses `settings.json` files for persistent configuration. There are
 three locations for these files:
 
 - **User settings file:**
   - **Location:** `~/.gemini/settings.json` (where `~` is your home directory).
-  - **Scope:** Applies to all Gemini CLI sessions for the current user.
+  - **Scope:** Applies to all Qflow CLI sessions for the current user.
 - **Project settings file:**
   - **Location:** `.gemini/settings.json` within your project's root directory.
-  - **Scope:** Applies only when running Gemini CLI from that specific project.
+  - **Scope:** Applies only when running Qflow CLI from that specific project.
     Project settings override user settings.
 - **System settings file:**
   - **Location:** `/etc/gemini-cli/settings.json` (Linux),
@@ -35,10 +35,9 @@ three locations for these files:
     `/Library/Application Support/GeminiCli/settings.json` (macOS). The path can
     be overridden using the `GEMINI_CLI_SYSTEM_SETTINGS_PATH` environment
     variable.
-  - **Scope:** Applies to all Gemini CLI sessions on the system, for all users.
+  - **Scope:** Applies to all Qflow CLI sessions on the system, for all users.
     System settings override user and project settings. May be useful for system
-    administrators at enterprises to have controls over users' Gemini CLI
-    setups.
+    administrators at enterprises to have controls over users' Qflow CLI setups.
 
 **Note on environment variables in settings:** String values within your
 `settings.json` files can reference environment variables using either
@@ -50,7 +49,7 @@ variable `MY_API_TOKEN`, you could use it in `settings.json` like this:
 ### The `.gemini` directory in your project
 
 In addition to a project settings file, a project's `.gemini` directory can
-contain other project-specific files related to Gemini CLI's operation, such as:
+contain other project-specific files related to Qflow CLI's operation, such as:
 
 - [Custom sandbox profiles](#sandboxing) (e.g.,
   `.gemini/sandbox-macos-custom.sb`, `.gemini/sandbox.Dockerfile`).
@@ -58,10 +57,9 @@ contain other project-specific files related to Gemini CLI's operation, such as:
 ### Available settings in `settings.json`:
 
 - **`contextFileName`** (string or array of strings):
-  - **Description:** Specifies the filename for context files (e.g.,
-    `GEMINI.md`, `AGENTS.md`). Can be a single filename or a list of accepted
-    filenames.
-  - **Default:** `GEMINI.md`
+  - **Description:** Specifies the filename for context files (e.g., `QFLOW.md`,
+    `AGENTS.md`). Can be a single filename or a list of accepted filenames.
+  - **Default:** `QFLOW.md`
   - **Example:** `"contextFileName": "AGENTS.md"`
 
 - **`bugCommand`** (object):
@@ -160,7 +158,7 @@ contain other project-specific files related to Gemini CLI's operation, such as:
   - **Example:** `"autoAccept": true`
 
 - **`theme`** (string):
-  - **Description:** Sets the visual [theme](./themes.md) for Gemini CLI.
+  - **Description:** Sets the visual [theme](./themes.md) for Qflow CLI.
   - **Default:** `"Default"`
   - **Example:** `"theme": "GitHub"`
 
@@ -174,9 +172,8 @@ contain other project-specific files related to Gemini CLI's operation, such as:
 
 - **`sandbox`** (boolean or string):
   - **Description:** Controls whether and how to use sandboxing for tool
-    execution. If set to `true`, Gemini CLI uses a pre-built
-    `gemini-cli-sandbox` Docker image. For more information, see
-    [Sandboxing](#sandboxing).
+    execution. If set to `true`, Qflow CLI uses a pre-built `gemini-cli-sandbox`
+    Docker image. For more information, see [Sandboxing](#sandboxing).
   - **Default:** `false`
   - **Example:** `"sandbox": "docker"`
 
@@ -204,7 +201,7 @@ contain other project-specific files related to Gemini CLI's operation, such as:
 
 - **`mcpServers`** (object):
   - **Description:** Configures connections to one or more Model-Context
-    Protocol (MCP) servers for discovering and using custom tools. Gemini CLI
+    Protocol (MCP) servers for discovering and using custom tools. Qflow CLI
     attempts to connect to each configured MCP server to discover available
     tools. If multiple MCP servers expose a tool with the same name, the tool
     names will be prefixed with the server alias you defined in the
@@ -274,7 +271,7 @@ contain other project-specific files related to Gemini CLI's operation, such as:
   - **Example:** `"preferredEditor": "vscode"`
 
 - **`telemetry`** (object)
-  - **Description:** Configures logging and metrics collection for Gemini CLI.
+  - **Description:** Configures logging and metrics collection for Qflow CLI.
     For more information, see [Telemetry](./telemetry.md).
   - **Default:**
     `{"enabled": false, "target": "local", "otlpEndpoint": "http://localhost:4317", "logPrompts": true}`
@@ -376,8 +373,8 @@ contain other project-specific files related to Gemini CLI's operation, such as:
 
 - **`loadMemoryFromIncludeDirectories`** (boolean):
   - **Description:** Controls the behavior of the `/memory refresh` command. If
-    set to `true`, `GEMINI.md` files should be loaded from all directories that
-    are added. If set to `false`, `GEMINI.md` should only be loaded from the
+    set to `true`, `QFLOW.md` files should be loaded from all directories that
+    are added. If set to `false`, `QFLOW.md` should only be loaded from the
     current directory.
   - **Default:** `false`
   - **Example:**
@@ -556,7 +553,7 @@ for that specific session.
   - Specifies the Qflow model to use for this session.
   - Example: `npm start -- --model gemini-1.5-pro-latest`
 - **`--prompt <your_prompt>`** (**`-p <your_prompt>`**):
-  - Used to pass a prompt directly to the command. This invokes Gemini CLI in a
+  - Used to pass a prompt directly to the command. This invokes Qflow CLI in a
     non-interactive mode.
 - **`--prompt-interactive <your_prompt>`** (**`-i <your_prompt>`**):
   - Starts an interactive session with the provided prompt as the initial input.
@@ -609,7 +606,7 @@ for that specific session.
 ## Context files (hierarchical instructional context)
 
 While not strictly configuration for the CLI's _behavior_, context files
-(defaulting to `GEMINI.md` but configurable via the `contextFileName` setting)
+(defaulting to `QFLOW.md` but configurable via the `contextFileName` setting)
 are crucial for configuring the _instructional context_ (also referred to as
 "memory") provided to the Qflow model. This powerful feature allows you to give
 project-specific instructions, coding style guides, or any relevant background
@@ -622,7 +619,7 @@ context.
   that you want the Qflow model to be aware of during your interactions. The
   system is designed to manage this instructional context hierarchically.
 
-### Example context file content (e.g., `GEMINI.md`)
+### Example context file content (e.g., `QFLOW.md`)
 
 Here's a conceptual example of what a context file at the root of a TypeScript
 project might contain:
@@ -664,13 +661,13 @@ you. Project-specific context files are highly encouraged to establish
 conventions and context.
 
 - **Hierarchical loading and precedence:** The CLI implements a sophisticated
-  hierarchical memory system by loading context files (e.g., `GEMINI.md`) from
+  hierarchical memory system by loading context files (e.g., `QFLOW.md`) from
   several locations. Content from files lower in this list (more specific)
   typically overrides or supplements content from files higher up (more
   general). The exact concatenation order and final context can be inspected
   using the `/memory show` command. The typical loading order is:
   1.  **Global context file:**
-      - Location: `~/.gemini/<contextFileName>` (e.g., `~/.gemini/GEMINI.md` in
+      - Location: `~/.gemini/<contextFileName>` (e.g., `~/.gemini/QFLOW.md` in
         your user home directory).
       - Scope: Provides default instructions for all your projects.
   2.  **Project root and ancestors context files:**
@@ -706,12 +703,12 @@ conventions and context.
 
 By understanding and utilizing these configuration layers and the hierarchical
 nature of context files, you can effectively manage the AI's memory and tailor
-the Gemini CLI's responses to your specific needs and projects.
+the Qflow CLI's responses to your specific needs and projects.
 
 ## Sandboxing
 
-The Gemini CLI can execute potentially unsafe operations (like shell commands
-and file modifications) within a sandboxed environment to protect your system.
+The Qflow CLI can execute potentially unsafe operations (like shell commands and
+file modifications) within a sandboxed environment to protect your system.
 
 Sandboxing is disabled by default, but you can enable it in a few ways:
 
@@ -735,7 +732,7 @@ FROM gemini-cli-sandbox
 ```
 
 When `.gemini/sandbox.Dockerfile` exists, you can use `BUILD_SANDBOX`
-environment variable when running Gemini CLI to automatically build the custom
+environment variable when running Qflow CLI to automatically build the custom
 sandbox image:
 
 ```bash
@@ -744,7 +741,7 @@ BUILD_SANDBOX=1 gemini -s
 
 ## Usage statistics
 
-To help us improve the Gemini CLI, we collect anonymized usage statistics. This
+To help us improve the Qflow CLI, we collect anonymized usage statistics. This
 data helps us understand how the CLI is used, identify common issues, and
 prioritize new features.
 

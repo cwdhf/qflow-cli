@@ -1,15 +1,15 @@
-# Gemini CLI
+# Qflow CLI
 
-Within Gemini CLI, `packages/cli` is the frontend for users to send and receive
+Within Qflow CLI, `packages/cli` is the frontend for users to send and receive
 prompts with the Gemini AI model and its associated tools. For a general
-overview of Gemini CLI, see the [main documentation page](../index.md).
+overview of Qflow CLI, see the [main documentation page](../index.md).
 
 ## Basic features
 
 - **[Commands](./commands.md):** A reference for all built-in slash commands
 - **[Custom commands](./custom-commands.md):** Create your own commands and
   shortcuts for frequently used prompts.
-- **[Headless mode](./headless.md):** Use Gemini CLI programmatically for
+- **[Headless mode](./headless.md):** Use Qflow CLI programmatically for
   scripting and automation.
 - **[Model selection](./model.md):** Configure the Gemini AI model used by the
   CLI.
@@ -36,16 +36,16 @@ overview of Gemini CLI, see the [main documentation page](../index.md).
   which projects can use the full capabilities of the CLI.
 - **[Ignoring files (.geminiignore)](./gemini-ignore.md):** Exclude specific
   files and directories from being accessed by tools.
-- **[Context files (GEMINI.md)](./gemini-md.md):** Provide persistent,
+- **[Context files (QFLOW.md)](./gemini-md.md):** Provide persistent,
   hierarchical context to the model.
 
 ## Non-interactive mode
 
-Gemini CLI can be run in a non-interactive mode, which is useful for scripting
+Qflow CLI can be run in a non-interactive mode, which is useful for scripting
 and automation. In this mode, you pipe input to the CLI, it executes the
 command, and then it exits.
 
-The following example pipes a command to Gemini CLI from your terminal:
+The following example pipes a command to Qflow CLI from your terminal:
 
 ```bash
 echo "What is fine tuning?" | gemini

@@ -116,7 +116,7 @@ process.
 ### 5. Release automation
 
 This workflow handles the process of packaging and publishing new versions of
-the Gemini CLI.
+the Qflow CLI.
 
 - **Workflow File**: `.github/workflows/release-manual.yml`
 - **When it runs**: On a daily schedule for "nightly" releases, and manually for

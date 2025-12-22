@@ -1,7 +1,7 @@
 {
   "name": "@google/gemini-cli-a2a-server",
   "version": "0.21.0-nightly.20251218.739c02bd6",
-  "description": "Gemini CLI A2A Server",
+  "description": "Qflow CLI A2A Server",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/google-gemini/gemini-cli.git",

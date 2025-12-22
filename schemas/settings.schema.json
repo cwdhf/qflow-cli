@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
-  "title": "Gemini CLI Settings",
-  "description": "Configuration file schema for Gemini CLI settings. This schema enables IDE completion for `settings.json`.",
+  "title": "Qflow CLI Settings",
+  "description": "Configuration file schema for Qflow CLI settings. This schema enables IDE completion for `settings.json`.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -189,8 +189,8 @@
         },
         "showStatusInTitle": {
           "title": "Show Status in Title",
-          "description": "Show Gemini CLI status and thoughts in the terminal window title",
-          "markdownDescription": "Show Gemini CLI status and thoughts in the terminal window title\n\n- Category: `UI`\n- Requires restart: `no`\n- Default: `false`",
+          "description": "Show Qflow CLI status and thoughts in the terminal window title",
+          "markdownDescription": "Show Qflow CLI status and thoughts in the terminal window title\n\n- Category: `UI`\n- Requires restart: `no`\n- Default: `false`",
           "default": false,
           "type": "boolean"
         },
@@ -210,8 +210,8 @@
         },
         "hideContextSummary": {
           "title": "Hide Context Summary",
-          "description": "Hide the context summary (GEMINI.md, MCP servers) above the input.",
-          "markdownDescription": "Hide the context summary (GEMINI.md, MCP servers) above the input.\n\n- Category: `UI`\n- Requires restart: `no`\n- Default: `false`",
+          "description": "Hide the context summary (QFLOW.md, MCP servers) above the input.",
+          "markdownDescription": "Hide the context summary (QFLOW.md, MCP servers) above the input.\n\n- Category: `UI`\n- Requires restart: `no`\n- Default: `false`",
           "default": false,
           "type": "boolean"
         },
@@ -950,8 +950,8 @@
         },
         "loadMemoryFromIncludeDirectories": {
           "title": "Load Memory From Include Directories",
-          "description": "Controls how /memory refresh loads GEMINI.md files. When true, include directories are scanned; when false, only the current directory is used.",
-          "markdownDescription": "Controls how /memory refresh loads GEMINI.md files. When true, include directories are scanned; when false, only the current directory is used.\n\n- Category: `Context`\n- Requires restart: `no`\n- Default: `false`",
+          "description": "Controls how /memory refresh loads QFLOW.md files. When true, include directories are scanned; when false, only the current directory is used.",
+          "markdownDescription": "Controls how /memory refresh loads QFLOW.md files. When true, include directories are scanned; when false, only the current directory is used.\n\n- Category: `Context`\n- Requires restart: `no`\n- Default: `false`",
           "default": false,
           "type": "boolean"
         },
@@ -1130,8 +1130,8 @@
         },
         "enableHooks": {
           "title": "Enable Hooks System",
-          "description": "Enable the hooks system for intercepting and customizing Gemini CLI behavior. When enabled, hooks configured in settings will execute at appropriate lifecycle events (BeforeTool, AfterTool, BeforeModel, etc.). Requires MessageBus integration.",
-          "markdownDescription": "Enable the hooks system for intercepting and customizing Gemini CLI behavior. When enabled, hooks configured in settings will execute at appropriate lifecycle events (BeforeTool, AfterTool, BeforeModel, etc.). Requires MessageBus integration.\n\n- Category: `Advanced`\n- Requires restart: `yes`\n- Default: `false`",
+          "description": "Enable the hooks system for intercepting and customizing Qflow CLI behavior. When enabled, hooks configured in settings will execute at appropriate lifecycle events (BeforeTool, AfterTool, BeforeModel, etc.). Requires MessageBus integration.",
+          "markdownDescription": "Enable the hooks system for intercepting and customizing Qflow CLI behavior. When enabled, hooks configured in settings will execute at appropriate lifecycle events (BeforeTool, AfterTool, BeforeModel, etc.). Requires MessageBus integration.\n\n- Category: `Advanced`\n- Requires restart: `yes`\n- Default: `false`",
           "default": false,
           "type": "boolean"
         }
@@ -1583,7 +1583,7 @@
         },
         "extension": {
           "type": "object",
-          "description": "Metadata describing the Gemini CLI extension that owns this MCP server.",
+          "description": "Metadata describing the Qflow CLI extension that owns this MCP server.",
           "additionalProperties": {
             "type": ["string", "boolean", "number"]
           }
@@ -1614,7 +1614,7 @@
     },
     "TelemetrySettings": {
       "type": "object",
-      "description": "Telemetry configuration for Gemini CLI.",
+      "description": "Telemetry configuration for Qflow CLI.",
       "additionalProperties": false,
       "properties": {
         "enabled": {
@@ -1677,7 +1677,7 @@
     },
     "CustomTheme": {
       "type": "object",
-      "description": "Custom theme definition used for styling Gemini CLI output. Colors are provided as hex strings or named ANSI colors.",
+      "description": "Custom theme definition used for styling Qflow CLI output. Colors are provided as hex strings or named ANSI colors.",
       "additionalProperties": false,
       "properties": {
         "type": {

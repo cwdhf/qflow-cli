@@ -1,6 +1,6 @@
 # Observability with OpenTelemetry
 
-Learn how to enable and setup OpenTelemetry for Gemini CLI.
+Learn how to enable and setup OpenTelemetry for Qflow CLI.
 
 - [Observability with OpenTelemetry](#observability-with-opentelemetry)
   - [Key benefits](#key-benefits)
@@ -56,7 +56,7 @@ Learn how to enable and setup OpenTelemetry for Gemini CLI.
 ## OpenTelemetry integration
 
 Built on **[OpenTelemetry]** — the vendor-neutral, industry-standard
-observability framework — Gemini CLI's observability system provides:
+observability framework — Qflow CLI's observability system provides:
 
 - **Universal compatibility**: Export to any OpenTelemetry backend (Google
   Cloud, Jaeger, Prometheus, Datadog, etc.)
@@ -135,7 +135,7 @@ Before using either method below, complete these steps:
 
 By default, the telemetry collector for Google Cloud uses Application Default
 Credentials (ADC). However, you can configure it to use the same OAuth
-credentials that you use to log in to the Gemini CLI. This is useful in
+credentials that you use to log in to the Qflow CLI. This is useful in
 environments where you don't have ADC set up.
 
 To enable this, set the `useCliAuth` property in your `telemetry` settings to
@@ -172,7 +172,7 @@ Sends telemetry directly to Google Cloud services. No collector needed.
      }
    }
    ```
-2. Run Gemini CLI and send prompts.
+2. Run Qflow CLI and send prompts.
 3. View logs and metrics:
    - Open the Google Cloud Console in your browser after sending prompts:
      - Logs: https://console.cloud.google.com/logs/
@@ -204,7 +204,7 @@ forward data to Google Cloud.
    - Provide links to view traces, metrics, and logs in Google Cloud Console
    - Save collector logs to `~/.gemini/tmp/<projectHash>/otel/collector-gcp.log`
    - Stop collector on exit (e.g. `Ctrl+C`)
-3. Run Gemini CLI and send prompts.
+3. Run Qflow CLI and send prompts.
 4. View logs and metrics:
    - Open the Google Cloud Console in your browser after sending prompts:
      - Logs: https://console.cloud.google.com/logs/
@@ -230,7 +230,7 @@ For local development and debugging, you can capture telemetry data locally:
      }
    }
    ```
-2. Run Gemini CLI and send prompts.
+2. Run Qflow CLI and send prompts.
 3. View logs and metrics in the specified file (e.g., `.gemini/telemetry.log`).
 
 ### Collector-based export (advanced)
@@ -245,14 +245,14 @@ For local development and debugging, you can capture telemetry data locally:
    - Provide a Jaeger UI at http://localhost:16686
    - Save logs/metrics to `~/.gemini/tmp/<projectHash>/otel/collector.log`
    - Stop collector on exit (e.g. `Ctrl+C`)
-2. Run Gemini CLI and send prompts.
+2. Run Qflow CLI and send prompts.
 3. View traces at http://localhost:16686 and logs/metrics in the collector log
    file.
 
 ## Logs and metrics
 
 The following section describes the structure of logs and metrics generated for
-Gemini CLI.
+Qflow CLI.
 
 The `session.id`, `installation.id`, and `user.email` (available only when
 authenticated with a Google account) are included as common attributes on all
@@ -261,7 +261,7 @@ logs and metrics.
 ### Logs
 
 Logs are timestamped records of specific events. The following events are logged
-for Gemini CLI, grouped by category.
+for Qflow CLI, grouped by category.
 
 #### Sessions
 

@@ -505,7 +505,7 @@ export const AppContainer = (props: AppContainerProps) => {
           await runExitCleanup();
           writeToStdout(`
 ----------------------------------------------------------------
-Logging in with Google... Restarting Gemini CLI to continue.
+Logging in with Google... Restarting Qflow CLI to continue.
 ----------------------------------------------------------------
           `);
           process.exit(RELAUNCH_EXIT_CODE);
@@ -673,7 +673,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
     historyManager.addItem(
       {
         type: MessageType.INFO,
-        text: 'Refreshing hierarchical memory (GEMINI.md or other context files)...',
+        text: 'Refreshing hierarchical memory (QFLOW.md or other context files)...',
       },
       Date.now(),
     );
@@ -1264,7 +1264,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
 
   useKeypress(handleGlobalKeypress, { isActive: true });
 
-  // Update terminal title with Gemini CLI status and thoughts
+  // Update terminal title with Qflow CLI status and thoughts
   useEffect(() => {
     // Respect both showStatusInTitle and hideWindowTitle settings
     if (
@@ -1291,7 +1291,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       lastTitleRef.current = paddedTitle;
       stdout.write(`\x1b]2;${paddedTitle}\x07`);
     }
-    // Note: We don't need to reset the window title on exit because Gemini CLI is already doing that elsewhere
+    // Note: We don't need to reset the window title on exit because Qflow CLI is already doing that elsewhere
   }, [
     streamingState,
     thought,

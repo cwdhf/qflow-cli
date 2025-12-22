@@ -69,9 +69,9 @@ Follow these steps:
       not 100% obvious.
     * Whether code might introduce an infinite rendering loop in React.
     * Whether keyboard handling is robust. Keyboard handling must go through
-      `useKeyPress.ts` from the Gemini CLI package rather than using the
+      `useKeyPress.ts` from the Qflow CLI package rather than using the
       standard ink library used by most keyboard handling. Unlike the standard
-      ink library, the keyboard handling library in Gemini CLI may report
+      ink library, the keyboard handling library in Qflow CLI may report
       multiple keyboard events one after another in the same React frame. This
       is needed to support slow terminals but introduces complexity in all our
       code that handles keyboard events. Handling this correctly often means
@@ -101,7 +101,7 @@ Follow these steps:
       to include the new property or propose a new provider to add if the
       property drilling is excessive. Only use providers for properties that are
       consistent for the entire application.
-11. General Gemini CLI design principles:
+11. General Qflow CLI design principles:
     * Make sure that settings are only used for options that a user might
       consider changing.
     * Do not add new command line arguments and suggest settings instead.
@@ -126,8 +126,8 @@ Follow these steps:
       ensure all cases are handled.
     * Avoid using the non-null assertion operator ('!') unless absolutely
       necessary and you are confident the value is not null.
-13. If the change might at all impact the prompts sent to Gemini CLI, flagged
-    that the change could impact Gemini CLI quality and make sure anj-s has been
+13. If the change might at all impact the prompts sent to Qflow CLI, flagged
+    that the change could impact Qflow CLI quality and make sure anj-s has been
     tagged on the code review.
 14. Discuss with me before making any comments on the issue. I will clarify
     which possible issues you identified are problems, which ones you need to

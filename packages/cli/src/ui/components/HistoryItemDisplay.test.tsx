@@ -100,7 +100,7 @@ describe('<HistoryItemDisplay />', () => {
     const { lastFrame } = renderWithProviders(
       <HistoryItemDisplay {...baseItem} item={item} />,
     );
-    expect(lastFrame()).toContain('About Gemini CLI');
+    expect(lastFrame()).toContain('About Qflow CLI');
   });
 
   it('renders ModelStatsDisplay for "model_stats" type', () => {

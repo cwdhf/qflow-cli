@@ -1,13 +1,13 @@
-# Gemini CLI Roadmap
+# Qflow CLI Roadmap
 
 The
-[Official Gemini CLI Roadmap](https://github.com/orgs/google-gemini/projects/11/)
+[Official Qflow CLI Roadmap](https://github.com/orgs/google-gemini/projects/11/)
 
-Gemini CLI is an open-source AI agent that brings the power of Gemini directly
+Qflow CLI is an open-source AI agent that brings the power of Gemini directly
 into your terminal. It provides lightweight access to Gemini, giving you the
 most direct path from your prompt to our model.
 
-This document outlines our approach to the Gemini CLI roadmap. Here, you'll find
+This document outlines our approach to the Qflow CLI roadmap. Here, you'll find
 our guiding principles and a breakdown of the key areas we are focused on for
 development. Our roadmap is not a static list but a dynamic set of priorities
 that are tracked live in our GitHub Issues.
@@ -35,7 +35,7 @@ Our development is guided by the following principles:
   an intuitive and easy-to-use lightweight command-line interface.
 - **Extensibility:** An adaptable agent to help you with a variety of use cases
   and environments along with the ability to run these agents anywhere.
-- **Intelligent:** Gemini CLI should be reliably ranked among the best agentic
+- **Intelligent:** Qflow CLI should be reliably ranked among the best agentic
   tools as measured by benchmarks like SWE Bench, Terminal Bench, and CSAT.
 - **Free and Open Source:** Foster a thriving open source community where cost
   isn’t a barrier to personal use, and PRs get merged quickly. This means
@@ -75,7 +75,7 @@ initiatives that interest you.
   features, and documentation.
 - **Tooling:** Built-in tools and the MCP ecosystem.
 - **Core:** Core functionality of the CLI
-- **Extensibility:** Bringing Gemini CLI to other surfaces e.g. GitHub.
+- **Extensibility:** Bringing Qflow CLI to other surfaces e.g. GitHub.
 - **Contribution:** Improve the contribution process via test automation and
   CI/CD pipeline enhancements.
 - **Platform:** Manage installation, OS support, and the underlying CLI
@@ -88,7 +88,7 @@ initiatives that interest you.
 
 ## How to Contribute
 
-Gemini CLI is an open-source project, and we welcome contributions from the
+Qflow CLI is an open-source project, and we welcome contributions from the
 community! Whether you're a developer, a designer, or just an enthusiastic user
 you can find our
 [Community Guidelines here](https://github.com/google-gemini/gemini-cli/blob/main/CONTRIBUTING.md)
@@ -109,5 +109,5 @@ to learn how to get started. There are many ways to get involved:
   file for guidelines on how to submit pull requests. We have a list of "good
   first issues" for new contributors.
 - **Write Documentation:** Help us improve our documentation, tutorials, and
-  examples. We are excited about the future of Gemini CLI and look forward to
+  examples. We are excited about the future of Qflow CLI and look forward to
   building it with you!

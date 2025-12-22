@@ -29,7 +29,7 @@ describe('LogoutConfirmationDialog', () => {
 
     expect(lastFrame()).toContain('You are now logged out.');
     expect(lastFrame()).toContain(
-      'Login again to continue using Gemini CLI, or exit the application.',
+      'Login again to continue using Qflow CLI, or exit the application.',
     );
     expect(lastFrame()).toContain('(Use Enter to select, Esc to close)');
   });

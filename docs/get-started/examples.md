@@ -1,7 +1,7 @@
-# Gemini CLI examples
+# Qflow CLI examples
 
-Not sure where to get started with Gemini CLI? This document covers examples on
-how to use Gemini CLI for a variety of tasks.
+Not sure where to get started with Qflow CLI? This document covers examples on
+how to use Qflow CLI for a variety of tasks.
 
 **Note:** Results are examples intended to showcase potential use cases. Your
 results may vary.
@@ -37,7 +37,7 @@ photos/green_android_robot.png
 Scenario: You want to understand how a popular open-source utility works by
 inspecting its code, not just its README.
 
-Give Gemini CLI the following prompt:
+Give Qflow CLI the following prompt:
 
 ```cli
 Clone the 'chalk' repository from https://github.com/chalk/chalk, read its key source files, and explain how it works.
@@ -51,7 +51,7 @@ Result: Gemini will perform a sequence of actions to answer your request.
     them.
 3.  Finally, after analyzing the code, it will provide a summary.
 
-Gemini CLI will return an explanation based on the actual source code:
+Qflow CLI will return an explanation based on the actual source code:
 
 ```markdown
 The `chalk` library is a popular npm package for styling terminal output with
@@ -94,15 +94,14 @@ December,2100
 
 You want to combine these two .csv files into a single .csv file.
 
-Give Gemini CLI the following prompt:
+Give Qflow CLI the following prompt:
 
 ```cli
 Combine the two .csv files into a single .csv file, with each year a different column.
 ```
 
-Result: Gemini CLI will read each file and then ask for permission to write a
-new file. Provide your permission and Gemini CLI will provide the following
-.csv:
+Result: Qflow CLI will read each file and then ask for permission to write a new
+file. Provide your permission and Qflow CLI will provide the following .csv:
 
 ```csv
 Month,2023,2024
@@ -125,13 +124,13 @@ December,2100,9000
 Scenario: You've written a simple login page. You wish to write unit tests to
 ensure that your login page has code coverage.
 
-Give Gemini CLI the following prompt:
+Give Qflow CLI the following prompt:
 
 ```cli
 Write unit tests for Login.js.
 ```
 
-Result: Gemini CLI will ask for permission to write a new file and create a test
+Result: Qflow CLI will ask for permission to write a new file and create a test
 for your login page
 
 ```javascript

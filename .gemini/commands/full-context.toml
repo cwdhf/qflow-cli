@@ -28,7 +28,7 @@ In addition to the code context, you MUST strictly adhere to the following front
     *   Avoid mocking the file system, os, or child_process if at all possible; if you have to mock the Mock critical dependencies (`fs`, `os`, `child_process`) do so ONLY at the top of the file.
 
 ## React & Ink Architecture
-*   **Keyboard Handling**: You MUST use `useKeyPress.ts` from Gemini CLI for keyboard handling, NOT the standard ink library. This is critical for supporting slow terminals and multiple events per frame.
+*   **Keyboard Handling**: You MUST use `useKeyPress.ts` from Qflow CLI for keyboard handling, NOT the standard ink library. This is critical for supporting slow terminals and multiple events per frame.
     *   Handle multiple events gracefully (often requires a reducer pattern, see `text-buffer.ts`).
 *   **State Management**:
     *   NEVER trigger side effects from within the body of a `setState` callback. Use a reducer or `useRef` if necessary.

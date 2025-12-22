@@ -41,7 +41,7 @@ async function finishAddingDirectories(
     addItem(
       {
         type: MessageType.INFO,
-        text: `Successfully added GEMINI.md files from the following directories if there are:\n- ${added.join('\n- ')}`,
+        text: `Successfully added QFLOW.md files from the following directories if there are:\n- ${added.join('\n- ')}`,
       },
       Date.now(),
     );

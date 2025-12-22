@@ -1,22 +1,22 @@
-# Gemini CLI installation, execution, and deployment
+# Qflow CLI installation, execution, and deployment
 
-Install and run Gemini CLI. This document provides an overview of Gemini CLI's
+Install and run Qflow CLI. This document provides an overview of Qflow CLI's
 installation methods and deployment architecture.
 
-## How to install and/or run Gemini CLI
+## How to install and/or run Qflow CLI
 
-There are several ways to run Gemini CLI. The recommended option depends on how
-you intend to use Gemini CLI.
+There are several ways to run Qflow CLI. The recommended option depends on how
+you intend to use Qflow CLI.
 
 - As a standard installation. This is the most straightforward method of using
-  Gemini CLI.
+  Qflow CLI.
 - In a sandbox. This method offers increased security and isolation.
 - From the source. This is recommended for contributors to the project.
 
 ### 1. Standard installation (recommended for standard users)
 
-This is the recommended way for end-users to install Gemini CLI. It involves
-downloading the Gemini CLI package from the NPM registry.
+This is the recommended way for end-users to install Qflow CLI. It involves
+downloading the Qflow CLI package from the NPM registry.
 
 - **Global install:**
 
@@ -39,8 +39,8 @@ downloading the Gemini CLI package from the NPM registry.
 
 ### 2. Run in a sandbox (Docker/Podman)
 
-For security and isolation, Gemini CLI can be run inside a container. This is
-the default way that the CLI executes tools that might have side effects.
+For security and isolation, Qflow CLI can be run inside a container. This is the
+default way that the CLI executes tools that might have side effects.
 
 - **Directly from the registry:** You can run the published sandbox image
   directly. This is useful for environments where you only have Docker and want
@@ -49,14 +49,14 @@ the default way that the CLI executes tools that might have side effects.
   # Run the published sandbox image
   docker run --rm -it us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.1.1
   ```
-- **Using the `--sandbox` flag:** If you have Gemini CLI installed locally
-  (using the standard installation described above), you can instruct it to run
-  inside the sandbox container.
+- **Using the `--sandbox` flag:** If you have Qflow CLI installed locally (using
+  the standard installation described above), you can instruct it to run inside
+  the sandbox container.
   ```bash
   gemini --sandbox -y -p "your prompt here"
   ```
 
-### 3. Run from source (recommended for Gemini CLI contributors)
+### 3. Run from source (recommended for Qflow CLI contributors)
 
 Contributors to the project will want to run the CLI directly from the source
 code.
@@ -81,9 +81,9 @@ code.
 
 ---
 
-### 4. Running the latest Gemini CLI commit from GitHub
+### 4. Running the latest Qflow CLI commit from GitHub
 
-You can run the most recently committed version of Gemini CLI directly from the
+You can run the most recently committed version of Qflow CLI directly from the
 GitHub repository. This is useful for testing features still in development.
 
 ```bash
@@ -98,14 +98,14 @@ architectural components and processes:
 
 **NPM packages**
 
-Gemini CLI project is a monorepo that publishes two core packages to the NPM
+Qflow CLI project is a monorepo that publishes two core packages to the NPM
 registry:
 
 - `@google/gemini-cli-core`: The backend, handling logic and tool execution.
 - `@google/gemini-cli`: The user-facing frontend.
 
 These packages are used when performing the standard installation and when
-running Gemini CLI from the source.
+running Qflow CLI from the source.
 
 **Build and packaging processes**
 
@@ -118,7 +118,7 @@ channel:
   `dist/` directory is what gets published in the NPM package. This is a
   standard approach for TypeScript libraries.
 
-- **GitHub `npx` execution:** When running the latest version of Gemini CLI
+- **GitHub `npx` execution:** When running the latest version of Qflow CLI
   directly from GitHub, a different process is triggered by the `prepare` script
   in `package.json`. This script uses `esbuild` to bundle the entire application
   and its dependencies into a single, self-contained JavaScript file. This
@@ -129,7 +129,7 @@ channel:
 
 The Docker-based execution method is supported by the `gemini-cli-sandbox`
 container image. This image is published to a container registry and contains a
-pre-installed, global version of Gemini CLI.
+pre-installed, global version of Qflow CLI.
 
 ## Release process
 

@@ -1,6 +1,6 @@
-# Gemini CLI hooks
+# Qflow CLI hooks
 
-Hooks are scripts or programs that Gemini CLI executes at specific points in the
+Hooks are scripts or programs that Qflow CLI executes at specific points in the
 agentic loop, allowing you to intercept and customize behavior without modifying
 the CLI's source code.
 
@@ -21,14 +21,14 @@ With hooks, you can:
 - **Log interactions:** Track tool usage and model responses
 - **Optimize behavior:** Dynamically adjust tool selection or model parameters
 
-Hooks run synchronously as part of the agent loop—when a hook event fires,
-Gemini CLI waits for all matching hooks to complete before continuing.
+Hooks run synchronously as part of the agent loop—when a hook event fires, Qflow
+CLI waits for all matching hooks to complete before continuing.
 
 ## Core concepts
 
 ### Hook events
 
-Hooks are triggered by specific events in Gemini CLI's lifecycle. The following
+Hooks are triggered by specific events in Qflow CLI's lifecycle. The following
 table lists all available hook events:
 
 | Event                 | When It Fires                                 | Common Use Cases                           |
@@ -47,7 +47,7 @@ table lists all available hook events:
 
 ### Hook types
 
-Gemini CLI currently supports **command hooks** that run shell commands or
+Qflow CLI currently supports **command hooks** that run shell commands or
 scripts:
 
 ```json
@@ -531,7 +531,7 @@ This command:
 
 ### Event name mapping
 
-| Claude Code        | Gemini CLI     |
+| Claude Code        | Qflow CLI      |
 | ------------------ | -------------- |
 | `PreToolUse`       | `BeforeTool`   |
 | `PostToolUse`      | `AfterTool`    |
@@ -544,7 +544,7 @@ This command:
 
 ### Tool name mapping
 
-| Claude Code | Gemini CLI            |
+| Claude Code | Qflow CLI             |
 | ----------- | --------------------- |
 | `Bash`      | `run_shell_command`   |
 | `Edit`      | `replace`             |
@@ -646,5 +646,5 @@ matchers:
 - [Best Practices](best-practices.md) - Security, performance, and debugging
 - [Custom Commands](../cli/custom-commands.md) - Create reusable prompt
   shortcuts
-- [Configuration](../cli/configuration.md) - Gemini CLI configuration options
+- [Configuration](../cli/configuration.md) - Qflow CLI configuration options
 - [Hooks Design Document](../hooks-design.md) - Technical architecture details

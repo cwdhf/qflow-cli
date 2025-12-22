@@ -1,13 +1,13 @@
-# Gemini CLI for the enterprise
+# Qflow CLI for the enterprise
 
 This document outlines configuration patterns and best practices for deploying
-and managing Gemini CLI in an enterprise environment. By leveraging system-level
+and managing Qflow CLI in an enterprise environment. By leveraging system-level
 settings, administrators can enforce security policies, manage tool access, and
 ensure a consistent experience for all users.
 
 > **A note on security:** The patterns described in this document are intended
 > to help administrators create a more controlled and secure environment for
-> using Gemini CLI. However, they should not be considered a foolproof security
+> using Qflow CLI. However, they should not be considered a foolproof security
 > boundary. A determined user with sufficient privileges on their local machine
 > may still be able to circumvent these configurations. These measures are
 > designed to prevent accidental misuse and enforce corporate policy in a
@@ -173,7 +173,7 @@ the enterprise settings are always loaded with the highest precedence.
 **Example wrapper script:**
 
 Administrators can create a script named `gemini` and place it in a directory
-that appears earlier in the user's `PATH` than the actual Gemini CLI binary
+that appears earlier in the user's `PATH` than the actual Qflow CLI binary
 (e.g., `/usr/local/bin/gemini`).
 
 ```bash
@@ -193,14 +193,14 @@ if [ -z "$REAL_GEMINI_PATH" ]; then
   exit 1
 fi
 
-# Pass all arguments to the real Gemini CLI executable.
+# Pass all arguments to the real Qflow CLI executable.
 exec "$REAL_GEMINI_PATH" "$@"
 ```
 
 By deploying this script, the `GEMINI_CLI_SYSTEM_SETTINGS_PATH` is set within
 the script's environment, and the `exec` command replaces the script process
-with the actual Gemini CLI process, which inherits the environment variable.
-This makes it significantly more difficult for a user to bypass the enforced
+with the actual Qflow CLI process, which inherits the environment variable. This
+makes it significantly more difficult for a user to bypass the enforced
 settings.
 
 ## Restricting tool access
@@ -275,7 +275,7 @@ effectively.
 
 ### How MCP server configurations are merged
 
-Gemini CLI loads `settings.json` files from three levels: System, Workspace, and
+Qflow CLI loads `settings.json` files from three levels: System, Workspace, and
 User. When it comes to the `mcpServers` object, these configurations are
 **merged**:
 
@@ -437,7 +437,7 @@ an environment variable, but it can also be enforced for custom tools via the
 
 ## Telemetry and auditing
 
-For auditing and monitoring purposes, you can configure Gemini CLI to send
+For auditing and monitoring purposes, you can configure Qflow CLI to send
 telemetry data to a central location. This allows you to track tool usage and
 other events. For more information, see the
 [telemetry documentation](./telemetry.md).
@@ -482,7 +482,7 @@ enforced one.
 
 For enterprises using Google Workspace, you can enforce that users only
 authenticate with their corporate Google accounts. This is a network-level
-control that is configured on a proxy server, not within Gemini CLI itself. It
+control that is configured on a proxy server, not within Qflow CLI itself. It
 works by intercepting authentication requests to Google and adding a special
 HTTP header.
 

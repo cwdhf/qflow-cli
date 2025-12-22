@@ -1,10 +1,10 @@
-# Gemini CLI settings (`/settings` command)
+# Qflow CLI settings (`/settings` command)
 
-Control your Gemini CLI experience with the `/settings` command. The `/settings`
-command opens a dialog to view and edit all your Gemini CLI settings, including
+Control your Qflow CLI experience with the `/settings` command. The `/settings`
+command opens a dialog to view and edit all your Qflow CLI settings, including
 your UI experience, keybindings, and accessibility features.
 
-Your Gemini CLI settings are stored in a `settings.json` file. In addition to
+Your Qflow CLI settings are stored in a `settings.json` file. In addition to
 using the `/settings` command, you can also edit them in one of the following
 locations:
 
@@ -41,10 +41,10 @@ they appear in the UI.
 | UI Label                       | Setting                                  | Description                                                          | Default |
 | ------------------------------ | ---------------------------------------- | -------------------------------------------------------------------- | ------- |
 | Hide Window Title              | `ui.hideWindowTitle`                     | Hide the window title bar.                                           | `false` |
-| Show Status in Title           | `ui.showStatusInTitle`                   | Show Gemini CLI status and thoughts in the terminal window title.    | `false` |
+| Show Status in Title           | `ui.showStatusInTitle`                   | Show Qflow CLI status and thoughts in the terminal window title.     | `false` |
 | Hide Tips                      | `ui.hideTips`                            | Hide helpful tips in the UI.                                         | `false` |
 | Hide Banner                    | `ui.hideBanner`                          | Hide the application banner.                                         | `false` |
-| Hide Context Summary           | `ui.hideContextSummary`                  | Hide the context summary (GEMINI.md, MCP servers) above the input.   | `false` |
+| Hide Context Summary           | `ui.hideContextSummary`                  | Hide the context summary (QFLOW.md, MCP servers) above the input.    | `false` |
 | Hide CWD                       | `ui.footer.hideCWD`                      | Hide the current working directory path in the footer.               | `false` |
 | Hide Sandbox Status            | `ui.footer.hideSandboxStatus`            | Hide the sandbox status indicator in the footer.                     | `false` |
 | Hide Model Info                | `ui.footer.hideModelInfo`                | Hide the model name and context usage in the footer.                 | `false` |
@@ -74,14 +74,14 @@ they appear in the UI.
 
 ### Context
 
-| UI Label                             | Setting                                           | Description                                                                                                                                     | Default |
-| ------------------------------------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| Memory Discovery Max Dirs            | `context.discoveryMaxDirs`                        | Maximum number of directories to search for memory.                                                                                             | `200`   |
-| Load Memory From Include Directories | `context.loadMemoryFromIncludeDirectories`        | Controls how /memory refresh loads GEMINI.md files. When true, include directories are scanned; when false, only the current directory is used. | `false` |
-| Respect .gitignore                   | `context.fileFiltering.respectGitIgnore`          | Respect .gitignore files when searching.                                                                                                        | `true`  |
-| Respect .geminiignore                | `context.fileFiltering.respectGeminiIgnore`       | Respect .geminiignore files when searching.                                                                                                     | `true`  |
-| Enable Recursive File Search         | `context.fileFiltering.enableRecursiveFileSearch` | Enable recursive file search functionality when completing @ references in the prompt.                                                          | `true`  |
-| Disable Fuzzy Search                 | `context.fileFiltering.disableFuzzySearch`        | Disable fuzzy search when searching for files.                                                                                                  | `false` |
+| UI Label                             | Setting                                           | Description                                                                                                                                    | Default |
+| ------------------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Memory Discovery Max Dirs            | `context.discoveryMaxDirs`                        | Maximum number of directories to search for memory.                                                                                            | `200`   |
+| Load Memory From Include Directories | `context.loadMemoryFromIncludeDirectories`        | Controls how /memory refresh loads QFLOW.md files. When true, include directories are scanned; when false, only the current directory is used. | `false` |
+| Respect .gitignore                   | `context.fileFiltering.respectGitIgnore`          | Respect .gitignore files when searching.                                                                                                       | `true`  |
+| Respect .geminiignore                | `context.fileFiltering.respectGeminiIgnore`       | Respect .geminiignore files when searching.                                                                                                    | `true`  |
+| Enable Recursive File Search         | `context.fileFiltering.enableRecursiveFileSearch` | Enable recursive file search functionality when completing @ references in the prompt.                                                         | `true`  |
+| Disable Fuzzy Search                 | `context.fileFiltering.disableFuzzySearch`        | Disable fuzzy search when searching for files.                                                                                                 | `false` |
 
 ### Tools
 

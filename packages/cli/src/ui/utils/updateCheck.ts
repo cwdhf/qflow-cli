@@ -91,7 +91,7 @@ export async function checkForUpdates(
       const latestUpdate = await latestVersion(name);
 
       if (latestUpdate && semver.gt(latestUpdate, currentVersion)) {
-        const message = `Gemini CLI update available! ${currentVersion} → ${latestUpdate}`;
+        const message = `Qflow CLI update available! ${currentVersion} → ${latestUpdate}`;
         const type = semver.diff(latestUpdate, currentVersion) || undefined;
         return {
           message,

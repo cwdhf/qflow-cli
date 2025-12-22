@@ -62,7 +62,7 @@ export const LogoutConfirmationDialog: React.FC<
             You are now logged out.
           </Text>
           <Text color={theme.text.secondary}>
-            Login again to continue using Gemini CLI, or exit the application.
+            Login again to continue using Qflow CLI, or exit the application.
           </Text>
         </Box>
 

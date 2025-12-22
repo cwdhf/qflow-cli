@@ -4,13 +4,13 @@ We would love to accept your patches and contributions to this project. This
 document includes:
 
 - **[Before you begin](#before-you-begin):** Essential steps to take before
-  becoming a Gemini CLI contributor.
+  becoming a Qflow CLI contributor.
 - **[Code contribution process](#code-contribution-process):** How to contribute
-  code to Gemini CLI.
+  code to Qflow CLI.
 - **[Development setup and workflow](#development-setup-and-workflow):** How to
   set up your development environment and workflow.
 - **[Documentation contribution process](#documentation-contribution-process):**
-  How to contribute documentation to Gemini CLI.
+  How to contribute documentation to Qflow CLI.
 
 We're looking forward to seeing your contributions!
 
@@ -60,7 +60,7 @@ recommend running our automated frontend review tool. **Note: This tool is
 currently experimental.** It helps detect common React anti-patterns, testing
 issues, and other frontend-specific best practices that are easy to miss.
 
-To run the review tool, enter the following command from within Gemini CLI:
+To run the review tool, enter the following command from within Qflow CLI:
 
 ```text
 /review-frontend <PR_NUMBER>
@@ -216,7 +216,7 @@ To skip building the sandbox container, you can use `npm run build` instead.
 
 ### Running the CLI
 
-To start the Gemini CLI from the source code (after building), run the following
+To start the Qflow CLI from the source code (after building), run the following
 command from the root directory:
 
 ```bash
@@ -247,7 +247,7 @@ comprehensive check, it is recommended to run `npm run preflight`.
 #### Integration tests
 
 The integration tests are designed to validate the end-to-end functionality of
-the Gemini CLI. They are not run as part of the default `npm run test` command.
+the Qflow CLI. They are not run as part of the default `npm run test` command.
 
 To run the integration tests, use the following command:
 
@@ -310,7 +310,7 @@ npm run lint
 - Please adhere to the coding style, patterns, and conventions used throughout
   the existing codebase.
 - Consult
-  [GEMINI.md](https://github.com/google-gemini/gemini-cli/blob/main/GEMINI.md)
+  [QFLOW.md](https://github.com/google-gemini/gemini-cli/blob/main/QFLOW.md)
   (typically found in the project root) for specific instructions related to
   AI-assisted development, including conventions for React, comments, and Git
   usage.
@@ -320,13 +320,13 @@ npm run lint
 ### Project structure
 
 - `packages/`: Contains the individual sub-packages of the project.
-  - `a2a-server`: A2A server implementation for the Gemini CLI. (Experimental)
+  - `a2a-server`: A2A server implementation for the Qflow CLI. (Experimental)
   - `cli/`: The command-line interface.
-  - `core/`: The core backend logic for the Gemini CLI.
+  - `core/`: The core backend logic for the Qflow CLI.
   - `test-utils` Utilities for creating and cleaning temporary file systems for
     testing.
-  - `vscode-ide-companion/`: The Gemini CLI Companion extension pairs with
-    Gemini CLI.
+  - `vscode-ide-companion/`: The Qflow CLI Companion extension pairs with Qflow
+    CLI.
 - `docs/`: Contains all project documentation.
 - `scripts/`: Utility scripts for building, testing, and development tasks.
 
@@ -367,7 +367,7 @@ specific debug settings.
 To debug the CLI's React-based UI, you can use React DevTools. Ink, the library
 used for the CLI's interface, is compatible with React DevTools version 4.x.
 
-1.  **Start the Gemini CLI in development mode:**
+1.  **Start the Qflow CLI in development mode:**
 
     ```bash
     DEV=true npm start
@@ -424,7 +424,7 @@ sandbox.
 
 Container-based sandboxing mounts the project directory (and system temp
 directory) with read-write access and is started/stopped/removed automatically
-as you start/stop Gemini CLI. Files created within the sandbox should be
+as you start/stop Qflow CLI. Files created within the sandbox should be
 automatically mapped to your user/group on host machine. You can easily specify
 additional mounts, ports, or environment variables by setting
 `SANDBOX_{MOUNTS,PORTS,ENV}` as needed. You can also fully customize the sandbox
@@ -466,7 +466,7 @@ our documentation to be clear, concise, and helpful to our users. We value:
 - **Accuracy:** Ensure all information is correct and up-to-date.
 - **Completeness:** Cover all aspects of a feature or topic.
 - **Examples:** Provide practical examples to help users understand how to use
-  Gemini CLI.
+  Qflow CLI.
 
 ### Getting started
 
@@ -543,4 +543,4 @@ If you have questions about contributing documentation:
   your proposed changes.
 - Reach out to the maintainers.
 
-We appreciate your contributions to making Gemini CLI documentation better!
+We appreciate your contributions to making Qflow CLI documentation better!
