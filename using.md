@@ -1,66 +1,201 @@
-✦ 构建完成的 Hanfeng CLI 安装方法：
+# Qflow CLI 安装和使用指南
 
-# 1. 构建所有工作区
+## 一、构建项目
 
+### 1. 完整构建流程
+
+```bash
+# 1. 清理旧构建文件
+npm run clean
+
+# 2. 生成必要的元数据文件
+npm run generate
+
+# 3. 构建所有工作区
 npm run build
 
-# 2. 创建 bundle
-
+# 4. 创建可执行 bundle（推荐）
 npm run bundle
+```
 
-# 3. 检查 bundle 是否生成
+### 2. 快速构建
 
+```bash
+# 直接执行完整构建流程
+npm run build-and-start
+```
+
+### 3. 检查构建结果
+
+```bash
+# 验证 bundle 是否生成
 ls -la bundle/
+```
 
-# 4. 更新版本
+## 二、本地安装（当前系统）
 
-npm version patch
+### 方法一：直接运行（开发模式）
 
-# 5. 发布到 npm
+```bash
+# 直接运行构建好的文件
+node /Volumes/lp/code/gemini-cli/bundle/qflow.js
 
+# 或创建别名（临时生效）
+alias qflow="node /Volumes/lp/code/gemini-cli/bundle/qflow.js"
+
+# 永久别名（macOS/Linux）
+echo 'alias qflow="node /Volumes/lp/code/gemini-cli/bundle/qflow.js"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### 方法二：全局安装（生产模式）
+
+```bash
+# 从项目根目录全局安装
+cd /Volumes/lp/code/gemini-cli
+npm install -g .
+
+# 安装后直接使用
+qflow --version
+```
+
+## 三、跨系统安装
+
+### 方法一：复制 bundle 目录
+
+1. 将整个 `bundle/` 目录复制到目标系统
+2. 确保目标系统有 Node.js ≥20.0.0
+3. 运行：
+
+```bash
+node /path/to/bundle/qflow.js
+```
+
+### 方法二：打包分发
+
+```bash
+# 1. 创建压缩包
+cd /Volumes/lp/code/gemini-cli
+tar -czf qflow-cli-bundle.tar.gz bundle/
+
+# 2. 传输到目标系统（示例使用 scp）
+scp qflow-cli-bundle.tar.gz user@remote-host:/path/to/destination
+
+# 3. 在目标系统解压并运行
+tar -xzf qflow-cli-bundle.tar.gz
+node bundle/qflow.js
+```
+
+### 方法三：发布到 npm
+
+```bash
+# 1. 更新版本号
+npm version patch  # 或 minor/major
+
+# 2. 发布到 npm
 npm publish
 
-1. 本地安装（当前系统）
+# 3. 在其他系统安装
+npm install -g @cwdhf/qflow-cli
+```
 
-方法一：直接运行 1 # 直接运行构建好的文件 2 node
-/Volumes/lp/code/gemini-cli/bundle/hanfeng.js 3 4 # 或创建别名 5 alias
-hanfeng="node /Volumes/lp/code/gemini-cli/bundle/hanfeng.js"
+### 方法四：本地打包分发
 
-方法二：全局安装 1 # 从项目根目录安装 2 cd /Volumes/lp/code/gemini-cli 3 npm
-install -g . 4 5 # 安装后直接使用 6 hanfeng
+```bash
+# 1. 打包成 tarball
+npm pack
 
-2. 其他系统安装
+# 2. 复制到目标机器（示例使用 scp）
+scp gemini-cli-0.21.1-nightly.20251213.977248e09.tgz user@remote-host:/path/to/destination
 
-方法一：复制 bundle 目录
+# 3. 在目标机器安装
+npm install -g gemini-cli-0.21.1-nightly.20251213.977248e09.tgz
+```
 
-1.  将整个 bundle/ 目录复制到目标系统
-2.  确保目标系统有 Node.js ≥20.0.0
-3.  运行：1 node /path/to/bundle/hanfeng.js
+## 四、环境配置
 
-方法二：打包分发 1 # 1. 创建压缩包 2 cd /Volumes/lp/code/gemini-cli 3 tar -czf
-hanfeng-cli-bundle.tar.gz bundle/ 4 5 # 2. 传输到目标系统 6 # 3. 解压并运行 7
-tar -xzf hanfeng-cli-bundle.tar.gz 8 node bundle/hanfeng.js
+### 1. API 密钥配置
 
-3. 环境配置
+创建 `.env` 文件：
 
-`.env` 文件配置：1 # 在项目根目录或用户主目录创建 .env 文件 2
-GEMINI_API_KEY=your_api_key_here 3 GOOGLE_CLOUD_PROJECT=your_project_id
+```env
+# 方法一：使用 Gemini API
+OPENAI_API_KEY=your_openai_api_key_here
+GOOGLE_CLOUD_PROJECT=your_project_id
 
-配置文件位置：
+# 方法二：使用 OpenAI API
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=doubao-seed-1-8-251215
+```
 
-- 用户设置：~/.hanfeng/settings.json
-- 项目设置：项目目录/.hanfeng/settings.json cp .env ~/.env
+### 2. 配置文件位置
 
-4. 系统要求
+- **用户全局设置**：`~/.qflow/settings.json`
+- **项目本地设置**：`./.qflow/settings.json`
 
-- Node.js ≥20.0.0
-- 支持的操作系统：macOS、Linux、Windows
-- 网络连接（访问 Gemini API）
+### 3. 复制配置文件
 
-5. 验证安装 1 # 检查版本 2 hanfeng --version 3 4 # 检查帮助 5 hanfeng --help
+```bash
+# 将当前配置复制到用户目录
+cp .env ~/.env
+```
 
-6. 注意事项
+## 五、系统要求
 
-- 首次运行需要配置 API 密钥
-- 确保有足够的磁盘空间（bundle 约 22MB）
-- 在受信任的目录运行以启用完整功能
+- **Node.js**：≥20.0.0
+- **操作系统**：macOS 13+, Linux (Ubuntu 22.04+), Windows 10+
+- **网络**：需要访问 Google Gemini API 或 OpenAI API
+- **磁盘空间**：≥50MB（包含 bundle 和依赖）
+
+## 六、验证安装
+
+```bash
+# 检查 CLI 版本
+qflow --version
+
+# 查看帮助文档
+qflow --help
+
+# 验证 API 连接
+qflow test-connection
+```
+
+## 七、注意事项
+
+1. **首次运行**：首次启动会引导你配置 API 密钥
+2. **受信任目录**：在受信任的目录运行以启用完整功能（如文件修改）
+3. **可选依赖**：`node-pty` 是可选依赖，用于终端功能，安装失败不影响核心功能
+4. **更新**：使用 `qflow update` 检查并更新到最新版本
+5. **日志**：日志文件位于 `~/.qflow/logs/`
+
+## 八、故障排除
+
+### 常见问题
+
+1. **权限问题**：
+
+```bash
+# 解决全局安装权限问题
+sudo chown -R $USER /usr/local/lib/node_modules
+```
+
+2. **Node 版本不兼容**：
+
+```bash
+# 使用 nvm 管理 Node 版本
+nvm install 20
+nvm use 20
+```
+
+3. **API 连接失败**：
+
+- 检查网络连接
+- 验证 API 密钥是否正确
+- 确保防火墙允许出站连接
+
+4. **Bundle 运行错误**：
+
+```bash
+# 重新构建 bundle
+npm run clean && npm run bundle
+```

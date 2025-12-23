@@ -17,6 +17,7 @@ import {
   ApprovalMode,
   DEFAULT_GEMINI_MODEL_AUTO,
   DEFAULT_GEMINI_EMBEDDING_MODEL,
+  DEFAULT_OPENAI_MODEL,
   DEFAULT_FILE_FILTERING_OPTIONS,
   DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
   FileDiscoveryService,
@@ -576,13 +577,16 @@ export async function loadCliConfig(
   // Check if using OpenAI authentication
   const isUsingOpenAI =
     settings.security?.auth?.selectedType === AuthType.USE_OPENAI ||
-    process.env['OPENAI_API_KEY'];
+    !!process.env['OPENAI_API_KEY'] ||
+    !!process.env['OPENAI_BASE_URL'];
 
   let resolvedModel: string;
 
   if (isUsingOpenAI) {
-    // For OpenAI, use OPENAI_MODEL environment variable or default to gpt-3.5-turbo
-    resolvedModel = process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+    // For OpenAI, use OPENAI_MODEL environment variable or default
+    resolvedModel =
+      process.env['OPENAI_MODEL'] ||
+      (process.env['OPENAI_API_KEY'] ? DEFAULT_OPENAI_MODEL : 'gpt-3.5-turbo');
   } else {
     // For Gemini/Google authentication, use the existing logic
     resolvedModel =

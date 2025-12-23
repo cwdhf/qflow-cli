@@ -122,9 +122,10 @@ class WriteTodosToolInvocation extends BaseToolInvocation<
   ): Promise<ToolResult> {
     const todos = this.params.todos ?? [];
     const todoListString = todos
-      .map(
-        (todo, index) => `${index + 1}. [${todo.status}] ${todo.description}`,
-      )
+      .map((todo, index) => {
+        const idDisplay = todo.id ? `[ID: ${todo.id}] ` : '';
+        return `${index + 1}. [${todo.status}] ${idDisplay}${todo.description}`;
+      })
       .join('\n');
 
     const llmContent =
@@ -162,6 +163,11 @@ export class WriteTodosTool extends BaseDeclarativeTool<
               type: 'object',
               description: 'A single todo item.',
               properties: {
+                id: {
+                  type: 'string',
+                  description:
+                    'The unique identifier for the todo item (optional).',
+                },
                 description: {
                   type: 'string',
                   description: 'The description of the task.',
@@ -196,6 +202,9 @@ export class WriteTodosTool extends BaseDeclarativeTool<
             items: {
               type: 'object',
               properties: {
+                id: {
+                  type: 'string',
+                },
                 description: {
                   type: 'string',
                 },

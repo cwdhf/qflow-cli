@@ -641,6 +641,7 @@ export type ToolResultDisplay = string | FileDiff | AnsiOutput | TodoList;
 export type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
 export interface Todo {
+  id?: string;
   description: string;
   status: TodoStatus;
 }

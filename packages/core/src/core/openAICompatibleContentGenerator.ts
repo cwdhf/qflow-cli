@@ -31,6 +31,7 @@ import {
   convertToGenerateContentResponse,
 } from './openai-converter.js';
 import { OpenAIClient } from './openai-client.js';
+import { promises as fs } from 'node:fs';
 
 /**
  * OpenAI兼容的内容生成器配置
@@ -67,6 +68,25 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     this.embeddingModel = config.embeddingModel || 'text-embedding-ada-002';
     this.client = new OpenAIClient(config);
     this.userTier = config.userTier;
+  }
+
+  private mapFinishReason(
+    reason: string | null | undefined,
+  ): FinishReason | undefined {
+    if (!reason) return undefined;
+    switch (reason) {
+      case 'stop':
+        return FinishReason.STOP;
+      case 'length':
+        return FinishReason.MAX_TOKENS;
+      case 'content_filter':
+        return FinishReason.SAFETY;
+      case 'function_call':
+      case 'tool_calls':
+        return FinishReason.STOP;
+      default:
+        return FinishReason.OTHER;
+    }
   }
 
   /**
@@ -213,6 +233,20 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       completionRequest,
     );
 
+    // 日志文件路径
+    const logFilePath = '/tmp/openai_stream_debug.log';
+
+    // 辅助函数：写入日志文件
+    const writeLog = async (message: string) => {
+      const timestamp = new Date().toISOString();
+      const logMessage = `[${timestamp}] ${message}\n`;
+      await fs.appendFile(logFilePath, logMessage);
+    };
+
+    // 写入开始日志
+    await writeLog('===== OPENAI STREAMING START =====');
+    await writeLog(`Request: ${JSON.stringify(completionRequest)}`);
+
     // 使用箭头函数保留this上下文，避免使用self别名
     const generate = async function* (
       this: OpenAICompatibleContentGenerator,
@@ -233,8 +267,17 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         total_tokens: 0,
       };
 
+      // 记录收到的chunk数量
+      let chunkCount = 0;
+
       for await (const chunk of stream) {
-        console.log('OpenAI streaming chunk:', JSON.stringify(chunk, null, 2));
+        chunkCount++;
+
+        // 记录完整的chunk信息（简化版）
+        await writeLog(`--- Chunk #${chunkCount} ---`);
+        await writeLog(`Chunk ID: ${chunk.id}`);
+        await writeLog(`Chunk model: ${chunk.model}`);
+        await writeLog(`Chunk choices count: ${chunk.choices?.length || 0}`);
 
         // 检查chunk结构
         if (
@@ -242,15 +285,20 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
           !Array.isArray(chunk.choices) ||
           chunk.choices.length === 0
         ) {
-          console.warn('Empty choices in streaming chunk, skipping:', chunk);
+          await writeLog('WARNING: Empty choices in streaming chunk');
           continue;
         }
 
         const delta = chunk.choices[0]?.delta;
         if (!delta) {
-          console.warn('No delta in streaming chunk, skipping:', chunk);
+          await writeLog('WARNING: No delta in streaming chunk');
           continue;
         }
+
+        // 记录delta内容
+        await writeLog(`Delta has content: ${!!delta.content}`);
+        await writeLog(`Delta has tool_calls: ${!!delta.tool_calls}`);
+        await writeLog(`Delta role: ${delta.role || 'undefined'}`);
 
         // 累积token使用信息（如果chunk中包含）
         if (chunk.usage) {
@@ -259,6 +307,9 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
             completion_tokens: chunk.usage.completion_tokens,
             total_tokens: chunk.usage.total_tokens,
           };
+          await writeLog(
+            `Usage: prompt=${chunk.usage.prompt_tokens}, completion=${chunk.usage.completion_tokens}, total=${chunk.usage.total_tokens}`,
+          );
         } else if (chunk.choices[0]?.usage) {
           // 某些API可能将usage放在choices[0]中
           const choiceUsage = chunk.choices[0].usage;
@@ -267,14 +318,28 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
             completion_tokens: choiceUsage.completion_tokens,
             total_tokens: choiceUsage.total_tokens,
           };
+          await writeLog(
+            `Choice usage: prompt=${choiceUsage.prompt_tokens}, completion=${choiceUsage.completion_tokens}, total=${choiceUsage.total_tokens}`,
+          );
         }
 
         // 检查是否流结束
         const isFinished = chunk.choices[0]?.finish_reason;
+        if (isFinished) {
+          await writeLog(`Stream finished: ${isFinished}`);
+        }
 
         // 处理文本内容：只生成增量响应
         if (delta.content) {
           hasYielded = true;
+          // 调试：查看实际收到的增量内容
+          const contentForLog = delta.content
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r');
+          await writeLog(
+            `delta.content: "${contentForLog}" (length: ${delta.content.length}, raw: ${JSON.stringify(delta.content)})`,
+          );
+
           const candidate = {
             content: {
               role: 'model',
@@ -285,7 +350,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               ],
             },
             finishReason: isFinished
-              ? (chunk.choices[0]?.finish_reason as FinishReason) ||
+              ? this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
                 FinishReason.STOP
               : undefined,
             index: 0,
@@ -302,6 +367,39 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
           // 如果是流结束的chunk，并且有累积的token使用信息，添加到响应中
           if (isFinished && accumulatedUsage.total_tokens > 0) {
+            generateContentResponse.usageMetadata = {
+              promptTokenCount: accumulatedUsage.prompt_tokens,
+              candidatesTokenCount: accumulatedUsage.completion_tokens,
+              totalTokenCount: accumulatedUsage.total_tokens,
+            };
+          }
+
+          yield generateContentResponse;
+        } else if (isFinished && accumulatedToolCalls.length === 0) {
+          // 如果流结束了但没有内容（例如最后一个chunk只包含finish_reason），
+          // 我们必须生成一个带有finishReason的响应，否则geminiChat会认为流异常中断而重试
+          await writeLog(
+            `Stream finished without content in this chunk. Yielding finishReason: ${isFinished}`,
+          );
+
+          const candidate = {
+            content: {
+              role: 'model',
+              parts: [{ text: '' }], // 空内容
+            },
+            finishReason:
+              this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
+              FinishReason.STOP,
+            index: 0,
+            safetyRatings: [],
+          } as Candidate;
+
+          const generateContentResponse = new GenerateContentResponse();
+          generateContentResponse.candidates = [candidate];
+          generateContentResponse.modelVersion =
+            chunk['model'] || this.model || 'unknown';
+
+          if (accumulatedUsage.total_tokens > 0) {
             generateContentResponse.usageMetadata = {
               promptTokenCount: accumulatedUsage.prompt_tokens,
               candidatesTokenCount: accumulatedUsage.completion_tokens,
@@ -401,8 +499,19 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         }
       }
 
+      // 流处理结束，写入总结日志
+      await writeLog(`===== STREAM PROCESSING SUMMARY =====`);
+      await writeLog(`Total chunks processed: ${chunkCount}`);
+      await writeLog(`Has yielded content: ${hasYielded}`);
+      await writeLog(`Accumulated tool calls: ${accumulatedToolCalls.length}`);
+      await writeLog(
+        `Final token usage: prompt=${accumulatedUsage.prompt_tokens}, completion=${accumulatedUsage.completion_tokens}, total=${accumulatedUsage.total_tokens}`,
+      );
+
       // 如果整个流都没有生成任何响应，至少生成一个空响应
       if (!hasYielded && accumulatedToolCalls.length === 0) {
+        await writeLog('Generating empty response (no content received)');
+
         const candidate = {
           content: {
             role: 'model',
@@ -435,6 +544,8 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
         yield generateContentResponse;
       }
+
+      await writeLog('===== OPENAI STREAMING END =====');
     };
 
     return generate.call(this);

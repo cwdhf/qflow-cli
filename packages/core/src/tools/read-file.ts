@@ -32,6 +32,11 @@ export interface ReadFileToolParams {
   file_path: string;
 
   /**
+   * The path to the file to read (alias for file_path)
+   */
+  path?: string;
+
+  /**
    * The line number to start reading from (optional)
    */
   offset?: number;
@@ -55,10 +60,9 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     _toolDisplayName?: string,
   ) {
     super(params, messageBus, _toolName, _toolDisplayName);
-    this.resolvedPath = path.resolve(
-      this.config.getTargetDir(),
-      this.params.file_path,
-    );
+    // Use path if provided, otherwise fall back to file_path
+    const filePath = params.path || params.file_path;
+    this.resolvedPath = path.resolve(this.config.getTargetDir(), filePath);
   }
 
   getDescription(): string {

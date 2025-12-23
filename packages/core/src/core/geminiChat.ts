@@ -794,10 +794,16 @@ export class GeminiChat {
     // - Empty response text (e.g., only thoughts with no actual content)
     if (!hasToolCall) {
       if (!finishReason) {
-        throw new InvalidStreamError(
-          'Model stream ended without a finish reason.',
-          'NO_FINISH_REASON',
-        );
+        if (responseText) {
+          // Relax validation: if we have content but no finish reason, assume STOP
+          // This handles some 3rd party OpenAI-compatible endpoints that might omit finish_reason
+          finishReason = FinishReason.STOP;
+        } else {
+          throw new InvalidStreamError(
+            'Model stream ended without a finish reason.',
+            'NO_FINISH_REASON',
+          );
+        }
       }
       if (finishReason === FinishReason.MALFORMED_FUNCTION_CALL) {
         throw new InvalidStreamError(
