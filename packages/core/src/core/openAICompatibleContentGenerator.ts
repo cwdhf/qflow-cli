@@ -31,6 +31,8 @@ import {
   convertToGenerateContentResponse,
 } from './openai-converter.js';
 import { OpenAIClient } from './openai-client.js';
+import { debugLogger } from '../utils/debugLogger.js';
+import { TokenEstimator } from '../utils/tokenEstimator.js';
 
 /**
  * OpenAI兼容的内容生成器配置
@@ -61,12 +63,14 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
   private embeddingModel: string;
   private client: OpenAIClient;
   userTier?: UserTierId;
+  private tokenEstimator: TokenEstimator;
 
   constructor(config: OpenAICompatibleConfig) {
     this.model = config.model;
     this.embeddingModel = config.embeddingModel || 'text-embedding-ada-002';
     this.client = new OpenAIClient(config);
     this.userTier = config.userTier;
+    this.tokenEstimator = TokenEstimator.getInstance();
   }
 
   private mapFinishReason(
@@ -124,7 +128,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     // 添加工具支持
     if (generationConfig?.tools) {
       const openaiTools = convertToolsToOpenAI(generationConfig.tools);
-      console.log(
+      debugLogger.log(
         'OpenAI tools converted:',
         JSON.stringify(openaiTools, null, 2),
       );
@@ -134,15 +138,23 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       }
     }
 
-    console.log(
+    debugLogger.log(
       'Sending OpenAI API request, messages:',
       JSON.stringify(messages, null, 2),
     );
-    console.log('Full request:', JSON.stringify(completionRequest, null, 2));
+    debugLogger.log(
+      'Full request:',
+      JSON.stringify(completionRequest, null, 2),
+    );
 
     const response = await this.client.makeRequest<OpenAICompletionResponse>(
       `${this.client.endpoint}/chat/completions`,
       completionRequest,
+    );
+
+    debugLogger.log(
+      'Received OpenAI API response:',
+      JSON.stringify(response, null, 2),
     );
 
     // 转换为Gemini格式的响应
@@ -211,7 +223,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     // 添加工具支持
     if (generationConfig?.tools) {
       const openaiTools = convertToolsToOpenAI(generationConfig.tools);
-      console.log(
+      debugLogger.log(
         'OpenAI tools converted for streaming:',
         JSON.stringify(openaiTools, null, 2),
       );
@@ -221,7 +233,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       }
     }
 
-    console.log(
+    debugLogger.log(
       'Sending OpenAI streaming request:',
       JSON.stringify(completionRequest, null, 2),
     );
@@ -251,11 +263,36 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         total_tokens: 0,
       };
 
-      // 记录收到的chunk数量
+      // 用于本地token估算
+      let accumulatedCompletionContent = '';
+      let promptContent = '';
+      const tokenEstimator = this.tokenEstimator;
+
+      // 准备prompt内容用于估算
+      try {
+        promptContent = messages
+          .map((msg) => {
+            const role = msg.role || '';
+            const content = typeof msg.content === 'string' ? msg.content : '';
+            return `${role}: ${content}`;
+          })
+          .join('\n');
+      } catch (error) {
+        debugLogger.log(
+          'Error preparing prompt content for estimation:',
+          error,
+        );
+      }
+
       let _chunkCount = 0;
 
       for await (const chunk of stream) {
         _chunkCount++;
+
+        debugLogger.log(
+          `Received chunk #${_chunkCount}:`,
+          JSON.stringify(chunk, null, 2),
+        );
 
         // 检查chunk结构
         if (
@@ -263,29 +300,38 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
           !Array.isArray(chunk.choices) ||
           chunk.choices.length === 0
         ) {
+          debugLogger.log('Skipping chunk: invalid choices structure');
           continue;
         }
 
         const delta = chunk.choices[0]?.delta;
         if (!delta) {
+          debugLogger.log('Skipping chunk: no delta in choices[0]');
           continue;
         }
 
         // 累积token使用信息（如果chunk中包含）
         if (chunk.usage) {
           accumulatedUsage = {
-            prompt_tokens: chunk.usage.prompt_tokens,
-            completion_tokens: chunk.usage.completion_tokens,
-            total_tokens: chunk.usage.total_tokens,
+            prompt_tokens: chunk.usage.prompt_tokens || 0,
+            completion_tokens: chunk.usage.completion_tokens || 0,
+            total_tokens: chunk.usage.total_tokens || 0,
           };
+          debugLogger.log(
+            'Received usage metadata in stream chunk:',
+            JSON.stringify(accumulatedUsage, null, 2),
+          );
         } else if (chunk.choices[0]?.usage) {
-          // 某些API可能将usage放在choices[0]中
           const choiceUsage = chunk.choices[0].usage;
           accumulatedUsage = {
-            prompt_tokens: choiceUsage.prompt_tokens,
-            completion_tokens: choiceUsage.completion_tokens,
-            total_tokens: choiceUsage.total_tokens,
+            prompt_tokens: choiceUsage.prompt_tokens || 0,
+            completion_tokens: choiceUsage.completion_tokens || 0,
+            total_tokens: choiceUsage.total_tokens || 0,
           };
+          debugLogger.log(
+            'Received usage metadata in choice:',
+            JSON.stringify(accumulatedUsage, null, 2),
+          );
         }
 
         // 检查是否流结束
@@ -294,6 +340,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         // 处理文本内容：只生成增量响应
         if (delta.content) {
           hasYielded = true;
+          accumulatedCompletionContent += delta.content;
 
           const candidate = {
             content: {
@@ -327,6 +374,25 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               candidatesTokenCount: accumulatedUsage.completion_tokens,
               totalTokenCount: accumulatedUsage.total_tokens,
             };
+            debugLogger.log(
+              'Added usage metadata to content response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
+          } else if (isFinished && accumulatedUsage.total_tokens === 0) {
+            // 如果API没有返回usage信息，使用本地估算
+            const estimatedTokens = tokenEstimator.estimateTotalTokens(
+              promptContent,
+              accumulatedCompletionContent,
+            );
+            generateContentResponse.usageMetadata = {
+              promptTokenCount: estimatedTokens.promptTokens,
+              candidatesTokenCount: estimatedTokens.completionTokens,
+              totalTokenCount: estimatedTokens.totalTokens,
+            };
+            debugLogger.log(
+              'Added estimated usage metadata to content response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
           }
 
           yield generateContentResponse;
@@ -356,6 +422,25 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               candidatesTokenCount: accumulatedUsage.completion_tokens,
               totalTokenCount: accumulatedUsage.total_tokens,
             };
+            debugLogger.log(
+              'Added usage metadata to empty content response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
+          } else {
+            // 如果API没有返回usage信息，使用本地估算
+            const estimatedTokens = tokenEstimator.estimateTotalTokens(
+              promptContent,
+              accumulatedCompletionContent,
+            );
+            generateContentResponse.usageMetadata = {
+              promptTokenCount: estimatedTokens.promptTokens,
+              candidatesTokenCount: estimatedTokens.completionTokens,
+              totalTokenCount: estimatedTokens.totalTokens,
+            };
+            debugLogger.log(
+              'Added estimated usage metadata to empty content response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
           }
 
           yield generateContentResponse;
@@ -444,6 +529,25 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               candidatesTokenCount: accumulatedUsage.completion_tokens,
               totalTokenCount: accumulatedUsage.total_tokens,
             };
+            debugLogger.log(
+              'Added usage metadata to tool call response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
+          } else {
+            // 如果API没有返回usage信息，使用本地估算
+            const estimatedTokens = tokenEstimator.estimateTotalTokens(
+              promptContent,
+              accumulatedCompletionContent,
+            );
+            generateContentResponse.usageMetadata = {
+              promptTokenCount: estimatedTokens.promptTokens,
+              candidatesTokenCount: estimatedTokens.completionTokens,
+              totalTokenCount: estimatedTokens.totalTokens,
+            };
+            debugLogger.log(
+              'Added estimated usage metadata to tool call response:',
+              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+            );
           }
 
           yield generateContentResponse;
@@ -479,6 +583,25 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
             candidatesTokenCount: accumulatedUsage.completion_tokens,
             totalTokenCount: accumulatedUsage.total_tokens,
           };
+          debugLogger.log(
+            'Added usage metadata to fallback empty response:',
+            JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+          );
+        } else {
+          // 如果API没有返回usage信息，使用本地估算
+          const estimatedTokens = tokenEstimator.estimateTotalTokens(
+            promptContent,
+            accumulatedCompletionContent,
+          );
+          generateContentResponse.usageMetadata = {
+            promptTokenCount: estimatedTokens.promptTokens,
+            candidatesTokenCount: estimatedTokens.completionTokens,
+            totalTokenCount: estimatedTokens.totalTokens,
+          };
+          debugLogger.log(
+            'Added estimated usage metadata to fallback empty response:',
+            JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+          );
         }
 
         yield generateContentResponse;
@@ -494,12 +617,11 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
   async countTokens(
     request: CountTokensParameters,
   ): Promise<CountTokensResponse> {
-    // OpenAI没有专门的token计数端点，这里进行估算
     const contents = convertToOpenAIMessages(request.contents);
     const text = contents.map((msg) => msg.content).join('');
 
-    // 粗略估算：英文约4个字符一个token
-    const estimatedTokens = Math.ceil(text.length / 4);
+    // 使用本地token估算
+    const estimatedTokens = this.tokenEstimator.estimateTokens(text);
 
     return {
       totalTokens: estimatedTokens,
