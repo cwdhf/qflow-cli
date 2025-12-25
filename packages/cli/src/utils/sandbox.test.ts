@@ -13,7 +13,7 @@ import { FatalSandboxError, type SandboxConfig } from '@google/gemini-cli-core';
 import { EventEmitter } from 'node:events';
 
 vi.mock('../config/settings.js', () => ({
-  USER_SETTINGS_DIR: '/home/user/.gemini',
+  USER_SETTINGS_DIR: '/home/user/.qflow',
 }));
 vi.mock('node:child_process');
 vi.mock('node:os');
@@ -63,8 +63,8 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
         this.name = 'FatalSandboxError';
       }
     },
-    GEMINI_DIR: '.gemini',
-    USER_SETTINGS_DIR: '/home/user/.gemini',
+    QFLOW_DIR: '.gemini',
+    USER_SETTINGS_DIR: '/home/user/.qflow',
   };
 });
 
@@ -347,7 +347,7 @@ describe('sandbox', () => {
           '--volume',
           '/host/path:/container/path:ro',
           '--volume',
-          expect.stringContaining('/home/user/.gemini'),
+          expect.stringContaining('/home/user/.qflow'),
         ]),
         expect.any(Object),
       );

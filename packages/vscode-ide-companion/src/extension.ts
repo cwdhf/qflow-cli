@@ -86,7 +86,7 @@ async function checkForUpdates(
       semver.gt(latestVersion, currentVersion)
     ) {
       const selection = await vscode.window.showInformationMessage(
-        `A new version (${latestVersion}) of the Qflow CLI Companion extension is available.`,
+        `A new version (${latestVersion}) of the Gemini CLI Companion extension is available.`,
         'Update to latest version',
       );
       if (selection === 'Update to latest version') {
@@ -164,7 +164,7 @@ export async function activate(context: vscode.ExtensionContext) {
     !isManagedExtensionSurface
   ) {
     void vscode.window.showInformationMessage(
-      'Qflow CLI Companion extension successfully installed.',
+      'Gemini CLI Companion extension successfully installed.',
     );
     context.globalState.update(INFO_MESSAGE_SHOWN_KEY, true);
   }

@@ -99,7 +99,7 @@ available combinations.
 | Toggle Markdown rendering.                                        | `Cmd + M`  |
 | Toggle copy mode when the terminal is using the alternate buffer. | `Ctrl + S` |
 | Expand a height-constrained response to show additional lines.    | `Ctrl + S` |
-| Toggle focus between the shell and Gemini input.                  | `Ctrl + F` |
+| Toggle focus between the shell and Qflow input.                   | `Ctrl + F` |
 
 #### Session Control
 

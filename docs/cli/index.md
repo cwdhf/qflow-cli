@@ -1,8 +1,8 @@
 # Qflow CLI
 
 Within Qflow CLI, `packages/cli` is the frontend for users to send and receive
-prompts with the Gemini AI model and its associated tools. For a general
-overview of Qflow CLI, see the [main documentation page](../index.md).
+prompts with the Qflow AI model and its associated tools. For a general overview
+of Qflow CLI, see the [main documentation page](../index.md).
 
 ## Basic features
 
@@ -11,7 +11,7 @@ overview of Qflow CLI, see the [main documentation page](../index.md).
   shortcuts for frequently used prompts.
 - **[Headless mode](./headless.md):** Use Qflow CLI programmatically for
   scripting and automation.
-- **[Model selection](./model.md):** Configure the Gemini AI model used by the
+- **[Model selection](./model.md):** Configure the Qflow AI model used by the
   CLI.
 - **[Settings](./settings.md):** Configure various aspects of the CLI's behavior
   and appearance.
@@ -25,7 +25,7 @@ overview of Qflow CLI, see the [main documentation page](../index.md).
 
 - **[Checkpointing](./checkpointing.md):** Automatically save and restore
   snapshots of your session and files.
-- **[Enterprise configuration](./enterprise.md):** Deploying and manage Gemini
+- **[Enterprise configuration](./enterprise.md):** Deploying and manage Qflow
   CLI in an enterprise environment.
 - **[Sandboxing](./sandbox.md):** Isolate tool execution in a secure,
   containerized environment.
@@ -34,9 +34,9 @@ overview of Qflow CLI, see the [main documentation page](../index.md).
 - **[Token caching](./token-caching.md):** Optimize API costs by caching tokens.
 - **[Trusted folders](./trusted-folders.md):** A security feature to control
   which projects can use the full capabilities of the CLI.
-- **[Ignoring files (.geminiignore)](./gemini-ignore.md):** Exclude specific
-  files and directories from being accessed by tools.
-- **[Context files (QFLOW.md)](./gemini-md.md):** Provide persistent,
+- **[Ignoring files (.qflowignore)](./qflow-ignore.md):** Exclude specific files
+  and directories from being accessed by tools.
+- **[Context files (QFLOW.md)](./qflow-md.md):** Provide persistent,
   hierarchical context to the model.
 
 ## Non-interactive mode
@@ -48,13 +48,13 @@ command, and then it exits.
 The following example pipes a command to Qflow CLI from your terminal:
 
 ```bash
-echo "What is fine tuning?" | gemini
+echo "What is fine tuning?" | qflow
 ```
 
 You can also use the `--prompt` or `-p` flag:
 
 ```bash
-gemini -p "What is fine tuning?"
+qflow -p "What is fine tuning?"
 ```
 
 For comprehensive documentation on headless usage, scripting, automation, and

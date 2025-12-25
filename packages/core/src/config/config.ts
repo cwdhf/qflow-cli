@@ -28,9 +28,16 @@ import { EditTool } from '../tools/edit.js';
 import { SmartEditTool } from '../tools/smart-edit.js';
 import { ShellTool } from '../tools/shell.js';
 import { WriteFileTool } from '../tools/write-file.js';
-import { WebFetchTool } from '../tools/web-fetch.js';
+//import { WebFetchTool } from '../tools/web-fetch.js';
 import { MemoryTool, setGeminiMdFilename } from '../tools/memoryTool.js';
-import { WebSearchTool } from '../tools/web-search.js';
+//import { WebSearchTool } from '../tools/web-search.js';
+import { BaiduSearchTool } from '../tools/baidu-search.js';
+import { BingSearchTool } from '../tools/bing-search.js';
+import {
+  DuckDuckGoSearchTool,
+  FetchPageTool,
+} from '../tools/duckduckgo-search.js';
+import { TaskManagerTool, TaskBoardTool } from '../tools/task-manager.js';
 import { GeminiClient } from '../core/client.js';
 import { BaseLlmClient } from '../core/baseLlmClient.js';
 import type { HookDefinition, HookEventName } from '../hooks/types.js';
@@ -1626,10 +1633,16 @@ export class Config {
       registerCoreTool(EditTool, this);
     }
     registerCoreTool(WriteFileTool, this);
-    registerCoreTool(WebFetchTool, this);
+    //registerCoreTool(WebFetchTool, this);
     registerCoreTool(ShellTool, this);
     registerCoreTool(MemoryTool);
-    registerCoreTool(WebSearchTool, this);
+    //registerCoreTool(WebSearchTool, this);
+    registerCoreTool(BaiduSearchTool, this);
+    registerCoreTool(BingSearchTool, this);
+    registerCoreTool(DuckDuckGoSearchTool, this);
+    registerCoreTool(FetchPageTool, this);
+    registerCoreTool(TaskManagerTool, this);
+    registerCoreTool(TaskBoardTool, this);
     if (this.getUseWriteTodos()) {
       registerCoreTool(WriteTodosTool, this);
     }

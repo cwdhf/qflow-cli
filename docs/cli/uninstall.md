@@ -6,7 +6,7 @@ for either npx or a global npm installation.
 ## Method 1: Using npx
 
 npx runs packages from a temporary cache without a permanent installation. To
-"uninstall" the CLI, you must clear this cache, which will remove gemini-cli and
+"uninstall" the CLI, you must clear this cache, which will remove qflow-cli and
 any other packages previously executed with npx.
 
 The npx cache is a directory named `_npx` inside your main npm cache folder. You
@@ -37,11 +37,11 @@ Remove-Item -Path (Join-Path $env:LocalAppData "npm-cache\_npx") -Recurse -Force
 
 ## Method 2: Using npm (global install)
 
-If you installed the CLI globally (e.g., `npm install -g @google/gemini-cli`),
+If you installed the CLI globally (e.g., `npm install -g @google/qflow-cli`),
 use the `npm uninstall` command with the `-g` flag to remove it.
 
 ```bash
-npm uninstall -g @google/gemini-cli
+npm uninstall -g @google/qflow-cli
 ```
 
 This command completely removes the package from your system.

@@ -1,6 +1,6 @@
 {
   "name": "gemini-cli-vscode-ide-companion",
-  "displayName": "Qflow CLI Companion",
+  "displayName": "Gemini CLI Companion",
   "description": "Enable Qflow CLI with direct access to your IDE workspace.",
   "version": "0.21.0-nightly.20251218.739c02bd6",
   "publisher": "google",
@@ -37,7 +37,7 @@
         "gemini-cli.debug.logging.enabled": {
           "type": "boolean",
           "default": false,
-          "description": "Enable detailed logging for debugging the Qflow CLI Companion."
+          "description": "Enable detailed logging for debugging the Gemini CLI Companion."
         }
       }
     },

@@ -1,7 +1,7 @@
 # Qflow CLI core
 
-Qflow CLI's core package (`packages/core`) is the backend portion of Gemini CLI,
-handling communication with the Gemini API, managing tools, and processing
+Qflow CLI's core package (`packages/core`) is the backend portion of Qflow CLI,
+handling communication with the Qflow API, managing tools, and processing
 requests sent from `packages/cli`. For a general overview of Qflow CLI, see the
 [main documentation page](../index.md).
 
@@ -19,7 +19,7 @@ requests sent from `packages/cli`. For a general overview of Qflow CLI, see the
 While the `packages/cli` portion of Qflow CLI provides the user interface,
 `packages/core` is responsible for:
 
-- **Gemini API interaction:** Securely communicating with the Google Gemini API,
+- **Qflow API interaction:** Securely communicating with the Google Qflow API,
   sending user prompts, and receiving model responses.
 - **Prompt engineering:** Constructing effective prompts for the Qflow model,
   potentially incorporating conversation history, tool definitions, and
@@ -39,8 +39,8 @@ While the `packages/cli` portion of Qflow CLI provides the user interface,
 
 The core plays a vital role in security:
 
-- **API key management:** It handles the `GEMINI_API_KEY` and ensures it's used
-  securely when communicating with the Gemini API.
+- **API key management:** It handles the `OPENAI_API_KEY` and ensures it's used
+  securely when communicating with the Qflow API.
 - **Tool execution:** When tools interact with the local system (e.g.,
   `run_shell_command`), the core (and its underlying tool implementations) must
   do so with appropriate caution, often involving sandboxing mechanisms to
@@ -48,16 +48,13 @@ The core plays a vital role in security:
 
 ## Chat history compression
 
-To ensure that long conversations don't exceed the token limits of the Gemini
+To ensure that long conversations don't exceed the token limits of the Qflow
 model, the core includes a chat history compression feature.
 
 When a conversation approaches the token limit for the configured model, the
 core automatically compresses the conversation history before sending it to the
 model. This compression is designed to be lossless in terms of the information
 conveyed, but it reduces the overall number of tokens used.
-
-You can find the token limits for each model in the
-[Google AI documentation](https://ai.google.dev/gemini-api/docs/models).
 
 ## Model fallback
 
@@ -91,7 +88,7 @@ You can use the [`/memory` command](../cli/commands.md) to `show`, `add`, and
 
 ## Citations
 
-When Gemini finds it is reciting text from a source it appends the citation to
+When Qflow finds it is reciting text from a source it appends the citation to
 the output. It is enabled by default but can be disabled with the
 ui.showCitations setting.
 

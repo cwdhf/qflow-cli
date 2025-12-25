@@ -11,13 +11,13 @@ import { homedir } from 'node:os';
 import type { MCPServerConfig } from '@google/gemini-cli-core';
 import {
   debugLogger,
-  GEMINI_DIR,
+  QFLOW_DIR,
   getErrorMessage,
   type TelemetrySettings,
 } from '@google/gemini-cli-core';
 import stripJsonComments from 'strip-json-comments';
 
-export const USER_SETTINGS_DIR = path.join(homedir(), GEMINI_DIR);
+export const USER_SETTINGS_DIR = path.join(homedir(), QFLOW_DIR);
 export const USER_SETTINGS_PATH = path.join(USER_SETTINGS_DIR, 'settings.json');
 
 // TODO: Ensure full compatibility with V2 nested settings structure (settings.schema.json).
@@ -82,7 +82,7 @@ export function loadSettings(workspaceDir: string): Settings {
 
   const workspaceSettingsPath = path.join(
     workspaceDir,
-    GEMINI_DIR,
+    QFLOW_DIR,
     'settings.json',
   );
 

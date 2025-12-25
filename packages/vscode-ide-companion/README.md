@@ -1,6 +1,6 @@
-# Qflow CLI Companion
+# Gemini CLI Companion
 
-The Qflow CLI Companion extension pairs with
+The Gemini CLI Companion extension pairs with
 [Qflow CLI](https://github.com/google-gemini/gemini-cli). This extension is
 compatible with both VS Code and VS Code forks.
 

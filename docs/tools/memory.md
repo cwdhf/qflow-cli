@@ -19,8 +19,8 @@ sessions, providing personalized and directed assistance.
 ## How to use `save_memory` with the Qflow CLI
 
 The tool appends the provided `fact` to a special `QFLOW.md` file located in the
-user's home directory (`~/.gemini/QFLOW.md`). This file can be configured to
-have a different name.
+user's home directory (`~/.qflow/QFLOW.md`). This file can be configured to have
+a different name.
 
 Once added, the facts are stored under a `## Gemini Added Memories` section.
 This file is loaded as context in subsequent sessions, allowing the CLI to

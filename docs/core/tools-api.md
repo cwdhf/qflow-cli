@@ -9,7 +9,7 @@ content, and perform various actions beyond simple text generation.
 
 - **Tool (`tools.ts`):** An interface and base class (`BaseTool`) that defines
   the contract for all tools. Each tool must have:
-  - `name`: A unique internal name (used in API calls to Gemini).
+  - `name`: A unique internal name (used in API calls to Qflow).
   - `displayName`: A user-friendly name.
   - `description`: A clear explanation of what the tool does, which is provided
     to the Qflow model.
@@ -126,6 +126,6 @@ architecture supports extension through:
   with the server name from your configuration (e.g.,
   `serverAlias__actualToolName`).
 
-This tool system provides a flexible and powerful way to augment the Gemini
+This tool system provides a flexible and powerful way to augment the Qflow
 model's capabilities, making the Qflow CLI a versatile assistant for a wide
 range of tasks.

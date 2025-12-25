@@ -65,7 +65,7 @@ You can also install the extension directly from a marketplace.
   Follow your editor's instructions for installing extensions from this
   registry.
 
-> NOTE: The "Qflow CLI Companion" extension may appear towards the bottom of
+> NOTE: The "Gemini CLI Companion" extension may appear towards the bottom of
 > search results. If you don't see it immediately, try scrolling down or sorting
 > by "Newly Published".
 >
@@ -154,11 +154,11 @@ messages and how to resolve them.
 - **Message:**
   `🔴 Disconnected: Failed to connect to IDE companion extension in [IDE Name]. Please ensure the extension is running. To install the extension, run /ide install.`
   - **Cause:** Qflow CLI could not find the necessary environment variables
-    (`GEMINI_CLI_IDE_WORKSPACE_PATH` or `GEMINI_CLI_IDE_SERVER_PORT`) to connect
+    (`QFLOW_CLI_IDE_WORKSPACE_PATH` or `QFLOW_CLI_IDE_SERVER_PORT`) to connect
     to the IDE. This usually means the IDE companion extension is not running or
     did not initialize correctly.
   - **Solution:**
-    1.  Make sure you have installed the **Qflow CLI Companion** extension in
+    1.  Make sure you have installed the **Gemini CLI Companion** extension in
         your IDE and that it is enabled.
     2.  Open a new terminal window in your IDE to ensure it picks up the correct
         environment.
@@ -193,7 +193,7 @@ messages and how to resolve them.
     like Antigravity or VS Code.
 
 - **Message:**
-  `No installer is available for IDE. Please install the Qflow CLI Companion extension manually from the marketplace.`
+  `No installer is available for IDE. Please install the Gemini CLI Companion extension manually from the marketplace.`
   - **Cause:** You ran `/ide install`, but the CLI does not have an automated
     installer for your specific IDE.
   - **Solution:** Open your IDE's extension marketplace, search for "Qflow CLI

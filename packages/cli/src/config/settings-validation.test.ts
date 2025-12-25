@@ -291,10 +291,10 @@ describe('settings-validation', () => {
       if (result.error) {
         const formatted = formatValidationError(
           result.error,
-          '~/.gemini/settings.json',
+          '~/.qflow/settings.json',
         );
 
-        expect(formatted).toContain('~/.gemini/settings.json');
+        expect(formatted).toContain('~/.qflow/settings.json');
         expect(formatted).toContain('model.summarizeToolOutput');
       }
     });

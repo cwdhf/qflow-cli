@@ -12,6 +12,10 @@ export const GLOB_TOOL_NAME = 'glob';
 export const WRITE_TODOS_TOOL_NAME = 'write_todos';
 export const WRITE_FILE_TOOL_NAME = 'write_file';
 export const WEB_SEARCH_TOOL_NAME = 'google_web_search';
+export const BAIDU_SEARCH_TOOL_NAME = 'baidu_search';
+export const BING_SEARCH_TOOL_NAME = 'bing_search';
+export const DUCKDUCKGO_SEARCH_TOOL_NAME = 'duckduckgo_search';
+export const FETCH_PAGE_TOOL_NAME = 'fetch_page';
 export const WEB_FETCH_TOOL_NAME = 'web_fetch';
 export const EDIT_TOOL_NAME = 'replace';
 export const SHELL_TOOL_NAME = 'run_shell_command';
@@ -34,6 +38,10 @@ export const ALL_BUILTIN_TOOL_NAMES = [
   WRITE_TODOS_TOOL_NAME,
   WRITE_FILE_TOOL_NAME,
   WEB_SEARCH_TOOL_NAME,
+  BAIDU_SEARCH_TOOL_NAME,
+  BING_SEARCH_TOOL_NAME,
+  DUCKDUCKGO_SEARCH_TOOL_NAME,
+  FETCH_PAGE_TOOL_NAME,
   WEB_FETCH_TOOL_NAME,
   EDIT_TOOL_NAME,
   SHELL_TOOL_NAME,

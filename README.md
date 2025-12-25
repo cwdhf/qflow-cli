@@ -170,7 +170,7 @@ gemini
 
 ```bash
 # Get your key from https://aistudio.google.com/apikey
-export GEMINI_API_KEY="YOUR_API_KEY"
+export OPENAI_API_KEY="YOUR_API_KEY"
 gemini
 ```
 
@@ -319,7 +319,7 @@ gemini
 
 ### Using MCP Servers
 
-Configure MCP servers in `~/.gemini/settings.json` to extend Qflow CLI with
+Configure MCP servers in `~/.qflow/settings.json` to extend Qflow CLI with
 custom tools:
 
 ```text

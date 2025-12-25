@@ -11,7 +11,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { GEMINI_DIR } from './paths.js';
+import { QFLOW_DIR } from './paths.js';
 import { debugLogger } from './debugLogger.js';
 
 vi.mock('node:fs', async (importOriginal) => {
@@ -43,7 +43,7 @@ describe('InstallationManager', () => {
   let tempHomeDir: string;
   let installationManager: InstallationManager;
   const installationIdFile = () =>
-    path.join(tempHomeDir, GEMINI_DIR, 'installation_id');
+    path.join(tempHomeDir, QFLOW_DIR, 'installation_id');
 
   beforeEach(() => {
     tempHomeDir = fs.mkdtempSync(

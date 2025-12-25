@@ -15,6 +15,12 @@ export default defineConfig({
     outputFile: {
       junit: 'junit.xml',
     },
+    resolve: {
+      conditions: ['development'],
+    },
+    deps: {
+      interopDefault: true,
+    },
     coverage: {
       enabled: true,
       provider: 'v8',

@@ -319,7 +319,7 @@ gemini
 
 ### Using MCP Servers
 
-Configure MCP servers in `~/.gemini/settings.json` to extend Qflow CLI with
+Configure MCP servers in `~/.qflow/settings.json` to extend Qflow CLI with
 custom tools:
 
 ```text

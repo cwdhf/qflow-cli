@@ -23,7 +23,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
   return {
     ...actual,
     recordFlickerFrame: vi.fn(),
-    GEMINI_DIR: '.gemini',
+    QFLOW_DIR: '.gemini',
   };
 });
 vi.mock('ink', async (importOriginal) => {

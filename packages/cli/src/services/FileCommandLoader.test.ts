@@ -7,7 +7,7 @@
 import * as glob from 'glob';
 import * as path from 'node:path';
 import type { Config } from '@google/gemini-cli-core';
-import { GEMINI_DIR, Storage } from '@google/gemini-cli-core';
+import { QFLOW_DIR, Storage } from '@google/gemini-cli-core';
 import mock from 'mock-fs';
 import { FileCommandLoader } from './FileCommandLoader.js';
 import { assert, vi } from 'vitest';
@@ -537,7 +537,7 @@ describe('FileCommandLoader', () => {
       ).getProjectCommandsDir();
       const extensionDir = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'test-ext',
       );
@@ -592,7 +592,7 @@ describe('FileCommandLoader', () => {
       ).getProjectCommandsDir();
       const extensionDir = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'test-ext',
       );
@@ -690,13 +690,13 @@ describe('FileCommandLoader', () => {
     it('only loads commands from active extensions', async () => {
       const extensionDir1 = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'active-ext',
       );
       const extensionDir2 = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'inactive-ext',
       );
@@ -753,7 +753,7 @@ describe('FileCommandLoader', () => {
     it('handles missing extension commands directory gracefully', async () => {
       const extensionDir = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'no-commands',
       );
@@ -789,7 +789,7 @@ describe('FileCommandLoader', () => {
     it('handles nested command structure in extensions', async () => {
       const extensionDir = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'a',
       );
@@ -855,7 +855,7 @@ describe('FileCommandLoader', () => {
       const extensionId = 'my-test-ext-id-123';
       const extensionDir = path.join(
         process.cwd(),
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extensions',
         'my-test-ext',
       );

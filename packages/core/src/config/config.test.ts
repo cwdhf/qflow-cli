@@ -88,7 +88,7 @@ vi.mock('../tools/memoryTool', () => ({
   setGeminiMdFilename: vi.fn(),
   getCurrentGeminiMdFilename: vi.fn(() => 'QFLOW.md'), // Mock the original filename
   DEFAULT_CONTEXT_FILENAME: 'QFLOW.md',
-  GEMINI_DIR: '.gemini',
+  QFLOW_DIR: '.gemini',
 }));
 
 vi.mock('../core/contentGenerator.js');

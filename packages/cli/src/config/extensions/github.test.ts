@@ -38,7 +38,7 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
     ...actual,
     Storage: {
       getGlobalSettingsPath: vi.fn().mockReturnValue('/mock/settings.json'),
-      getGlobalGeminiDir: vi.fn().mockReturnValue('/mock/.gemini'),
+      getGlobalGeminiDir: vi.fn().mockReturnValue('/mock/.qflow'),
     },
     debugLogger: {
       error: vi.fn(),

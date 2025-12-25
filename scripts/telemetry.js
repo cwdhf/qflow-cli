@@ -9,16 +9,16 @@
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
-import { GEMINI_DIR } from '@google/gemini-cli-core';
+import { QFLOW_DIR } from '@google/gemini-cli-core';
 
 const projectRoot = join(import.meta.dirname, '..');
 
 const USER_SETTINGS_DIR = join(
   process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || '',
-  GEMINI_DIR,
+  QFLOW_DIR,
 );
 const USER_SETTINGS_PATH = join(USER_SETTINGS_DIR, 'settings.json');
-const WORKSPACE_SETTINGS_PATH = join(projectRoot, GEMINI_DIR, 'settings.json');
+const WORKSPACE_SETTINGS_PATH = join(projectRoot, QFLOW_DIR, 'settings.json');
 
 let telemetrySettings = undefined;
 

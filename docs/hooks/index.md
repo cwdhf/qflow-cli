@@ -53,7 +53,7 @@ scripts:
 ```json
 {
   "type": "command",
-  "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/my-hook.sh",
+  "command": "$QFLOW_PROJECT_DIR/.qflow/hooks/my-hook.sh",
   "timeout": 30000
 }
 ```
@@ -415,8 +415,8 @@ Hook configurations are applied in the following order of precedence (higher
 numbers override lower numbers):
 
 1. **System defaults:** Built-in default settings (lowest precedence)
-2. **User settings:** `~/.gemini/settings.json`
-3. **Project settings:** `.gemini/settings.json` in your project directory
+2. **User settings:** `~/.qflow/settings.json`
+3. **Project settings:** `.qflow/settings.json` in your project directory
 4. **System settings:** `/etc/gemini-cli/settings.json` (highest precedence)
 
 Within each level, hooks run in the order they are declared in the
@@ -462,9 +462,9 @@ configuration.
 
 Hooks have access to:
 
-- `GEMINI_PROJECT_DIR`: Project root directory
-- `GEMINI_SESSION_ID`: Current session ID
-- `GEMINI_API_KEY`: Gemini API key (if configured)
+- `QFLOW_PROJECT_DIR`: Project root directory
+- `QFLOW_SESSION_ID`: Current session ID
+- `OPENAI_API_KEY`: Gemini API key (if configured)
 - All other environment variables from the parent process
 
 ## Managing hooks
@@ -527,7 +527,7 @@ This command:
 - Converts event names (`PreToolUse` → `BeforeTool`, etc.)
 - Translates tool names (`Bash` → `run_shell_command`, `replace` → `replace`)
 - Updates matcher patterns
-- Writes to `.gemini/settings.json`
+- Writes to `.qflow/settings.json`
 
 ### Event name mapping
 

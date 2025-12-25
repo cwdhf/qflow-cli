@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import * as pty from '@lydell/node-pty';
 import stripAnsi from 'strip-ansi';
 import * as os from 'node:os';
-import { GEMINI_DIR } from '../packages/core/src/utils/paths.js';
+import { QFLOW_DIR } from '../packages/core/src/utils/paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BUNDLE_PATH = join(__dirname, '..', 'bundle/gemini.js');
@@ -296,7 +296,7 @@ export class TestRig {
     }
 
     // Create a settings file to point the CLI to the local collector
-    const geminiDir = join(this.testDir, GEMINI_DIR);
+    const geminiDir = join(this.testDir, QFLOW_DIR);
     mkdirSync(geminiDir, { recursive: true });
     // In sandbox mode, use an absolute path for telemetry inside the container
     // The container mounts the test directory at the same path as the host

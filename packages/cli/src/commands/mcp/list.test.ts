@@ -35,9 +35,9 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
     Storage: vi.fn().mockImplementation((_cwd: string) => ({
       getGlobalSettingsPath: () => '/tmp/gemini/settings.json',
       getWorkspaceSettingsPath: () => '/tmp/gemini/workspace-settings.json',
-      getProjectTempDir: () => '/test/home/.gemini/tmp/mocked_hash',
+      getProjectTempDir: () => '/test/home/.qflow/tmp/mocked_hash',
     })),
-    GEMINI_DIR: '.gemini',
+    QFLOW_DIR: '.gemini',
     getErrorMessage: (e: unknown) =>
       e instanceof Error ? e.message : String(e),
   };

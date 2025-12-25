@@ -40,7 +40,7 @@ describe('ContextManager', () => {
     it('should load and format global memory', async () => {
       const mockResult: memoryDiscovery.MemoryLoadResult = {
         files: [
-          { path: '/home/user/.gemini/QFLOW.md', content: 'Global Content' },
+          { path: '/home/user/.qflow/QFLOW.md', content: 'Global Content' },
         ],
       };
       vi.mocked(memoryDiscovery.loadGlobalMemory).mockResolvedValue(mockResult);
@@ -52,7 +52,7 @@ describe('ContextManager', () => {
       expect(result).toMatch(/--- Context from: .*QFLOW.md ---/);
       expect(result).toContain('Global Content');
       expect(contextManager.getLoadedPaths()).toContain(
-        '/home/user/.gemini/QFLOW.md',
+        '/home/user/.qflow/QFLOW.md',
       );
       expect(contextManager.getGlobalMemory()).toBe(result);
     });
@@ -128,7 +128,7 @@ describe('ContextManager', () => {
       // Setup some state
       const mockResult: memoryDiscovery.MemoryLoadResult = {
         files: [
-          { path: '/home/user/.gemini/QFLOW.md', content: 'Global Content' },
+          { path: '/home/user/.qflow/QFLOW.md', content: 'Global Content' },
         ],
       };
       vi.mocked(memoryDiscovery.loadGlobalMemory).mockResolvedValue(mockResult);

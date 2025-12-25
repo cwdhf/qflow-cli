@@ -23,17 +23,17 @@ Qflow CLI uses `settings.json` files for persistent configuration. There are
 three locations for these files:
 
 - **User settings file:**
-  - **Location:** `~/.gemini/settings.json` (where `~` is your home directory).
+  - **Location:** `~/.qflow/settings.json` (where `~` is your home directory).
   - **Scope:** Applies to all Qflow CLI sessions for the current user.
 - **Project settings file:**
-  - **Location:** `.gemini/settings.json` within your project's root directory.
+  - **Location:** `.qflow/settings.json` within your project's root directory.
   - **Scope:** Applies only when running Qflow CLI from that specific project.
     Project settings override user settings.
 - **System settings file:**
-  - **Location:** `/etc/gemini-cli/settings.json` (Linux),
-    `C:\ProgramData\gemini-cli\settings.json` (Windows) or
-    `/Library/Application Support/GeminiCli/settings.json` (macOS). The path can
-    be overridden using the `GEMINI_CLI_SYSTEM_SETTINGS_PATH` environment
+  - **Location:** `/etc/qflow-cli/settings.json` (Linux),
+    `C:\ProgramData\qflow-cli\settings.json` (Windows) or
+    `/Library/Application Support/QflowCli/settings.json` (macOS). The path can
+    be overridden using the `QFLOW_CLI_SYSTEM_SETTINGS_PATH` environment
     variable.
   - **Scope:** Applies to all Qflow CLI sessions on the system, for all users.
     System settings override user and project settings. May be useful for system
@@ -46,13 +46,13 @@ resolved when the settings are loaded. For example, if you have an environment
 variable `MY_API_TOKEN`, you could use it in `settings.json` like this:
 `"apiKey": "$MY_API_TOKEN"`.
 
-### The `.gemini` directory in your project
+### The `.qflow` directory in your project
 
-In addition to a project settings file, a project's `.gemini` directory can
+In addition to a project settings file, a project's `.qflow` directory can
 contain other project-specific files related to Qflow CLI's operation, such as:
 
 - [Custom sandbox profiles](#sandboxing) (e.g.,
-  `.gemini/sandbox-macos-custom.sb`, `.gemini/sandbox.Dockerfile`).
+  `.qflow/sandbox-macos-custom.sb`, `.qflow/sandbox.Dockerfile`).
 
 ### Available settings in `settings.json`:
 
@@ -65,7 +65,7 @@ contain other project-specific files related to Qflow CLI's operation, such as:
 - **`bugCommand`** (object):
   - **Description:** Overrides the default URL for the `/bug` command.
   - **Default:**
-    `"urlTemplate": "https://github.com/google-gemini/gemini-cli/issues/new?template=bug_report.yml&title={title}&info={info}"`
+    `"urlTemplate": "https://github.com/google-qflow/qflow-cli/issues/new?template=bug_report.yml&title={title}&info={info}"`
   - **Properties:**
     - **`urlTemplate`** (string): A URL that can contain `{title}` and `{info}`
       placeholders.
@@ -172,7 +172,7 @@ contain other project-specific files related to Qflow CLI's operation, such as:
 
 - **`sandbox`** (boolean or string):
   - **Description:** Controls whether and how to use sandboxing for tool
-    execution. If set to `true`, Qflow CLI uses a pre-built `gemini-cli-sandbox`
+    execution. If set to `true`, Qflow CLI uses a pre-built `qflow-cli-sandbox`
     Docker image. For more information, see [Sandboxing](#sandboxing).
   - **Default:** `false`
   - **Example:** `"sandbox": "docker"`
@@ -180,7 +180,7 @@ contain other project-specific files related to Qflow CLI's operation, such as:
 - **`toolDiscoveryCommand`** (string):
   - **Description:** Defines a custom shell command for discovering tools from
     your project. The shell command must return on `stdout` a JSON array of
-    [function declarations](https://ai.google.dev/gemini-api/docs/function-calling#function-declarations).
+    [function declarations](https://ai.google.dev/qflow-api/docs/function-calling#function-declarations).
     Tool wrappers are optional.
   - **Default:** Empty
   - **Example:** `"toolDiscoveryCommand": "bin/get_tools"`
@@ -190,7 +190,7 @@ contain other project-specific files related to Qflow CLI's operation, such as:
     that was discovered using `toolDiscoveryCommand`. The shell command must
     meet the following criteria:
     - It must take function `name` (exactly as in
-      [function declaration](https://ai.google.dev/gemini-api/docs/function-calling#function-declarations))
+      [function declaration](https://ai.google.dev/qflow-api/docs/function-calling#function-declarations))
       as first command line argument.
     - It must read function arguments as JSON on `stdin`, analogous to
       [`functionCall.args`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#functioncall).
@@ -347,8 +347,8 @@ contain other project-specific files related to Qflow CLI's operation, such as:
 - **`excludedProjectEnvVars`** (array of strings):
   - **Description:** Specifies environment variables that should be excluded
     from being loaded from project `.env` files. This prevents project-specific
-    environment variables (like `DEBUG=true`) from interfering with gemini-cli
-    behavior. Variables from `.gemini/.env` files are never excluded.
+    environment variables (like `DEBUG=true`) from interfering with qflow-cli
+    behavior. Variables from `.qflow/.env` files are never excluded.
   - **Default:** `["DEBUG", "DEBUG_MODE"]`
   - **Example:**
     ```json
@@ -426,7 +426,7 @@ The CLI keeps a history of shell commands you run. To avoid conflicts between
 different projects, this history is stored in a project-specific directory
 within your user's home folder.
 
-- **Location:** `~/.gemini/tmp/<project_hash>/shell_history`
+- **Location:** `~/.qflow/tmp/<project_hash>/shell_history`
   - `<project_hash>` is a unique identifier generated from your project's root
     path.
   - The history is stored in a file named `shell_history`.
@@ -448,31 +448,31 @@ loading order is:
 
 **Environment variable exclusion:** Some environment variables (like `DEBUG` and
 `DEBUG_MODE`) are automatically excluded from being loaded from project `.env`
-files to prevent interference with gemini-cli behavior. Variables from
-`.gemini/.env` files are never excluded. You can customize this behavior using
+files to prevent interference with qflow-cli behavior. Variables from
+`.qflow/.env` files are never excluded. You can customize this behavior using
 the `excludedProjectEnvVars` setting in your `settings.json` file.
 
-- **`GEMINI_API_KEY`** (Required):
-  - Your API key for the Gemini API.
+- **`QFLOW_API_KEY`** (Required):
+  - Your API key for the Qflow API.
   - **Crucial for operation.** The CLI will not function without it.
   - Set this in your shell profile (e.g., `~/.bashrc`, `~/.zshrc`) or an `.env`
     file.
-- **`GEMINI_MODEL`**:
+- **`QFLOW_MODEL`**:
   - Specifies the default Qflow model to use.
   - Overrides the hardcoded default
-  - Example: `export GEMINI_MODEL="gemini-2.5-flash"`
-- **`GEMINI_CLI_CUSTOM_HEADERS`**:
-  - Adds extra HTTP headers to Gemini API and Code Assist requests.
+  - Example: `export QFLOW_MODEL="qflow-2.5-flash"`
+- **`QFLOW_CLI_CUSTOM_HEADERS`**:
+  - Adds extra HTTP headers to Qflow API and Code Assist requests.
   - Accepts a comma-separated list of `Name: value` pairs.
   - Example:
-    `export GEMINI_CLI_CUSTOM_HEADERS="X-My-Header: foo, X-Trace-ID: abc123"`.
-- **`GEMINI_API_KEY_AUTH_MECHANISM`**:
+    `export QFLOW_CLI_CUSTOM_HEADERS="X-My-Header: foo, X-Trace-ID: abc123"`.
+- **`QFLOW_API_KEY_AUTH_MECHANISM`**:
   - Specifies how the API key should be sent for authentication when using
-    `AuthType.USE_GEMINI` or `AuthType.USE_VERTEX_AI`.
+    `AuthType.USE_QFLOW` or `AuthType.USE_VERTEX_AI`.
   - Valid values are `x-goog-api-key` (default) or `bearer`.
   - If set to `bearer`, the API key will be sent in the
     `Authorization: Bearer <key>` header.
-  - Example: `export GEMINI_API_KEY_AUTH_MECHANISM="bearer"`
+  - Example: `export QFLOW_API_KEY_AUTH_MECHANISM="bearer"`
 - **`GOOGLE_API_KEY`**:
   - Your Google Cloud API key.
   - Required for using Vertex AI in express mode.
@@ -500,7 +500,7 @@ the `excludedProjectEnvVars` setting in your `settings.json` file.
   - Your Google Cloud Project Location (e.g., us-central1).
   - Required for using Vertex AI in non express mode.
   - Example: `export GOOGLE_CLOUD_LOCATION="YOUR_PROJECT_LOCATION"`.
-- **`GEMINI_SANDBOX`**:
+- **`QFLOW_SANDBOX`**:
   - Alternative to the `sandbox` setting in `settings.json`.
   - Accepts `true`, `false`, `docker`, `podman`, or a custom command string.
 - **`HTTP_PROXY` / `HTTPS_PROXY`**:
@@ -514,15 +514,15 @@ the `excludedProjectEnvVars` setting in your `settings.json` file.
     operations.
   - `strict`: Uses a strict profile that declines operations by default.
   - `<profile_name>`: Uses a custom profile. To define a custom profile, create
-    a file named `sandbox-macos-<profile_name>.sb` in your project's `.gemini/`
-    directory (e.g., `my-project/.gemini/sandbox-macos-custom.sb`).
+    a file named `sandbox-macos-<profile_name>.sb` in your project's `.qflow/`
+    directory (e.g., `my-project/.qflow/sandbox-macos-custom.sb`).
 - **`DEBUG` or `DEBUG_MODE`** (often used by underlying libraries or the CLI
   itself):
   - Set to `true` or `1` to enable verbose debug logging, which can be helpful
     for troubleshooting.
   - **Note:** These variables are automatically excluded from project `.env`
-    files by default to prevent interference with gemini-cli behavior. Use
-    `.gemini/.env` files if you need to set these for gemini-cli specifically.
+    files by default to prevent interference with qflow-cli behavior. Use
+    `.qflow/.env` files if you need to set these for qflow-cli specifically.
 - **`NO_COLOR`**:
   - Set to any value to disable all color output in the CLI.
 - **`CLI_TITLE`**:
@@ -530,16 +530,16 @@ the `excludedProjectEnvVars` setting in your `settings.json` file.
 - **`CODE_ASSIST_ENDPOINT`**:
   - Specifies the endpoint for the code assist server.
   - This is useful for development and testing.
-- **`GEMINI_SYSTEM_MD`**:
+- **`QFLOW_SYSTEM_MD`**:
   - Overrides the base system prompt with the contents of a Markdown file.
-  - If set to `1` or `true`, it uses the file at `.gemini/system.md`.
+  - If set to `1` or `true`, it uses the file at `.qflow/system.md`.
   - If set to a file path, it uses that file. The path can be absolute or
     relative. `~` is supported for the home directory.
   - The specified file must exist.
-- **`GEMINI_WRITE_SYSTEM_MD`**:
+- **`QFLOW_WRITE_SYSTEM_MD`**:
   - Writes the default system prompt to a file. This is useful for getting a
     template to customize.
-  - If set to `1` or `true`, it writes to `.gemini/system.md`.
+  - If set to `1` or `true`, it writes to `.qflow/system.md`.
   - If set to a file path, it writes to that path. The path can be absolute or
     relative. `~` is supported for the home directory. **Note: This will
     overwrite the file if it already exists.**
@@ -551,7 +551,7 @@ for that specific session.
 
 - **`--model <model_name>`** (**`-m <model_name>`**):
   - Specifies the Qflow model to use for this session.
-  - Example: `npm start -- --model gemini-1.5-pro-latest`
+  - Example: `npm start -- --model qflow-1.5-pro-latest`
 - **`--prompt <your_prompt>`** (**`-p <your_prompt>`**):
   - Used to pass a prompt directly to the command. This invokes Qflow CLI in a
     non-interactive mode.
@@ -559,7 +559,7 @@ for that specific session.
   - Starts an interactive session with the provided prompt as the initial input.
   - The prompt is processed within the interactive session, not before it.
   - Cannot be used when piping input from stdin.
-  - Example: `gemini -i "explain this code"`
+  - Example: `qflow -i "explain this code"`
 - **`--sandbox`** (**`-s`**):
   - Enables sandbox mode for this session.
 - **`--sandbox-image`**:
@@ -589,8 +589,8 @@ for that specific session.
 - **`--extensions <extension_name ...>`** (**`-e <extension_name ...>`**):
   - Specifies a list of extensions to use for the session. If not provided, all
     available extensions are used.
-  - Use the special term `gemini -e none` to disable all extensions.
-  - Example: `gemini -e my-extension -e my-other-extension`
+  - Use the special term `qflow -e none` to disable all extensions.
+  - Example: `qflow -e my-extension -e my-other-extension`
 - **`--list-extensions`** (**`-l`**):
   - Lists all available extensions and exits.
 - **`--include-directories <dir1,dir2,...>`**:
@@ -667,7 +667,7 @@ conventions and context.
   general). The exact concatenation order and final context can be inspected
   using the `/memory show` command. The typical loading order is:
   1.  **Global context file:**
-      - Location: `~/.gemini/<contextFileName>` (e.g., `~/.gemini/QFLOW.md` in
+      - Location: `~/.qflow/<contextFileName>` (e.g., `~/.qflow/QFLOW.md` in
         your user home directory).
       - Scope: Provides default instructions for all your projects.
   2.  **Project root and ancestors context files:**
@@ -713,17 +713,17 @@ file modifications) within a sandboxed environment to protect your system.
 Sandboxing is disabled by default, but you can enable it in a few ways:
 
 - Using `--sandbox` or `-s` flag.
-- Setting `GEMINI_SANDBOX` environment variable.
+- Setting `QFLOW_SANDBOX` environment variable.
 - Sandbox is enabled in `--yolo` mode by default.
 
-By default, it uses a pre-built `gemini-cli-sandbox` Docker image.
+By default, it uses a pre-built `qflow-cli-sandbox` Docker image.
 
 For project-specific sandboxing needs, you can create a custom Dockerfile at
-`.gemini/sandbox.Dockerfile` in your project's root directory. This Dockerfile
+`.qflow/sandbox.Dockerfile` in your project's root directory. This Dockerfile
 can be based on the base sandbox image:
 
 ```dockerfile
-FROM gemini-cli-sandbox
+FROM qflow-cli-sandbox
 
 # Add your custom dependencies or configurations here
 # For example:
@@ -731,12 +731,11 @@ FROM gemini-cli-sandbox
 # COPY ./my-config /app/my-config
 ```
 
-When `.gemini/sandbox.Dockerfile` exists, you can use `BUILD_SANDBOX`
-environment variable when running Qflow CLI to automatically build the custom
-sandbox image:
+When `.qflow/sandbox.Dockerfile` exists, you can use `BUILD_SANDBOX` environment
+variable when running Qflow CLI to automatically build the custom sandbox image:
 
 ```bash
-BUILD_SANDBOX=1 gemini -s
+BUILD_SANDBOX=1 qflow -s
 ```
 
 ## Usage statistics

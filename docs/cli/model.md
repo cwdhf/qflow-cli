@@ -19,22 +19,22 @@ Use the following command in Qflow CLI:
 
 Running this command will open a dialog with your options:
 
-| Option            | Description                                                    | Models                                                                 |
-| ----------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Auto (Gemini 3)   | Let the system choose the best Gemini 3 model for your task.   | gemini-3-pro-preview (if enabled), gemini-3-flash-preview (if enabled) |
-| Auto (Gemini 2.5) | Let the system choose the best Gemini 2.5 model for your task. | gemini-2.5-pro, gemini-2.5-flash                                       |
-| Manual            | Select a specific model.                                       | Any available model.                                                   |
+| Option           | Description                                                   | Models                                                               |
+| ---------------- | ------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Auto (Qflow 3)   | Let the system choose the best Qflow 3 model for your task.   | qflow-3-pro-preview (if enabled), qflow-3-flash-preview (if enabled) |
+| Auto (Qflow 2.5) | Let the system choose the best Qflow 2.5 model for your task. | qflow-2.5-pro, qflow-2.5-flash                                       |
+| Manual           | Select a specific model.                                      | Any available model.                                                 |
 
 We recommend selecting one of the above **Auto** options. However, you can
 select **Manual** to select a specific model from those available.
 
-### Gemini 3 and preview features
+### Qflow 3 and preview features
 
-> **Note:** Gemini 3 is not currently available on all account types. To learn
-> more about Gemini 3 access, refer to
-> [Gemini 3 on Qflow CLI](../get-started/gemini-3.md).
+> **Note:** Qflow 3 is not currently available on all account types. To learn
+> more about Qflow 3 access, refer to
+> [Qflow 3 on Qflow CLI](../get-started/qflow-3.md).
 
-To enable Gemini 3 Pro and Gemini 3 Flash (if available), enable
+To enable Qflow 3 Pro and Qflow 3 Flash (if available), enable
 [**Preview Features** by using the `settings` command](../cli/settings.md).
 
 You can also use the `--model` flag to specify a particular Qflow model on

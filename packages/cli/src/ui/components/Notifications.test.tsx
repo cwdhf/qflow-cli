@@ -47,7 +47,7 @@ vi.mock('node:path', async () => {
 });
 
 vi.mock('@google/gemini-cli-core', () => ({
-  GEMINI_DIR: '.gemini',
+  QFLOW_DIR: '.gemini',
   Storage: {
     getGlobalTempDir: () => '/mock/temp',
   },

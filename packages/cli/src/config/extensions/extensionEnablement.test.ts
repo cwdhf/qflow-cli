@@ -16,7 +16,7 @@ vi.mock('./storage.js');
 
 import {
   coreEvents,
-  GEMINI_DIR,
+  QFLOW_DIR,
   type GeminiCLIExtension,
 } from '@google/gemini-cli-core';
 
@@ -90,7 +90,7 @@ describe('ExtensionEnablementManager', () => {
 
     testDir = createTestDir();
     vi.mocked(ExtensionStorage.getUserExtensionsDir).mockReturnValue(
-      path.join(testDir.path, GEMINI_DIR),
+      path.join(testDir.path, QFLOW_DIR),
     );
     manager = new ExtensionEnablementManager();
   });
@@ -178,7 +178,7 @@ describe('ExtensionEnablementManager', () => {
     it('should return an empty object if the config file is corrupted', () => {
       const configPath = path.join(
         testDir.path,
-        GEMINI_DIR,
+        QFLOW_DIR,
         'extension-enablement.json',
       );
       fs.mkdirSync(path.dirname(configPath), { recursive: true });

@@ -19,7 +19,7 @@ import { removeCommand } from './remove.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { GEMINI_DIR, debugLogger } from '@google/gemini-cli-core';
+import { QFLOW_DIR, debugLogger } from '@google/gemini-cli-core';
 
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(),
@@ -98,7 +98,7 @@ describe('mcp remove command', () => {
       vi.restoreAllMocks();
 
       tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-remove-test-'));
-      settingsDir = path.join(tempDir, GEMINI_DIR);
+      settingsDir = path.join(tempDir, QFLOW_DIR);
       settingsPath = path.join(settingsDir, 'settings.json');
       fs.mkdirSync(settingsDir, { recursive: true });
 

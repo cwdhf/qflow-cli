@@ -8,13 +8,13 @@ prerequisites, quickstart, and configuration.
 Before using sandboxing, you need to install and set up the Qflow CLI:
 
 ```bash
-npm install -g @google/gemini-cli
+npm install -g @google/qflow-cli
 ```
 
 To verify the installation
 
 ```bash
-gemini --version
+qflow --version
 ```
 
 ## Overview of sandboxing
@@ -54,11 +54,11 @@ from your organization's registry.
 
 ```bash
 # Enable sandboxing with command flag
-gemini -s -p "analyze the code structure"
+qflow -s -p "analyze the code structure"
 
 # Use environment variable
-export GEMINI_SANDBOX=true
-gemini -p "run the test suite"
+export QFLOW_SANDBOX=true
+qflow -p "run the test suite"
 
 # Configure in settings.json
 {
@@ -73,7 +73,7 @@ gemini -p "run the test suite"
 ### Enable sandboxing (in order of precedence)
 
 1. **Command flag**: `-s` or `--sandbox`
-2. **Environment variable**: `GEMINI_SANDBOX=true|docker|podman|sandbox-exec`
+2. **Environment variable**: `QFLOW_SANDBOX=true|docker|podman|sandbox-exec`
 3. **Settings file**: `"sandbox": true` in the `tools` object of your
    `settings.json` file (e.g., `{"tools": {"sandbox": true}}`).
 
@@ -140,21 +140,21 @@ export SANDBOX_SET_UID_GID=false  # Disable UID/GID mapping
 ### Debug mode
 
 ```bash
-DEBUG=1 gemini -s -p "debug command"
+DEBUG=1 qflow -s -p "debug command"
 ```
 
 **Note:** If you have `DEBUG=true` in a project's `.env` file, it won't affect
-gemini-cli due to automatic exclusion. Use `.gemini/.env` files for gemini-cli
+qflow-cli due to automatic exclusion. Use `.qflow/.env` files for qflow-cli
 specific debug settings.
 
 ### Inspect sandbox
 
 ```bash
 # Check environment
-gemini -s -p "run shell command: env | grep SANDBOX"
+qflow -s -p "run shell command: env | grep SANDBOX"
 
 # List mounts
-gemini -s -p "run shell command: mount | grep workspace"
+qflow -s -p "run shell command: mount | grep workspace"
 ```
 
 ## Security notes

@@ -52,7 +52,7 @@ The headless mode provides a headless interface to Qflow CLI that:
 Use the `--prompt` (or `-p`) flag to run in headless mode:
 
 ```bash
-gemini --prompt "What is machine learning?"
+qflow --prompt "What is machine learning?"
 ```
 
 ### Stdin input
@@ -60,15 +60,15 @@ gemini --prompt "What is machine learning?"
 Pipe input to Qflow CLI from your terminal:
 
 ```bash
-echo "Explain this code" | gemini
+echo "Explain this code" | qflow
 ```
 
 ### Combining with file input
 
-Read from files and process with Gemini:
+Read from files and process with Qflow:
 
 ```bash
-cat README.md | gemini --prompt "Summarize this documentation"
+cat README.md | qflow --prompt "Summarize this documentation"
 ```
 
 ## Output formats
@@ -78,7 +78,7 @@ cat README.md | gemini --prompt "Summarize this documentation"
 Standard human-readable output:
 
 ```bash
-gemini -p "What is the capital of France?"
+qflow -p "What is the capital of France?"
 ```
 
 Response format:
@@ -143,7 +143,7 @@ The JSON output follows this high-level structure:
 #### Example usage
 
 ```bash
-gemini -p "What is the capital of France?" --output-format json
+qflow -p "What is the capital of France?" --output-format json
 ```
 
 Response:
@@ -153,7 +153,7 @@ Response:
   "response": "The capital of France is Paris.",
   "stats": {
     "models": {
-      "gemini-2.5-pro": {
+      "qflow-2.5-pro": {
         "api": {
           "totalRequests": 2,
           "totalErrors": 0,
@@ -168,7 +168,7 @@ Response:
           "tool": 0
         }
       },
-      "gemini-2.5-flash": {
+      "qflow-2.5-flash": {
         "api": {
           "totalRequests": 1,
           "totalErrors": 0,
@@ -252,13 +252,13 @@ The streaming format emits 6 event types:
 
 ```bash
 # Stream events to console
-gemini --output-format stream-json --prompt "What is 2+2?"
+qflow --output-format stream-json --prompt "What is 2+2?"
 
 # Save event stream to file
-gemini --output-format stream-json --prompt "Analyze this code" > events.jsonl
+qflow --output-format stream-json --prompt "Analyze this code" > events.jsonl
 
 # Parse with jq
-gemini --output-format stream-json --prompt "List files" | jq -r '.type'
+qflow --output-format stream-json --prompt "List files" | jq -r '.type'
 ```
 
 #### Example output
@@ -266,7 +266,7 @@ gemini --output-format stream-json --prompt "List files" | jq -r '.type'
 Each line is a complete JSON event:
 
 ```jsonl
-{"type":"init","timestamp":"2025-10-10T12:00:00.000Z","session_id":"abc123","model":"gemini-2.0-flash-exp"}
+{"type":"init","timestamp":"2025-10-10T12:00:00.000Z","session_id":"abc123","model":"qflow-2.0-flash-exp"}
 {"type":"message","role":"user","content":"List files in current directory","timestamp":"2025-10-10T12:00:01.000Z"}
 {"type":"tool_use","tool_name":"Bash","tool_id":"bash-123","parameters":{"command":"ls -la"},"timestamp":"2025-10-10T12:00:02.000Z"}
 {"type":"tool_result","tool_id":"bash-123","status":"success","output":"file1.txt\nfile2.txt","timestamp":"2025-10-10T12:00:03.000Z"}
@@ -280,31 +280,31 @@ Save output to files or pipe to other commands:
 
 ```bash
 # Save to file
-gemini -p "Explain Docker" > docker-explanation.txt
-gemini -p "Explain Docker" --output-format json > docker-explanation.json
+qflow -p "Explain Docker" > docker-explanation.txt
+qflow -p "Explain Docker" --output-format json > docker-explanation.json
 
 # Append to file
-gemini -p "Add more details" >> docker-explanation.txt
+qflow -p "Add more details" >> docker-explanation.txt
 
 # Pipe to other tools
-gemini -p "What is Kubernetes?" --output-format json | jq '.response'
-gemini -p "Explain microservices" | wc -w
-gemini -p "List programming languages" | grep -i "python"
+qflow -p "What is Kubernetes?" --output-format json | jq '.response'
+qflow -p "Explain microservices" | wc -w
+qflow -p "List programming languages" | grep -i "python"
 ```
 
 ## Configuration options
 
 Key command-line options for headless usage:
 
-| Option                  | Description                        | Example                                            |
-| ----------------------- | ---------------------------------- | -------------------------------------------------- |
-| `--prompt`, `-p`        | Run in headless mode               | `gemini -p "query"`                                |
-| `--output-format`       | Specify output format (text, json) | `gemini -p "query" --output-format json`           |
-| `--model`, `-m`         | Specify the Qflow model            | `gemini -p "query" -m gemini-2.5-flash`            |
-| `--debug`, `-d`         | Enable debug mode                  | `gemini -p "query" --debug`                        |
-| `--include-directories` | Include additional directories     | `gemini -p "query" --include-directories src,docs` |
-| `--yolo`, `-y`          | Auto-approve all actions           | `gemini -p "query" --yolo`                         |
-| `--approval-mode`       | Set approval mode                  | `gemini -p "query" --approval-mode auto_edit`      |
+| Option                  | Description                        | Example                                           |
+| ----------------------- | ---------------------------------- | ------------------------------------------------- |
+| `--prompt`, `-p`        | Run in headless mode               | `qflow -p "query"`                                |
+| `--output-format`       | Specify output format (text, json) | `qflow -p "query" --output-format json`           |
+| `--model`, `-m`         | Specify the Qflow model            | `qflow -p "query" -m qflow-2.5-flash`             |
+| `--debug`, `-d`         | Enable debug mode                  | `qflow -p "query" --debug`                        |
+| `--include-directories` | Include additional directories     | `qflow -p "query" --include-directories src,docs` |
+| `--yolo`, `-y`          | Auto-approve all actions           | `qflow -p "query" --yolo`                         |
+| `--approval-mode`       | Set approval mode                  | `qflow -p "query" --approval-mode auto_edit`      |
 
 For complete details on all available configuration options, settings files, and
 environment variables, see the
@@ -315,20 +315,20 @@ environment variables, see the
 #### Code review
 
 ```bash
-cat src/auth.py | gemini -p "Review this authentication code for security issues" > security-review.txt
+cat src/auth.py | qflow -p "Review this authentication code for security issues" > security-review.txt
 ```
 
 #### Generate commit messages
 
 ```bash
-result=$(git diff --cached | gemini -p "Write a concise commit message for these changes" --output-format json)
+result=$(git diff --cached | qflow -p "Write a concise commit message for these changes" --output-format json)
 echo "$result" | jq -r '.response'
 ```
 
 #### API documentation
 
 ```bash
-result=$(cat api/routes.js | gemini -p "Generate OpenAPI spec for these routes" --output-format json)
+result=$(cat api/routes.js | qflow -p "Generate OpenAPI spec for these routes" --output-format json)
 echo "$result" | jq -r '.response' > openapi.json
 ```
 
@@ -337,7 +337,7 @@ echo "$result" | jq -r '.response' > openapi.json
 ```bash
 for file in src/*.py; do
     echo "Analyzing $file..."
-    result=$(cat "$file" | gemini -p "Find potential bugs and suggest improvements" --output-format json)
+    result=$(cat "$file" | qflow -p "Find potential bugs and suggest improvements" --output-format json)
     echo "$result" | jq -r '.response' > "reports/$(basename "$file").analysis"
     echo "Completed analysis for $(basename "$file")" >> reports/progress.log
 done
@@ -346,20 +346,20 @@ done
 #### Code review
 
 ```bash
-result=$(git diff origin/main...HEAD | gemini -p "Review these changes for bugs, security issues, and code quality" --output-format json)
+result=$(git diff origin/main...HEAD | qflow -p "Review these changes for bugs, security issues, and code quality" --output-format json)
 echo "$result" | jq -r '.response' > pr-review.json
 ```
 
 #### Log analysis
 
 ```bash
-grep "ERROR" /var/log/app.log | tail -20 | gemini -p "Analyze these errors and suggest root cause and fixes" > error-analysis.txt
+grep "ERROR" /var/log/app.log | tail -20 | qflow -p "Analyze these errors and suggest root cause and fixes" > error-analysis.txt
 ```
 
 #### Release notes generation
 
 ```bash
-result=$(git log --oneline v1.0.0..HEAD | gemini -p "Generate release notes from these commits" --output-format json)
+result=$(git log --oneline v1.0.0..HEAD | qflow -p "Generate release notes from these commits" --output-format json)
 response=$(echo "$result" | jq -r '.response')
 echo "$response"
 echo "$response" >> CHANGELOG.md
@@ -368,7 +368,7 @@ echo "$response" >> CHANGELOG.md
 #### Model and tool usage tracking
 
 ```bash
-result=$(gemini -p "Explain this database schema" --include-directories db --output-format json)
+result=$(qflow -p "Explain this database schema" --include-directories db --output-format json)
 total_tokens=$(echo "$result" | jq -r '.stats.models // {} | to_entries | map(.value.tokens.total) | add // 0')
 models_used=$(echo "$result" | jq -r '.stats.models // {} | keys | join(", ") | if . == "" then "none" else . end')
 tool_calls=$(echo "$result" | jq -r '.stats.tools.totalCalls // 0')
