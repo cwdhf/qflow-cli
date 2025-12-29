@@ -15,8 +15,106 @@ import type { Task as SDKTask } from '@a2a-js/sdk';
 import type { TaskStore } from '@a2a-js/sdk/server';
 import { logger } from '../utils/logger.js';
 import { setTargetDir } from '../config/config.js';
-import { getPersistedState, type PersistedTaskMetadata } from '../types.js';
+import {
+  getPersistedState,
+  type PersistedStateMetadata,
+  type PersistedTaskMetadata,
+} from '../types.js';
 import { v4 as uuidv4 } from 'uuid';
+
+export class CustomInMemoryTaskStore implements TaskStore {
+  private store = new Map<string, SDKTask>();
+
+  async load(taskId: string): Promise<SDKTask | undefined> {
+    const entry = this.store.get(taskId);
+    if (!entry) {
+      return undefined;
+    }
+    return JSON.parse(JSON.stringify(entry));
+  }
+
+  async save(task: SDKTask): Promise<void> {
+    const persistedState = task.metadata?.['__persistedState'] as
+      | PersistedStateMetadata
+      | undefined;
+    const newState = persistedState?._taskState;
+    const newHistoryLength = task.history?.length ?? 0;
+    const newArtifactsLength = task.artifacts?.length ?? 0;
+
+    const existingTask = this.store.get(task.id);
+    const existingPersistedState = existingTask?.metadata?.[
+      '__persistedState'
+    ] as PersistedStateMetadata | undefined;
+    const existingState = existingPersistedState?._taskState;
+    const existingHistoryLength = existingTask?.history?.length ?? 0;
+    const existingArtifactsLength = existingTask?.artifacts?.length ?? 0;
+
+    const isNewMoreComplete = this.isStateMoreComplete(
+      newState,
+      newHistoryLength,
+      newArtifactsLength,
+      existingState,
+      existingHistoryLength,
+      existingArtifactsLength,
+    );
+
+    logger.info(
+      `[CustomInMemoryTaskStore] Save check for task ${task.id}: ` +
+        `newState=${newState}, newHistory=${newHistoryLength}, newArtifacts=${newArtifactsLength}; ` +
+        `existingState=${existingState}, existingHistory=${existingHistoryLength}, existingArtifacts=${existingArtifactsLength}; ` +
+        `isNewMoreComplete=${isNewMoreComplete}`,
+    );
+
+    if (!isNewMoreComplete && existingTask) {
+      logger.info(
+        `[CustomInMemoryTaskStore] Skipping save for task ${task.id} - existing state is more complete`,
+      );
+      return;
+    }
+
+    logger.info(
+      `[CustomInMemoryTaskStore] Saving task ${task.id} with state ${newState}, history length: ${newHistoryLength}, artifacts length: ${newArtifactsLength}`,
+    );
+    this.store.set(task.id, JSON.parse(JSON.stringify(task)));
+  }
+
+  private isStateMoreComplete(
+    newState: string | undefined,
+    newHistoryLength: number,
+    newArtifactsLength: number,
+    existingState: string | undefined,
+    existingHistoryLength: number,
+    existingArtifactsLength: number,
+  ): boolean {
+    const finalStates = ['completed', 'failed', 'canceled', 'input-required'];
+    const existingIsFinal = existingState
+      ? finalStates.includes(existingState)
+      : false;
+    const newIsFinal = newState ? finalStates.includes(newState) : false;
+
+    if (existingIsFinal && !newIsFinal) {
+      return false;
+    }
+
+    if (newIsFinal && !existingIsFinal) {
+      return true;
+    }
+
+    if (newArtifactsLength > existingArtifactsLength) {
+      return true;
+    }
+
+    if (newHistoryLength > existingHistoryLength) {
+      return true;
+    }
+
+    if (newState !== existingState) {
+      return true;
+    }
+
+    return false;
+  }
+}
 
 type ObjectType = 'metadata' | 'workspace';
 
@@ -106,11 +204,36 @@ export class GCSTaskStore implements TaskStore {
     const metadataObjectPath = this.getObjectPath(taskId, 'metadata');
     const workspaceObjectPath = this.getObjectPath(taskId, 'workspace');
 
-    const dataToStore = task.metadata;
+    const dataToStore = {
+      ...task.metadata,
+      _history: task.history ?? [],
+      _artifacts: task.artifacts ?? [],
+    };
+
+    logger.info(`[GCSTaskStore] Saving task ${taskId}:`);
+    logger.info(
+      `[GCSTaskStore]   - history length: ${(task.history ?? []).length}`,
+    );
+    logger.info(
+      `[GCSTaskStore]   - artifacts length: ${(task.artifacts ?? []).length}`,
+    );
+    logger.info(
+      `[GCSTaskStore]   - dataToStore._history length: ${dataToStore._history.length}`,
+    );
+    logger.info(
+      `[GCSTaskStore]   - dataToStore._artifacts length: ${dataToStore._artifacts.length}`,
+    );
+    logger.info(
+      `[GCSTaskStore]   - metadata keys: ${Object.keys(task.metadata || {}).join(', ')}`,
+    );
 
     try {
       const jsonString = JSON.stringify(dataToStore);
+      logger.info(`[GCSTaskStore] JSON string length: ${jsonString.length}`);
       const compressedMetadata = gzipSync(Buffer.from(jsonString));
+      logger.info(
+        `[GCSTaskStore] Compressed metadata length: ${compressedMetadata.length}`,
+      );
       const metadataFile = this.storage
         .bucket(this.bucketName)
         .file(metadataObjectPath);
@@ -279,6 +402,22 @@ export class GCSTaskStore implements TaskStore {
         logger.info(`Task ${taskId} workspace archive not found in GCS.`);
       }
 
+      const history = loadedMetadata._history ?? [];
+      const artifacts = loadedMetadata._artifacts ?? [];
+
+      logger.info(`[GCSTaskStore] Loaded task ${taskId}:`);
+      logger.info(
+        `[GCSTaskStore]   - loadedMetadata._history length: ${loadedMetadata._history?.length || 0}`,
+      );
+      logger.info(
+        `[GCSTaskStore]   - loadedMetadata._artifacts length: ${loadedMetadata._artifacts?.length || 0}`,
+      );
+      logger.info(`[GCSTaskStore]   - history length: ${history.length}`);
+      logger.info(`[GCSTaskStore]   - artifacts length: ${artifacts.length}`);
+      logger.info(
+        `[GCSTaskStore]   - metadata keys: ${Object.keys(loadedMetadata || {}).join(', ')}`,
+      );
+
       return {
         id: taskId,
         contextId: loadedMetadata._contextId || uuidv4(),
@@ -288,8 +427,8 @@ export class GCSTaskStore implements TaskStore {
           timestamp: new Date().toISOString(),
         },
         metadata: loadedMetadata,
-        history: [],
-        artifacts: [],
+        history,
+        artifacts,
       };
     } catch (error) {
       logger.error(`Failed to load task ${taskId} from GCS:`, error);
@@ -302,8 +441,10 @@ export class NoOpTaskStore implements TaskStore {
   constructor(private realStore: TaskStore) {}
 
   async save(task: SDKTask): Promise<void> {
-    logger.info(`[NoOpTaskStore] save called for task ${task.id} - IGNORED`);
-    return Promise.resolve();
+    logger.info(
+      `[NoOpTaskStore] save called for task ${task.id} - delegating to real store`,
+    );
+    return this.realStore.save(task);
   }
 
   async load(taskId: string): Promise<SDKTask | undefined> {

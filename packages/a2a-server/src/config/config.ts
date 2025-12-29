@@ -81,6 +81,16 @@ export async function loadConfig(
     interactive: true,
   };
 
+  logger.info(
+    `[Config] CHECKPOINTING env var: ${process.env['CHECKPOINTING']}`,
+  );
+  logger.info(
+    `[Config] settings.checkpointing?.enabled: ${settings.checkpointing?.enabled}`,
+  );
+  logger.info(
+    `[Config] Final checkpointing value: ${configParams.checkpointing}`,
+  );
+
   const fileService = new FileDiscoveryService(workspaceDir);
   const { memoryContent, fileCount } = await loadServerHierarchicalMemory(
     workspaceDir,
@@ -114,12 +124,15 @@ export async function loadConfig(
     logger.info(
       `[Config] GOOGLE_CLOUD_PROJECT: ${process.env['GOOGLE_CLOUD_PROJECT']}`,
     );
+  } else if (process.env['OPENAI_API_KEY']) {
+    logger.info('[Config] Using OpenAI API Key');
+    await config.refreshAuth(AuthType.USE_OPENAI);
   } else if (process.env['GEMINI_API_KEY']) {
     logger.info('[Config] Using Gemini API Key');
     await config.refreshAuth(AuthType.USE_GEMINI);
   } else {
     const errorMessage =
-      '[Config] Unable to set GeneratorConfig. Please provide a GEMINI_API_KEY or set USE_CCPA.';
+      '[Config] Unable to set GeneratorConfig. Please provide a GEMINI_API_KEY, OPENAI_API_KEY, or set USE_CCPA.';
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }

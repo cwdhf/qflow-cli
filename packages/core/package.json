@@ -46,6 +46,7 @@
     "ajv-formats": "^3.0.0",
     "chardet": "^2.1.0",
     "cheerio": "^1.1.2",
+    "cos-nodejs-sdk-v5": "^2.15.4",
     "diff": "^7.0.0",
     "dotenv": "^17.1.0",
     "fast-levenshtein": "^2.0.6",

@@ -6,6 +6,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import * as url from 'node:url';
 import * as path from 'node:path';
 

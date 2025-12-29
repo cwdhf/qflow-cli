@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Message, Task as SDKTask } from '@a2a-js/sdk';
+import type { Message, Task as SDKTask, Artifact, Part } from '@a2a-js/sdk';
 import type {
   TaskStore,
   AgentExecutor,
@@ -55,10 +55,131 @@ class TaskWrapper {
   }
 
   toSDKTask(): SDKTask {
+    const currentTaskState = this.task.taskState;
     const persistedState: PersistedStateMetadata = {
       _agentSettings: this.agentSettings,
-      _taskState: this.task.taskState,
+      _taskState: currentTaskState,
     };
+
+    logger.info(
+      `[TaskWrapper] Creating persisted state with _taskState: ${currentTaskState} (taskId: ${this.task.id})`,
+    );
+
+    const history: Message[] = [];
+    const artifacts: Artifact[] = [];
+
+    const geminiHistory = this.task.geminiClient.getHistory();
+    logger.info(`[TaskWrapper] Converting task ${this.task.id} to SDKTask:`);
+    logger.info(
+      `[TaskWrapper]   - Gemini history length: ${geminiHistory.length}`,
+    );
+    logger.info(
+      `[TaskWrapper]   - All completed tool calls: ${this.task.allCompletedToolCalls.length}`,
+    );
+    logger.info(`[TaskWrapper]   - Current taskState: ${currentTaskState}`);
+
+    for (const content of geminiHistory) {
+      const message: Message = {
+        kind: 'message',
+        messageId: uuidv4(),
+        role: content.role === 'model' ? 'agent' : 'user',
+        taskId: this.task.id,
+        contextId: this.task.contextId,
+        parts: [],
+      };
+
+      if (content.parts) {
+        for (const part of content.parts) {
+          if (typeof part === 'string') {
+            message.parts.push({ kind: 'text', text: part });
+          } else if (part.text) {
+            message.parts.push({ kind: 'text', text: part.text });
+          } else if (part.functionCall) {
+            message.parts.push({
+              kind: 'data',
+              data: { functionCall: part.functionCall },
+            });
+          } else if (part.functionResponse) {
+            message.parts.push({
+              kind: 'data',
+              data: { functionResponse: part.functionResponse },
+            });
+          } else {
+            message.parts.push(part as Part);
+          }
+        }
+      }
+
+      history.push(message);
+    }
+    logger.info(`[TaskWrapper] Built ${history.length} history messages`);
+
+    for (const completedTool of this.task.allCompletedToolCalls) {
+      if (completedTool.status === 'success') {
+        const toolName = completedTool.request.name;
+        const callId = completedTool.request.callId;
+        const responseParts = completedTool.response.responseParts;
+
+        logger.info(
+          `[TaskWrapper] Processing completed tool: ${toolName} (${callId})`,
+        );
+        logger.info(
+          `[TaskWrapper] Response parts: ${JSON.stringify(responseParts, null, 2)}`,
+        );
+
+        const artifactParts: Part[] = [];
+        for (const part of responseParts) {
+          if (typeof part === 'string') {
+            artifactParts.push({ kind: 'text', text: part });
+          } else if (part.text) {
+            artifactParts.push({ kind: 'text', text: part.text });
+          } else if (part.fileData) {
+            if (!part.fileData.fileUri) {
+              throw new Error('Missing fileUri in fileData');
+            }
+            const fileWithUri: { uri: string; mimeType?: string } = {
+              uri: part.fileData.fileUri,
+            };
+            if (part.fileData.mimeType) {
+              fileWithUri.mimeType = part.fileData.mimeType;
+            }
+            artifactParts.push({
+              kind: 'file',
+              file: fileWithUri,
+            });
+          } else if (part.functionResponse) {
+            const response = part.functionResponse.response as {
+              output?: string;
+              parts?: Part[];
+            };
+            if (response.output) {
+              artifactParts.push({ kind: 'text', text: response.output });
+            } else if (response.parts) {
+              artifactParts.push(...response.parts);
+            } else {
+              logger.warn(
+                `[TaskWrapper] functionResponse has no output or parts for tool ${toolName}`,
+              );
+            }
+          } else {
+            artifactParts.push(part as Part);
+          }
+        }
+
+        const artifact: Artifact = {
+          artifactId: completedTool.request.callId,
+          name: toolName,
+          description: `Result of ${toolName} tool call`,
+          parts: artifactParts,
+        };
+
+        logger.info(
+          `[TaskWrapper] Created artifact for ${toolName} with ${artifactParts.length} parts`,
+        );
+        artifacts.push(artifact);
+      }
+    }
+    logger.info(`[TaskWrapper] Built ${artifacts.length} artifacts`);
 
     const sdkTask: SDKTask = {
       id: this.task.id,
@@ -69,8 +190,8 @@ class TaskWrapper {
         timestamp: new Date().toISOString(),
       },
       metadata: setPersistedState({}, persistedState),
-      history: [],
-      artifacts: [],
+      history,
+      artifacts,
     };
     sdkTask.metadata!['_contextId'] = this.task.contextId;
     return sdkTask;
@@ -126,6 +247,16 @@ export class CoderAgentExecutor implements AgentExecutor {
       agentSettings.autoExecute,
     );
     runtimeTask.taskState = persistedState._taskState;
+
+    if (['completed', 'failed', 'canceled'].includes(runtimeTask.taskState)) {
+      logger.warn(
+        `[CoderAgentExecutor] Task ${sdkTask.id} is already in final state ${runtimeTask.taskState}. Skipping reconstruction to preserve final state.`,
+      );
+      const wrapper = new TaskWrapper(runtimeTask, agentSettings);
+      this.tasks.set(sdkTask.id, wrapper);
+      return wrapper;
+    }
+
     await runtimeTask.geminiClient.initialize();
 
     const wrapper = new TaskWrapper(runtimeTask, agentSettings);
@@ -141,6 +272,9 @@ export class CoderAgentExecutor implements AgentExecutor {
     eventBus?: ExecutionEventBus,
   ): Promise<TaskWrapper> {
     const agentSettings = agentSettingsInput || ({} as AgentSettings);
+    logger.info(
+      `[CoderAgentExecutor] Creating task ${taskId} with autoExecute = ${agentSettings.autoExecute}`,
+    );
     const config = await this.getConfig(agentSettings, taskId);
     const runtimeTask = await Task.create(
       taskId,
@@ -199,7 +333,7 @@ export class CoderAgentExecutor implements AgentExecutor {
 
     const { task } = wrapper;
 
-    if (task.taskState === 'canceled' || task.taskState === 'failed') {
+    if (['canceled', 'failed', 'completed'].includes(task.taskState)) {
       logger.info(
         `[CoderAgentExecutor] Task ${taskId} is already in a final state: ${task.taskState}. No action needed for cancellation.`,
       );
@@ -247,7 +381,9 @@ export class CoderAgentExecutor implements AgentExecutor {
         `[CoderAgentExecutor] Task ${taskId} cancellation processed. Saving state.`,
       );
       await this.taskStore?.save(wrapper.toSDKTask());
-      logger.info(`[CoderAgentExecutor] Task ${taskId} state CANCELED saved.`);
+      logger.info(
+        `[CoderAgentExecutor] Task ${taskId} state CANCELED saved with state ${wrapper.task.taskState}.`,
+      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -412,8 +548,10 @@ export class CoderAgentExecutor implements AgentExecutor {
         history: [userMessage],
       });
       try {
-        await this.taskStore?.save(newTaskSDK);
-        logger.info(`[CoderAgentExecutor] New task ${taskId} saved to store.`);
+        await this.taskStore?.save(wrapper.toSDKTask());
+        logger.info(
+          `[CoderAgentExecutor] New task ${taskId} saved to store with state ${wrapper.task.taskState}.`,
+        );
       } catch (saveError) {
         logger.error(
           `[CoderAgentExecutor] Failed to save new task ${taskId} to store:`,
@@ -545,14 +683,21 @@ export class CoderAgentExecutor implements AgentExecutor {
         }
       }
 
-      logger.info(
-        `[CoderAgentExecutor] Task ${taskId}: Agent turn finished, setting to input-required.`,
-      );
+      logger.info(`[CoderAgentExecutor] Task ${taskId}: Agent turn finished.`);
       const stateChange: StateChange = {
         kind: CoderAgentEvent.StateChangeEvent,
       };
+      logger.info(
+        `[CoderAgentExecutor] Task ${taskId}: autoExecute = ${currentTask.autoExecute}`,
+      );
+      const finalState = currentTask.autoExecute
+        ? 'completed'
+        : 'input-required';
+      logger.info(
+        `[CoderAgentExecutor] Task ${taskId}: Setting to ${finalState}.`,
+      );
       currentTask.setTaskStateAndPublishUpdate(
-        'input-required',
+        finalState,
         stateChange,
         undefined,
         undefined,
@@ -597,17 +742,46 @@ export class CoderAgentExecutor implements AgentExecutor {
       }
     } finally {
       this.executingTasks.delete(taskId);
-      logger.info(
-        `[CoderAgentExecutor] Saving final state for task ${taskId}.`,
-      );
-      try {
-        await this.taskStore?.save(wrapper.toSDKTask());
-        logger.info(`[CoderAgentExecutor] Task ${taskId} state saved.`);
-      } catch (saveError) {
-        logger.error(
-          `[CoderAgentExecutor] Failed to save task ${taskId} state in finally block:`,
-          saveError,
+      const shouldSaveState = [
+        'completed',
+        'failed',
+        'canceled',
+        'input-required',
+      ].includes(currentTask.taskState);
+      if (!shouldSaveState) {
+        logger.info(
+          `[CoderAgentExecutor] Task ${taskId} is not in final state (${currentTask.taskState}), skipping save in finally block.`,
         );
+      } else {
+        logger.info(
+          `[CoderAgentExecutor] Saving final state for task ${taskId}. Current task state: ${currentTask.taskState}`,
+        );
+        try {
+          const sdkTask = wrapper.toSDKTask();
+          const persistedState = sdkTask.metadata?.['__persistedState'] as
+            | PersistedStateMetadata
+            | undefined;
+          logger.info(
+            `[CoderAgentExecutor] SDKTask state: ${persistedState?._taskState}, history length: ${sdkTask.history?.length}, artifacts length: ${sdkTask.artifacts?.length}`,
+          );
+          logger.info(
+            `[CoderAgentExecutor] Task allCompletedToolCalls count: ${currentTask.allCompletedToolCalls.length}`,
+          );
+          for (const tc of currentTask.allCompletedToolCalls) {
+            logger.info(
+              `[CoderAgentExecutor]   - Tool: ${tc.request.name}, callId: ${tc.request.callId}, status: ${tc.status}`,
+            );
+          }
+          await this.taskStore?.save(sdkTask);
+          logger.info(
+            `[CoderAgentExecutor] Task ${taskId} state saved with state ${wrapper.task.taskState}.`,
+          );
+        } catch (saveError) {
+          logger.error(
+            `[CoderAgentExecutor] Failed to save task ${taskId} state in finally block:`,
+            saveError,
+          );
+        }
       }
     }
   }

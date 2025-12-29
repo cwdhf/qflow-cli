@@ -69,6 +69,7 @@ export class Task {
   taskState: TaskState;
   eventBus?: ExecutionEventBus;
   completedToolCalls: CompletedToolCall[];
+  allCompletedToolCalls: CompletedToolCall[];
   skipFinalTrueAfterInlineEdit = false;
   modelInfo?: string;
   currentPromptId: string | undefined;
@@ -99,6 +100,7 @@ export class Task {
     this.taskState = 'submitted';
     this.eventBus = eventBus;
     this.completedToolCalls = [];
+    this.allCompletedToolCalls = [];
     this._resetToolCompletionPromise();
     this.autoExecute = autoExecute;
     this.config.setFallbackModelHandler(
@@ -276,7 +278,13 @@ export class Task {
     metadataError?: string,
     traceId?: string,
   ): void {
+    logger.info(
+      `[Task] Setting task state from ${this.taskState} to ${newState} (final: ${final}, taskId: ${this.id})`,
+    );
     this.taskState = newState;
+    logger.info(
+      `[Task] Task ${this.id} state updated to ${newState}, will publish status-update event`,
+    );
     let message: Message | undefined;
 
     if (messageText) {
@@ -351,6 +359,7 @@ export class Task {
       completedToolCalls.map((tc) => tc.request.callId),
     );
     this.completedToolCalls.push(...completedToolCalls);
+    this.allCompletedToolCalls.push(...completedToolCalls);
     completedToolCalls.forEach((tc) => {
       this._resolveToolCall(tc.request.callId);
     });

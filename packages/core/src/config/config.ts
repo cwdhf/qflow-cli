@@ -65,6 +65,7 @@ import { shouldAttemptBrowserLaunch } from '../utils/browser.js';
 import type { MCPOAuthConfig } from '../mcp/oauth-provider.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import { WriteTodosTool } from '../tools/write-todos.js';
+import { CosUploadTool } from '../tools/cos-upload.js';
 import type { FileSystemService } from '../services/fileSystemService.js';
 import { StandardFileSystemService } from '../services/fileSystemService.js';
 import { logRipgrepFallback } from '../telemetry/loggers.js';
@@ -1531,7 +1532,10 @@ export class Config {
       : OutputFormat.TEXT;
   }
 
-  async getGitService(): Promise<GitService> {
+  async getGitService(): Promise<GitService | undefined> {
+    if (!this.checkpointing) {
+      return undefined;
+    }
     if (!this.gitService) {
       this.gitService = new GitService(this.targetDir, this.storage);
       await this.gitService.initialize();
@@ -1643,6 +1647,7 @@ export class Config {
     registerCoreTool(FetchPageTool, this);
     registerCoreTool(TaskManagerTool, this);
     registerCoreTool(TaskBoardTool, this);
+    registerCoreTool(CosUploadTool, this);
     if (this.getUseWriteTodos()) {
       registerCoreTool(WriteTodosTool, this);
     }

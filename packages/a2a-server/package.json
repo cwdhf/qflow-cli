@@ -1,16 +1,16 @@
 {
-  "name": "@google/gemini-cli-a2a-server",
+  "name": "@cwdhf/qflow-cli-a2a-server",
   "version": "0.21.0-nightly.20251218.739c02bd6",
   "description": "Qflow CLI A2A Server",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/google-gemini/gemini-cli.git",
+    "url": "git+https://github.com/cwdhf/qflow-cli.git",
     "directory": "packages/a2a-server"
   },
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "gemini-cli-a2a-server": "dist/a2a-server.mjs"
+    "qflow-cli-a2a-server": "dist/a2a-server.mjs"
   },
   "scripts": {
     "build": "node ../../scripts/build_package.js",

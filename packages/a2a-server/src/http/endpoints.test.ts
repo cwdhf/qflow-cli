@@ -156,7 +156,7 @@ describe('Agent Server Endpoints', () => {
     const response = await request(app).get('/.well-known/agent-card.json');
     const port = (server.address() as AddressInfo).port;
     expect(response.status).toBe(200);
-    expect(response.body.name).toBe('Gemini SDLC Agent');
+    expect(response.body.name).toBe('Qflow SDLC Agent');
     expect(response.body.url).toBe(`http://localhost:${port}/`);
   });
 });

@@ -24,6 +24,7 @@ export const READ_MANY_FILES_TOOL_NAME = 'read_many_files';
 export const READ_FILE_TOOL_NAME = 'read_file';
 export const LS_TOOL_NAME = 'list_directory';
 export const MEMORY_TOOL_NAME = 'save_memory';
+export const COS_UPLOAD_TOOL_NAME = 'cos_upload';
 export const EDIT_TOOL_NAMES = new Set([EDIT_TOOL_NAME, WRITE_FILE_TOOL_NAME]);
 export const DELEGATE_TO_AGENT_TOOL_NAME = 'delegate_to_agent';
 
@@ -50,6 +51,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [
   READ_FILE_TOOL_NAME,
   LS_TOOL_NAME,
   MEMORY_TOOL_NAME,
+  COS_UPLOAD_TOOL_NAME,
   DELEGATE_TO_AGENT_TOOL_NAME,
 ] as const;
 
