@@ -17,14 +17,12 @@ import {
   GEMINI_MODEL_ALIAS_FLASH,
   GEMINI_MODEL_ALIAS_FLASH_LITE,
   GEMINI_MODEL_ALIAS_PRO,
-  DEFAULT_OPENAI_MODEL,
-  DEEEPSEEK_V32,
-  DOUBAO_SEED_18,
-  KIMI_K2,
+  getDefaultOpenAIModel,
   ModelSlashCommandEvent,
   logModelSlashCommand,
   AuthType,
   isOpenAIModel,
+  getOpenAIModelsList,
 } from '@google/gemini-cli-core';
 import { useKeypress } from '../hooks/useKeypress.js';
 import { theme } from '../semantic-colors.js';
@@ -65,29 +63,8 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
 
   const options = useMemo(() => {
     if (isUsingOpenAI) {
-      // OpenAI model options
-      const openaiModels = [
-        {
-          value: DOUBAO_SEED_18,
-          title: 'doubao-seed-v1.8',
-          description: '豆包1.8·深度思考模型',
-          key: DOUBAO_SEED_18,
-        },
-        {
-          value: DEEEPSEEK_V32,
-          title: 'deepseek-v3.2',
-          description:
-            'DSA稀疏注意力机制 | 可扩展的强化学习框架 | 思考融入工具调用',
-          key: DEEEPSEEK_V32,
-        },
-        {
-          value: KIMI_K2,
-          title: 'kimi-k2-thinking',
-          description:
-            'Kimi-K2 是一款Moonshot AI推出的具备超强代码和 Agent 能力的 MoE 架构基础模型，总参数 1T，激活参数 32B',
-          key: KIMI_K2,
-        },
-      ];
+      // OpenAI model options from config file
+      const openaiModels = getOpenAIModelsList();
 
       // Add custom model from environment if specified
       const customModel = process.env['OPENAI_MODEL'];
@@ -142,12 +119,13 @@ export function ModelDialog({ onClose }: ModelDialogProps): React.JSX.Element {
   // Calculate the initial index based on the preferred model.
   const initialIndex = useMemo(() => {
     if (isUsingOpenAI) {
-      // For OpenAI, get the current model from environment or default
-      const currentModel = process.env['OPENAI_MODEL'] || DEFAULT_OPENAI_MODEL;
+      // For OpenAI, get the current model from environment or default from config
+      const currentModel =
+        process.env['OPENAI_MODEL'] || getDefaultOpenAIModel();
       // Check if current model is a valid OpenAI model, if not use default
       const validCurrentModel = isOpenAIModel(currentModel)
         ? currentModel
-        : DEFAULT_OPENAI_MODEL;
+        : getDefaultOpenAIModel();
       return options.findIndex((option) => option.value === validCurrentModel);
     } else {
       // For Gemini, use the existing logic

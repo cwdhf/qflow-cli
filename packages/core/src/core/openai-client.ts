@@ -6,6 +6,7 @@
 
 import type { OpenAICompatibleConfig } from './openAICompatibleContentGenerator.js';
 import type { OpenAIStreamChunk } from './openai-types.js';
+import { debugLogger } from '../utils/debugLogger.js';
 
 /**
  * OpenAI API客户端
@@ -103,7 +104,7 @@ export class OpenAIClient {
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
-            console.log('Stream reading done');
+            debugLogger.log('Stream reading done');
             break;
           }
 
@@ -114,14 +115,14 @@ export class OpenAIClient {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') {
-                console.log('Stream finished with [DONE]');
+                debugLogger.log('Stream finished with [DONE]');
                 return;
               }
               try {
                 const parsed = JSON.parse(data);
                 yield parsed;
               } catch (e) {
-                console.error(
+                debugLogger.log(
                   'Failed to parse stream chunk:',
                   e,
                   'Data:',
@@ -132,7 +133,7 @@ export class OpenAIClient {
           }
         }
       } finally {
-        console.log('Releasing stream reader lock');
+        debugLogger.log('Releasing stream reader lock');
         reader.releaseLock();
       }
     }

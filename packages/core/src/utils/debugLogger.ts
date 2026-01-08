@@ -5,6 +5,7 @@
  */
 
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as util from 'node:util';
 
 /**
@@ -20,27 +21,36 @@ import * as util from 'node:util';
  * will intercept these calls and route them to the debug drawer UI.
  */
 class DebugLogger {
-  private logStream: fs.WriteStream | undefined;
+  private _logStream: fs.WriteStream | undefined;
+  private _initAttempted: boolean = false;
 
-  constructor() {
-    this.logStream = process.env['GEMINI_DEBUG_LOG_FILE']
-      ? fs.createWriteStream(process.env['GEMINI_DEBUG_LOG_FILE'], {
+  private get logStream(): fs.WriteStream | undefined {
+    if (!this._initAttempted) {
+      this._initAttempted = true;
+      const logFilePath = process.env['GEMINI_DEBUG_LOG_FILE'];
+      if (logFilePath) {
+        const logDir = path.dirname(logFilePath);
+        if (!fs.existsSync(logDir)) {
+          fs.mkdirSync(logDir, { recursive: true });
+        }
+        this._logStream = fs.createWriteStream(logFilePath, {
           flags: 'a',
-        })
-      : undefined;
-    // Handle potential errors with the stream
-    this.logStream?.on('error', (err) => {
-      // Log to console as a fallback, but don't crash the app
-      console.error('Error writing to debug log stream:', err);
-    });
+        });
+        this._logStream.on('error', (err) => {
+          console.error('Error writing to debug log stream:', err);
+        });
+      }
+    }
+    return this._logStream;
   }
 
   private writeToFile(level: string, args: unknown[]) {
-    if (this.logStream) {
+    const stream = this.logStream;
+    if (stream) {
       const message = util.format(...args);
       const timestamp = new Date().toISOString();
       const logEntry = `[${timestamp}] [${level}] ${message}\n`;
-      this.logStream.write(logEntry);
+      stream.write(logEntry);
     }
   }
 

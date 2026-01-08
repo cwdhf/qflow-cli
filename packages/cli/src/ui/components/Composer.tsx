@@ -92,7 +92,7 @@ export const Composer = () => {
         alignItems={isNarrow ? 'flex-start' : 'center'}
       >
         <Box marginRight={1}>
-          {process.env['GEMINI_SYSTEM_MD'] && (
+          {process.env['QFLOW_SYSTEM_MD'] && (
             <Text color={theme.status.error}>|⌐■_■| </Text>
           )}
           {uiState.ctrlCPressedOnce ? (

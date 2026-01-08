@@ -16,6 +16,10 @@ import { GoogleGenAI } from '@google/genai';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
 import type { Config } from '../config/config.js';
 import { loadApiKey } from './apiKeyCredentialStorage.js';
+import {
+  getDefaultOpenAIModel,
+  getDefaultOpenAIEmbeddingModel,
+} from '../config/models.js';
 
 import type { UserTierId } from '../code_assist/types.js';
 import { LoggingContentGenerator } from './loggingContentGenerator.js';
@@ -227,9 +231,9 @@ export async function createContentGenerator(
       // Create OpenAI compatible content generator
       const openaiContentGenerator = new OpenAICompatibleContentGenerator({
         endpoint: config.openai.baseUrl || 'https://api.openai.com/v1',
-        model: config.openai.model || 'gpt-3.5-turbo',
+        model: config.openai.model || getDefaultOpenAIModel(),
         embeddingModel:
-          config.openai.embeddingModel || 'text-embedding-ada-002',
+          config.openai.embeddingModel || getDefaultOpenAIEmbeddingModel(),
         apiKey: config.openai.apiKey,
         organization: config.openai.organization,
         project: config.openai.project,

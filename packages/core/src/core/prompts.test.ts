@@ -54,7 +54,7 @@ describe('Core System Prompt (prompts.ts)', () => {
   let mockConfig: Config;
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.stubEnv('GEMINI_SYSTEM_MD', undefined);
+    vi.stubEnv('QFLOW_SYSTEM_MD', undefined);
     vi.stubEnv('GEMINI_WRITE_SYSTEM_MD', undefined);
     mockConfig = {
       getToolRegistry: vi.fn().mockReturnValue({
@@ -197,20 +197,20 @@ describe('Core System Prompt (prompts.ts)', () => {
     },
   );
 
-  describe('GEMINI_SYSTEM_MD environment variable', () => {
+  describe('QFLOW_SYSTEM_MD environment variable', () => {
     it.each(['false', '0'])(
-      'should use default prompt when GEMINI_SYSTEM_MD is "%s"',
+      'should use default prompt when QFLOW_SYSTEM_MD is "%s"',
       (value) => {
-        vi.stubEnv('GEMINI_SYSTEM_MD', value);
+        vi.stubEnv('QFLOW_SYSTEM_MD', value);
         const prompt = getCoreSystemPrompt(mockConfig);
         expect(fs.readFileSync).not.toHaveBeenCalled();
         expect(prompt).not.toContain('custom system prompt');
       },
     );
 
-    it('should throw error if GEMINI_SYSTEM_MD points to a non-existent file', () => {
+    it('should throw error if QFLOW_SYSTEM_MD points to a non-existent file', () => {
       const customPath = '/non/existent/path/system.md';
-      vi.stubEnv('GEMINI_SYSTEM_MD', customPath);
+      vi.stubEnv('QFLOW_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(false);
       expect(() => getCoreSystemPrompt(mockConfig)).toThrow(
         `missing system prompt file '${path.resolve(customPath)}'`,
@@ -218,10 +218,10 @@ describe('Core System Prompt (prompts.ts)', () => {
     });
 
     it.each(['true', '1'])(
-      'should read from default path when GEMINI_SYSTEM_MD is "%s"',
+      'should read from default path when QFLOW_SYSTEM_MD is "%s"',
       (value) => {
         const defaultPath = path.resolve(path.join(QFLOW_DIR, 'system.md'));
-        vi.stubEnv('GEMINI_SYSTEM_MD', value);
+        vi.stubEnv('QFLOW_SYSTEM_MD', value);
         vi.mocked(fs.existsSync).mockReturnValue(true);
         vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
@@ -231,9 +231,9 @@ describe('Core System Prompt (prompts.ts)', () => {
       },
     );
 
-    it('should read from custom path when GEMINI_SYSTEM_MD provides one, preserving case', () => {
+    it('should read from custom path when QFLOW_SYSTEM_MD provides one, preserving case', () => {
       const customPath = path.resolve('/custom/path/SyStEm.Md');
-      vi.stubEnv('GEMINI_SYSTEM_MD', customPath);
+      vi.stubEnv('QFLOW_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 
@@ -242,12 +242,12 @@ describe('Core System Prompt (prompts.ts)', () => {
       expect(prompt).toBe('custom system prompt');
     });
 
-    it('should expand tilde in custom path when GEMINI_SYSTEM_MD is set', () => {
+    it('should expand tilde in custom path when QFLOW_SYSTEM_MD is set', () => {
       const homeDir = '/Users/test';
       vi.spyOn(os, 'homedir').mockReturnValue(homeDir);
       const customPath = '~/custom/system.md';
       const expectedPath = path.join(homeDir, 'custom/system.md');
-      vi.stubEnv('GEMINI_SYSTEM_MD', customPath);
+      vi.stubEnv('QFLOW_SYSTEM_MD', customPath);
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.readFileSync).mockReturnValue('custom system prompt');
 

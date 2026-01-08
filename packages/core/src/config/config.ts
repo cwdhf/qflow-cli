@@ -60,6 +60,7 @@ import {
   isPreviewModel,
   PREVIEW_GEMINI_MODEL,
   PREVIEW_GEMINI_MODEL_AUTO,
+  getDefaultOpenAIModel,
 } from './models.js';
 import { shouldAttemptBrowserLaunch } from '../utils/browser.js';
 import type { MCPOAuthConfig } from '../mcp/oauth-provider.js';
@@ -612,8 +613,9 @@ export class Config {
     if (params.contextFileName) {
       setGeminiMdFilename(params.contextFileName);
     }
+    const ENABLE_TELEMETRY = false; // Set to false to disable telemetry
 
-    if (this.telemetrySettings.enabled) {
+    if (ENABLE_TELEMETRY && this.telemetrySettings.enabled) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       initializeTelemetry(this);
     }
@@ -846,9 +848,9 @@ export class Config {
   }
 
   getModel(): string {
-    // If using OpenAI, return the OpenAI model from environment variable
+    // If using OpenAI, return the OpenAI model from environment variable or config
     if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
-      return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+      return process.env['OPENAI_MODEL'] || getDefaultOpenAIModel();
     }
     return this.model;
   }
@@ -870,9 +872,9 @@ export class Config {
   }
 
   getActiveModel(): string {
-    // If using OpenAI, return the OpenAI model from environment variable
+    // If using OpenAI, return the OpenAI model from environment variable or config
     if (this.contentGeneratorConfig?.authType === AuthType.USE_OPENAI) {
-      return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+      return process.env['OPENAI_MODEL'] || getDefaultOpenAIModel();
     }
     return this._activeModel ?? this.model;
   }

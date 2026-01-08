@@ -33,6 +33,7 @@ import {
 import { OpenAIClient } from './openai-client.js';
 import { debugLogger } from '../utils/debugLogger.js';
 import { TokenEstimator } from '../utils/tokenEstimator.js';
+import { StreamLogger } from '../utils/streamLogger.js';
 
 /**
  * OpenAI兼容的内容生成器配置
@@ -192,7 +193,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     request: GenerateContentParameters,
     _userPromptId: string,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
-    console.log(
+    debugLogger.log(
       'OpenAI generateContentStream called, using incremental streaming mode',
     );
 
@@ -268,93 +269,310 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
       let promptContent = '';
       const tokenEstimator = this.tokenEstimator;
 
-      // 准备prompt内容用于估算
+      const streamId = `stream_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const streamLogger = new StreamLogger(streamId);
+
       try {
-        promptContent = messages
-          .map((msg) => {
-            const role = msg.role || '';
-            const content = typeof msg.content === 'string' ? msg.content : '';
-            return `${role}: ${content}`;
-          })
-          .join('\n');
-      } catch (error) {
-        debugLogger.log(
-          'Error preparing prompt content for estimation:',
-          error,
-        );
-      }
-
-      let _chunkCount = 0;
-
-      for await (const chunk of stream) {
-        _chunkCount++;
-
-        debugLogger.log(
-          `Received chunk #${_chunkCount}:`,
-          JSON.stringify(chunk, null, 2),
-        );
-
-        // 检查chunk结构
-        if (
-          !chunk.choices ||
-          !Array.isArray(chunk.choices) ||
-          chunk.choices.length === 0
-        ) {
-          debugLogger.log('Skipping chunk: invalid choices structure');
-          continue;
-        }
-
-        const delta = chunk.choices[0]?.delta;
-        if (!delta) {
-          debugLogger.log('Skipping chunk: no delta in choices[0]');
-          continue;
-        }
-
-        // 累积token使用信息（如果chunk中包含）
-        if (chunk.usage) {
-          accumulatedUsage = {
-            prompt_tokens: chunk.usage.prompt_tokens || 0,
-            completion_tokens: chunk.usage.completion_tokens || 0,
-            total_tokens: chunk.usage.total_tokens || 0,
-          };
+        // 准备prompt内容用于估算
+        try {
+          promptContent = messages
+            .map((msg) => {
+              const role = msg.role || '';
+              const content =
+                typeof msg.content === 'string' ? msg.content : '';
+              return `${role}: ${content}`;
+            })
+            .join('\n');
+        } catch (error) {
           debugLogger.log(
-            'Received usage metadata in stream chunk:',
-            JSON.stringify(accumulatedUsage, null, 2),
-          );
-        } else if (chunk.choices[0]?.usage) {
-          const choiceUsage = chunk.choices[0].usage;
-          accumulatedUsage = {
-            prompt_tokens: choiceUsage.prompt_tokens || 0,
-            completion_tokens: choiceUsage.completion_tokens || 0,
-            total_tokens: choiceUsage.total_tokens || 0,
-          };
-          debugLogger.log(
-            'Received usage metadata in choice:',
-            JSON.stringify(accumulatedUsage, null, 2),
+            'Error preparing prompt content for estimation:',
+            error,
           );
         }
 
-        // 检查是否流结束
-        const isFinished = chunk.choices[0]?.finish_reason;
+        let _chunkCount = 0;
 
-        // 处理文本内容：只生成增量响应
-        if (delta.content) {
-          hasYielded = true;
-          accumulatedCompletionContent += delta.content;
+        for await (const chunk of stream) {
+          _chunkCount++;
 
+          streamLogger.addChunk(chunk, _chunkCount);
+
+          // debugLogger.log(`Received chunk #${_chunkCount}...`);
+
+          // 检查chunk结构
+          if (
+            !chunk.choices ||
+            !Array.isArray(chunk.choices) ||
+            chunk.choices.length === 0
+          ) {
+            debugLogger.log('Skipping chunk: invalid choices structure');
+            continue;
+          }
+
+          const delta = chunk.choices[0]?.delta;
+          if (!delta) {
+            debugLogger.log('Skipping chunk: no delta in choices[0]');
+            continue;
+          }
+
+          // 累积token使用信息（如果chunk中包含）
+          if (chunk.usage) {
+            accumulatedUsage = {
+              prompt_tokens: chunk.usage.prompt_tokens || 0,
+              completion_tokens: chunk.usage.completion_tokens || 0,
+              total_tokens: chunk.usage.total_tokens || 0,
+            };
+            debugLogger.log(
+              'Received usage metadata in stream chunk:',
+              JSON.stringify(accumulatedUsage, null, 2),
+            );
+          } else if (chunk.choices[0]?.usage) {
+            const choiceUsage = chunk.choices[0].usage;
+            accumulatedUsage = {
+              prompt_tokens: choiceUsage.prompt_tokens || 0,
+              completion_tokens: choiceUsage.completion_tokens || 0,
+              total_tokens: choiceUsage.total_tokens || 0,
+            };
+            debugLogger.log(
+              'Received usage metadata in choice:',
+              JSON.stringify(accumulatedUsage, null, 2),
+            );
+          }
+
+          // 检查是否流结束
+          const isFinished = chunk.choices[0]?.finish_reason;
+
+          // 处理文本内容：只生成增量响应
+          if (delta.content) {
+            hasYielded = true;
+            accumulatedCompletionContent += delta.content;
+
+            const candidate = {
+              content: {
+                role: 'model',
+                parts: [
+                  {
+                    text: delta.content, // 只包含当前增量
+                  },
+                ],
+              },
+              finishReason: isFinished
+                ? this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
+                  FinishReason.STOP
+                : undefined,
+              index: 0,
+              safetyRatings: [],
+              citationMetadata: undefined,
+              groundingMetadata: undefined,
+              finishMessage: undefined,
+            } as Candidate;
+
+            const generateContentResponse = new GenerateContentResponse();
+            generateContentResponse.candidates = [candidate];
+            generateContentResponse.modelVersion =
+              chunk['model'] || this.model || 'unknown';
+
+            // 如果是流结束的chunk，并且有累积的token使用信息，添加到响应中
+            if (isFinished && accumulatedUsage.total_tokens > 0) {
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: accumulatedUsage.prompt_tokens,
+                candidatesTokenCount: accumulatedUsage.completion_tokens,
+                totalTokenCount: accumulatedUsage.total_tokens,
+              };
+              debugLogger.log(
+                'Added usage metadata to content response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            } else if (isFinished && accumulatedUsage.total_tokens === 0) {
+              // 如果API没有返回usage信息，使用本地估算
+              const estimatedTokens = tokenEstimator.estimateTotalTokens(
+                promptContent,
+                accumulatedCompletionContent,
+              );
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: estimatedTokens.promptTokens,
+                candidatesTokenCount: estimatedTokens.completionTokens,
+                totalTokenCount: estimatedTokens.totalTokens,
+              };
+              debugLogger.log(
+                'Added estimated usage metadata to content response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            }
+
+            yield generateContentResponse;
+          } else if (isFinished && accumulatedToolCalls.length === 0) {
+            // 如果流结束了但没有内容（例如最后一个chunk只包含finish_reason），
+
+            const candidate = {
+              content: {
+                role: 'model',
+                parts: [{ text: '' }], // 空内容
+              },
+              finishReason:
+                this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
+                FinishReason.STOP,
+              index: 0,
+              safetyRatings: [],
+            } as Candidate;
+
+            const generateContentResponse = new GenerateContentResponse();
+            generateContentResponse.candidates = [candidate];
+            generateContentResponse.modelVersion =
+              chunk['model'] || this.model || 'unknown';
+
+            if (accumulatedUsage.total_tokens > 0) {
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: accumulatedUsage.prompt_tokens,
+                candidatesTokenCount: accumulatedUsage.completion_tokens,
+                totalTokenCount: accumulatedUsage.total_tokens,
+              };
+              debugLogger.log(
+                'Added usage metadata to empty content response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            } else {
+              // 如果API没有返回usage信息，使用本地估算
+              const estimatedTokens = tokenEstimator.estimateTotalTokens(
+                promptContent,
+                accumulatedCompletionContent,
+              );
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: estimatedTokens.promptTokens,
+                candidatesTokenCount: estimatedTokens.completionTokens,
+                totalTokenCount: estimatedTokens.totalTokens,
+              };
+              debugLogger.log(
+                'Added estimated usage metadata to empty content response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            }
+
+            yield generateContentResponse;
+          }
+
+          // 处理工具调用：累积并在流结束时生成
+          if (delta.tool_calls && Array.isArray(delta.tool_calls)) {
+            for (const toolCallDelta of delta.tool_calls) {
+              const index = toolCallDelta.index || 0;
+
+              // 初始化工具调用数组
+              if (!accumulatedToolCalls[index]) {
+                accumulatedToolCalls[index] = {
+                  id: toolCallDelta.id || `call_${Date.now()}_${index}`,
+                  type: 'function',
+                  function: {
+                    name: '',
+                    arguments: '',
+                  },
+                };
+              }
+
+              // 累积函数名称
+              if (toolCallDelta.function?.name) {
+                accumulatedToolCalls[index].function.name +=
+                  toolCallDelta.function.name;
+              }
+
+              // 累积函数参数
+              if (toolCallDelta.function?.arguments) {
+                accumulatedToolCalls[index].function.arguments +=
+                  toolCallDelta.function.arguments;
+              }
+            }
+          }
+
+          // 流结束时，如果有工具调用，生成工具调用响应
+          if (isFinished && accumulatedToolCalls.length > 0) {
+            const candidate = {
+              content: {
+                role: 'model',
+                parts: [],
+              },
+              finishReason:
+                (chunk.choices[0]?.finish_reason as FinishReason) ||
+                FinishReason.STOP,
+              index: 0,
+              safetyRatings: [],
+              citationMetadata: undefined,
+              groundingMetadata: undefined,
+              finishMessage: undefined,
+            } as Candidate;
+
+            // 添加累积的工具调用
+            for (const toolCall of accumulatedToolCalls) {
+              if (toolCall.function.name) {
+                try {
+                  const args = JSON.parse(toolCall.function.arguments || '{}');
+                  candidate.content!.parts!.push({
+                    functionCall: {
+                      name: toolCall.function.name,
+                      args,
+                    },
+                  });
+                } catch (error) {
+                  debugLogger.log(
+                    'Failed to parse tool call arguments:',
+                    error,
+                  );
+                  candidate.content!.parts!.push({
+                    functionCall: {
+                      name: toolCall.function.name,
+                      args: {},
+                    },
+                  });
+                }
+              }
+            }
+
+            const generateContentResponse = new GenerateContentResponse();
+            generateContentResponse.candidates = [candidate];
+            generateContentResponse.modelVersion =
+              chunk['model'] || this.model || 'unknown';
+
+            // 如果有累积的token使用信息，添加到响应中
+            if (accumulatedUsage.total_tokens > 0) {
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: accumulatedUsage.prompt_tokens,
+                candidatesTokenCount: accumulatedUsage.completion_tokens,
+                totalTokenCount: accumulatedUsage.total_tokens,
+              };
+              debugLogger.log(
+                'Added usage metadata to tool call response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            } else {
+              // 如果API没有返回usage信息，使用本地估算
+              const estimatedTokens = tokenEstimator.estimateTotalTokens(
+                promptContent,
+                accumulatedCompletionContent,
+              );
+              generateContentResponse.usageMetadata = {
+                promptTokenCount: estimatedTokens.promptTokens,
+                candidatesTokenCount: estimatedTokens.completionTokens,
+                totalTokenCount: estimatedTokens.totalTokens,
+              };
+              debugLogger.log(
+                'Added estimated usage metadata to tool call response:',
+                JSON.stringify(generateContentResponse.usageMetadata, null, 2),
+              );
+            }
+
+            yield generateContentResponse;
+          }
+        }
+        // 如果整个流都没有生成任何响应，至少生成一个空响应
+        if (!hasYielded && accumulatedToolCalls.length === 0) {
           const candidate = {
             content: {
               role: 'model',
               parts: [
                 {
-                  text: delta.content, // 只包含当前增量
+                  text: '',
                 },
               ],
             },
-            finishReason: isFinished
-              ? this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
-                FinishReason.STOP
-              : undefined,
+            finishReason: FinishReason.STOP,
             index: 0,
             safetyRatings: [],
             citationMetadata: undefined,
@@ -364,58 +582,9 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
           const generateContentResponse = new GenerateContentResponse();
           generateContentResponse.candidates = [candidate];
-          generateContentResponse.modelVersion =
-            chunk['model'] || this.model || 'unknown';
+          generateContentResponse.modelVersion = this.model || 'unknown';
 
-          // 如果是流结束的chunk，并且有累积的token使用信息，添加到响应中
-          if (isFinished && accumulatedUsage.total_tokens > 0) {
-            generateContentResponse.usageMetadata = {
-              promptTokenCount: accumulatedUsage.prompt_tokens,
-              candidatesTokenCount: accumulatedUsage.completion_tokens,
-              totalTokenCount: accumulatedUsage.total_tokens,
-            };
-            debugLogger.log(
-              'Added usage metadata to content response:',
-              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-            );
-          } else if (isFinished && accumulatedUsage.total_tokens === 0) {
-            // 如果API没有返回usage信息，使用本地估算
-            const estimatedTokens = tokenEstimator.estimateTotalTokens(
-              promptContent,
-              accumulatedCompletionContent,
-            );
-            generateContentResponse.usageMetadata = {
-              promptTokenCount: estimatedTokens.promptTokens,
-              candidatesTokenCount: estimatedTokens.completionTokens,
-              totalTokenCount: estimatedTokens.totalTokens,
-            };
-            debugLogger.log(
-              'Added estimated usage metadata to content response:',
-              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-            );
-          }
-
-          yield generateContentResponse;
-        } else if (isFinished && accumulatedToolCalls.length === 0) {
-          // 如果流结束了但没有内容（例如最后一个chunk只包含finish_reason），
-
-          const candidate = {
-            content: {
-              role: 'model',
-              parts: [{ text: '' }], // 空内容
-            },
-            finishReason:
-              this.mapFinishReason(chunk.choices[0]?.finish_reason) ||
-              FinishReason.STOP,
-            index: 0,
-            safetyRatings: [],
-          } as Candidate;
-
-          const generateContentResponse = new GenerateContentResponse();
-          generateContentResponse.candidates = [candidate];
-          generateContentResponse.modelVersion =
-            chunk['model'] || this.model || 'unknown';
-
+          // 如果有累积的token使用信息，即使是空响应也添加
           if (accumulatedUsage.total_tokens > 0) {
             generateContentResponse.usageMetadata = {
               promptTokenCount: accumulatedUsage.prompt_tokens,
@@ -423,7 +592,7 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               totalTokenCount: accumulatedUsage.total_tokens,
             };
             debugLogger.log(
-              'Added usage metadata to empty content response:',
+              'Added usage metadata to fallback empty response:',
               JSON.stringify(generateContentResponse.usageMetadata, null, 2),
             );
           } else {
@@ -438,173 +607,16 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
               totalTokenCount: estimatedTokens.totalTokens,
             };
             debugLogger.log(
-              'Added estimated usage metadata to empty content response:',
+              'Added estimated usage metadata to fallback empty response:',
               JSON.stringify(generateContentResponse.usageMetadata, null, 2),
             );
           }
 
           yield generateContentResponse;
         }
-
-        // 处理工具调用：累积并在流结束时生成
-        if (delta.tool_calls && Array.isArray(delta.tool_calls)) {
-          for (const toolCallDelta of delta.tool_calls) {
-            const index = toolCallDelta.index || 0;
-
-            // 初始化工具调用数组
-            if (!accumulatedToolCalls[index]) {
-              accumulatedToolCalls[index] = {
-                id: toolCallDelta.id || `call_${Date.now()}_${index}`,
-                type: 'function',
-                function: {
-                  name: '',
-                  arguments: '',
-                },
-              };
-            }
-
-            // 累积函数名称
-            if (toolCallDelta.function?.name) {
-              accumulatedToolCalls[index].function.name +=
-                toolCallDelta.function.name;
-            }
-
-            // 累积函数参数
-            if (toolCallDelta.function?.arguments) {
-              accumulatedToolCalls[index].function.arguments +=
-                toolCallDelta.function.arguments;
-            }
-          }
-        }
-
-        // 流结束时，如果有工具调用，生成工具调用响应
-        if (isFinished && accumulatedToolCalls.length > 0) {
-          const candidate = {
-            content: {
-              role: 'model',
-              parts: [],
-            },
-            finishReason:
-              (chunk.choices[0]?.finish_reason as FinishReason) ||
-              FinishReason.STOP,
-            index: 0,
-            safetyRatings: [],
-            citationMetadata: undefined,
-            groundingMetadata: undefined,
-            finishMessage: undefined,
-          } as Candidate;
-
-          // 添加累积的工具调用
-          for (const toolCall of accumulatedToolCalls) {
-            if (toolCall.function.name) {
-              try {
-                const args = JSON.parse(toolCall.function.arguments || '{}');
-                candidate.content!.parts!.push({
-                  functionCall: {
-                    name: toolCall.function.name,
-                    args,
-                  },
-                });
-              } catch (error) {
-                console.error('Failed to parse tool call arguments:', error);
-                candidate.content!.parts!.push({
-                  functionCall: {
-                    name: toolCall.function.name,
-                    args: {},
-                  },
-                });
-              }
-            }
-          }
-
-          const generateContentResponse = new GenerateContentResponse();
-          generateContentResponse.candidates = [candidate];
-          generateContentResponse.modelVersion =
-            chunk['model'] || this.model || 'unknown';
-
-          // 如果有累积的token使用信息，添加到响应中
-          if (accumulatedUsage.total_tokens > 0) {
-            generateContentResponse.usageMetadata = {
-              promptTokenCount: accumulatedUsage.prompt_tokens,
-              candidatesTokenCount: accumulatedUsage.completion_tokens,
-              totalTokenCount: accumulatedUsage.total_tokens,
-            };
-            debugLogger.log(
-              'Added usage metadata to tool call response:',
-              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-            );
-          } else {
-            // 如果API没有返回usage信息，使用本地估算
-            const estimatedTokens = tokenEstimator.estimateTotalTokens(
-              promptContent,
-              accumulatedCompletionContent,
-            );
-            generateContentResponse.usageMetadata = {
-              promptTokenCount: estimatedTokens.promptTokens,
-              candidatesTokenCount: estimatedTokens.completionTokens,
-              totalTokenCount: estimatedTokens.totalTokens,
-            };
-            debugLogger.log(
-              'Added estimated usage metadata to tool call response:',
-              JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-            );
-          }
-
-          yield generateContentResponse;
-        }
-      }
-      // 如果整个流都没有生成任何响应，至少生成一个空响应
-      if (!hasYielded && accumulatedToolCalls.length === 0) {
-        const candidate = {
-          content: {
-            role: 'model',
-            parts: [
-              {
-                text: '',
-              },
-            ],
-          },
-          finishReason: FinishReason.STOP,
-          index: 0,
-          safetyRatings: [],
-          citationMetadata: undefined,
-          groundingMetadata: undefined,
-          finishMessage: undefined,
-        } as Candidate;
-
-        const generateContentResponse = new GenerateContentResponse();
-        generateContentResponse.candidates = [candidate];
-        generateContentResponse.modelVersion = this.model || 'unknown';
-
-        // 如果有累积的token使用信息，即使是空响应也添加
-        if (accumulatedUsage.total_tokens > 0) {
-          generateContentResponse.usageMetadata = {
-            promptTokenCount: accumulatedUsage.prompt_tokens,
-            candidatesTokenCount: accumulatedUsage.completion_tokens,
-            totalTokenCount: accumulatedUsage.total_tokens,
-          };
-          debugLogger.log(
-            'Added usage metadata to fallback empty response:',
-            JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-          );
-        } else {
-          // 如果API没有返回usage信息，使用本地估算
-          const estimatedTokens = tokenEstimator.estimateTotalTokens(
-            promptContent,
-            accumulatedCompletionContent,
-          );
-          generateContentResponse.usageMetadata = {
-            promptTokenCount: estimatedTokens.promptTokens,
-            candidatesTokenCount: estimatedTokens.completionTokens,
-            totalTokenCount: estimatedTokens.totalTokens,
-          };
-          debugLogger.log(
-            'Added estimated usage metadata to fallback empty response:',
-            JSON.stringify(generateContentResponse.usageMetadata, null, 2),
-          );
-        }
-
-        yield generateContentResponse;
+      } finally {
+        streamLogger.finish();
+        StreamLogger.removeInstance(streamId);
       }
     };
 

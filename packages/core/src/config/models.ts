@@ -4,11 +4,104 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+export interface OpenAIModelConfig {
+  value: string;
+  title: string;
+  description: string;
+  key: string;
+}
+
+export interface OpenAIModelsConfig {
+  defaultModel: string;
+  defaultEmbeddingModel: string;
+  models: OpenAIModelConfig[];
+  aliases: Record<string, string>;
+}
+
+let openAIModelsConfig: OpenAIModelsConfig | null = null;
+
+export function loadOpenAIModelsConfig(): OpenAIModelsConfig {
+  if (openAIModelsConfig) {
+    return openAIModelsConfig;
+  }
+
+  const modelsEnv = process.env['OPENAI_MODELS'];
+  const aliasesEnv = process.env['OPENAI_MODEL_ALIASES'];
+
+  if (modelsEnv) {
+    try {
+      const models = JSON.parse(modelsEnv) as OpenAIModelConfig[];
+      const aliases = aliasesEnv
+        ? (JSON.parse(aliasesEnv) as Record<string, string>)
+        : {};
+      openAIModelsConfig = {
+        defaultModel:
+          process.env['OPENAI_DEFAULT_MODEL'] || models[0]?.value || '',
+        defaultEmbeddingModel:
+          process.env['OPENAI_DEFAULT_EMBEDDING_MODEL'] || '',
+        models,
+        aliases,
+      };
+      console.log(
+        `[OpenAI Models] Loaded config from environment variables with ${models.length} models`,
+      );
+      return openAIModelsConfig;
+    } catch (error) {
+      console.warn(
+        '[OpenAI Models] Failed to parse OPENAI_MODELS env var:',
+        error,
+      );
+    }
+  }
+
+  const defaultConfigPath = path.join(process.cwd(), 'openai-models.json');
+  console.log(
+    `[OpenAI Models] Attempting to load config from: ${defaultConfigPath}`,
+  );
+
+  try {
+    const configContent = fs.readFileSync(defaultConfigPath, 'utf-8');
+    openAIModelsConfig = JSON.parse(configContent) as OpenAIModelsConfig;
+    console.log(
+      `[OpenAI Models] Successfully loaded config with ${openAIModelsConfig.models.length} models`,
+    );
+    return openAIModelsConfig;
+  } catch (error) {
+    console.warn(
+      `[OpenAI Models] Failed to load config from ${defaultConfigPath}, using defaults:`,
+      error,
+    );
+    openAIModelsConfig = getDefaultOpenAIModelsConfig();
+    return openAIModelsConfig;
+  }
+}
+
+export function getDefaultOpenAIModelsConfig(): OpenAIModelsConfig {
+  return {
+    defaultModel: '',
+    defaultEmbeddingModel: '',
+    models: [],
+    aliases: {},
+  };
+}
+
+export function getOpenAIModelsConfig(): OpenAIModelsConfig {
+  return openAIModelsConfig || getDefaultOpenAIModelsConfig();
+}
+
+export function getOpenAIModelsList(): OpenAIModelConfig[] {
+  return getOpenAIModelsConfig().models;
+}
+
 export const PREVIEW_GEMINI_MODEL = 'gemini-3-pro-preview';
 export const PREVIEW_GEMINI_FLASH_MODEL = 'gemini-3-flash-preview';
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-pro';
 export const DEFAULT_GEMINI_FLASH_MODEL = 'gemini-2.5-flash';
-export const DEFAULT_GEMINI_FLASH_LITE_MODEL = 'doubao-seed-1-8-251215';
+export const DEFAULT_GEMINI_FLASH_LITE_MODEL =
+  getOpenAIModelsConfig().defaultModel;
 
 export const VALID_GEMINI_MODELS = new Set([
   PREVIEW_GEMINI_MODEL,
@@ -29,28 +122,10 @@ export const GEMINI_MODEL_ALIAS_FLASH_LITE = 'flash-lite';
 
 export const DEFAULT_GEMINI_EMBEDDING_MODEL = 'gemini-embedding-001';
 
-// OpenAI model constants
-export const DEFAULT_OPENAI_MODEL = 'doubao-seed-1-8-251215';
-export const DEFAULT_OPENAI_EMBEDDING_MODEL = 'doubao-embedding-vision-250615';
-
-// Common OpenAI models
-export const DEEEPSEEK_V32 = 'deepseek-v3-2-251201';
-export const DOUBAO_SEED_18 = 'doubao-seed-1-8-251215';
-export const KIMI_K2 = 'kimi-k2-thinking-251104';
 // OpenAI model aliases for user convenience
-export const OPENAI_MODEL_ALIAS_STANDARD = 'standard';
-export const OPENAI_MODEL_ALIAS_TURBO = 'turbo';
 export const OPENAI_MODEL_ALIAS_PRO = 'pro';
 export const OPENAI_MODEL_ALIAS_MULTIMODAL = 'multimodal';
 
-// Valid OpenAI models
-export const VALID_OPENAI_MODELS = new Set([
-  DOUBAO_SEED_18,
-  DEEEPSEEK_V32,
-  KIMI_K2,
-]);
-
-// Cap the thinking at 8192 to prevent run-away thinking loops.
 export const DEFAULT_THINKING_MODE = 8192;
 
 /**
@@ -207,21 +282,23 @@ export function supportsMultimodalFunctionResponse(model: string): boolean {
  * @returns The resolved concrete model name.
  */
 export function resolveOpenAIModel(requestedModel: string): string {
+  const config = getOpenAIModelsConfig();
+
   switch (requestedModel) {
-    case OPENAI_MODEL_ALIAS_STANDARD:
-    case OPENAI_MODEL_ALIAS_TURBO:
-      return DEEEPSEEK_V32;
-    case OPENAI_MODEL_ALIAS_PRO:
-      return DOUBAO_SEED_18;
-    case OPENAI_MODEL_ALIAS_MULTIMODAL:
-      return KIMI_K2;
-    default:
-      // Check if it's a valid OpenAI model
-      if (VALID_OPENAI_MODELS.has(requestedModel)) {
+    case 'standard':
+    case 'turbo':
+      return config.aliases['standard'];
+    case 'pro':
+      return config.aliases['pro'];
+    case 'multimodal':
+      return config.aliases['multimodal'];
+    default: {
+      const validModels = new Set(config.models.map((m) => m.value));
+      if (validModels.has(requestedModel)) {
         return requestedModel;
       }
-      // If not a known OpenAI model, assume it's a custom model (like qwen3-max-preview)
       return requestedModel;
+    }
   }
 }
 
@@ -232,14 +309,13 @@ export function resolveOpenAIModel(requestedModel: string): string {
  * @returns True if the model is an OpenAI compatible model.
  */
 export function isOpenAIModel(model: string): boolean {
-  // Check if it's a known OpenAI model
-  if (VALID_OPENAI_MODELS.has(model)) {
+  const config = getOpenAIModelsConfig();
+  const validModels = new Set(config.models.map((m) => m.value));
+
+  if (validModels.has(model)) {
     return true;
   }
 
-  // Check if it's a custom model that might be OpenAI compatible
-  // This includes models like qwen3-max-preview, deepseek-chat, etc.
-  // We assume any model not starting with 'gemini-' is OpenAI compatible
   return !model.startsWith('gemini-');
 }
 
@@ -249,7 +325,11 @@ export function isOpenAIModel(model: string): boolean {
  * @returns The default OpenAI model to use.
  */
 export function getDefaultOpenAIModel(): string {
-  return process.env['OPENAI_MODEL'] || DEFAULT_OPENAI_MODEL;
+  const config = getOpenAIModelsConfig();
+  if (process.env['OPENAI_MODEL']) {
+    return process.env['OPENAI_MODEL'];
+  }
+  return config.defaultModel || config.models[0]?.value || '';
 }
 
 /**
@@ -258,7 +338,9 @@ export function getDefaultOpenAIModel(): string {
  * @returns The default OpenAI embedding model to use.
  */
 export function getDefaultOpenAIEmbeddingModel(): string {
-  return (
-    process.env['OPENAI_EMBEDDING_MODEL'] || DEFAULT_OPENAI_EMBEDDING_MODEL
-  );
+  const config = getOpenAIModelsConfig();
+  if (process.env['OPENAI_EMBEDDING_MODEL']) {
+    return process.env['OPENAI_EMBEDDING_MODEL'];
+  }
+  return config.defaultEmbeddingModel || config.models[0]?.value || '';
 }

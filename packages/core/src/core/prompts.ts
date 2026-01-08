@@ -86,9 +86,7 @@ export function getCoreSystemPrompt(
   // The default path for the system prompt file. This can be overridden.
   let systemMdPath = path.resolve(path.join(QFLOW_DIR, 'system.md'));
   // Resolve the environment variable to get either a path or a switch value.
-  const systemMdResolution = resolvePathFromEnv(
-    process.env['GEMINI_SYSTEM_MD'],
-  );
+  const systemMdResolution = resolvePathFromEnv(process.env['QFLOW_SYSTEM_MD']);
 
   // Proceed only if the environment variable is set and is not disabled.
   if (systemMdResolution.value && !systemMdResolution.isDisabled) {

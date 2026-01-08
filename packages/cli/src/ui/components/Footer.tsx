@@ -12,6 +12,7 @@ import {
   tildeifyPath,
   getDisplayString,
   AuthType,
+  getDefaultOpenAIModel,
 } from '@google/gemini-cli-core';
 import { ConsoleSummaryDisplay } from './ConsoleSummaryDisplay.js';
 import process from 'node:process';
@@ -36,7 +37,7 @@ export const Footer: React.FC = () => {
     try {
       const generatorConfig = config.getContentGeneratorConfig();
       if (generatorConfig.authType === AuthType.USE_OPENAI) {
-        return process.env['OPENAI_MODEL'] || 'gpt-3.5-turbo';
+        return process.env['OPENAI_MODEL'] || getDefaultOpenAIModel();
       }
     } catch (error) {
       // Fallback to uiState model if config is not initialized
