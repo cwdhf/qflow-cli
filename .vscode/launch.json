@@ -20,6 +20,21 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Start (npm run start)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start"],
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "DEBUG": "1",
+        "GEMINI_SANDBOX": "false",
+        "GEMINI_CLI_NO_RELAUNCH": "true"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Build & Launch CLI",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "build-and-start"],

@@ -196,7 +196,6 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
     debugLogger.log(
       'OpenAI generateContentStream called, using incremental streaming mode',
     );
-
     const messages = convertToOpenAIMessagesWithTools(request.contents);
     const generationConfig = request.config;
 
@@ -212,6 +211,10 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
         | 'auto'
         | 'none'
         | { type: 'function'; function: { name: string } };
+      extra_body?: Record<string, unknown>;
+      stream_options?: {
+        include_usage: boolean;
+      };
     } = {
       model: this.model,
       messages,
@@ -470,20 +473,47 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
 
               // 累积函数名称
               if (toolCallDelta.function?.name) {
+                debugLogger.log(
+                  `Accumulating tool call name for index ${index}:`,
+                  `Previous: ${accumulatedToolCalls[index].function.name}`,
+                  `Adding: ${toolCallDelta.function.name}`,
+                );
                 accumulatedToolCalls[index].function.name +=
                   toolCallDelta.function.name;
               }
 
               // 累积函数参数
               if (toolCallDelta.function?.arguments) {
+                debugLogger.log(
+                  `Accumulating tool call arguments for index ${index}:`,
+                  `Previous length: ${accumulatedToolCalls[index].function.arguments.length}`,
+                  `Adding: ${toolCallDelta.function.arguments}`,
+                  `Adding length: ${toolCallDelta.function.arguments.length}`,
+                );
                 accumulatedToolCalls[index].function.arguments +=
                   toolCallDelta.function.arguments;
+                debugLogger.log(
+                  `New arguments length for index ${index}:`,
+                  accumulatedToolCalls[index].function.arguments.length,
+                );
               }
             }
           }
 
           // 流结束时，如果有工具调用，生成工具调用响应
           if (isFinished && accumulatedToolCalls.length > 0) {
+            debugLogger.log(
+              `Stream finished with ${accumulatedToolCalls.length} tool calls`,
+            );
+            for (let i = 0; i < accumulatedToolCalls.length; i++) {
+              const toolCall = accumulatedToolCalls[i];
+              debugLogger.log(
+                `Tool call ${i}:`,
+                `Name: ${toolCall.function.name}`,
+                `Arguments length: ${toolCall.function.arguments.length}`,
+                `Arguments: ${toolCall.function.arguments}`,
+              );
+            }
             const candidate = {
               content: {
                 role: 'model',
@@ -502,26 +532,89 @@ export class OpenAICompatibleContentGenerator implements ContentGenerator {
             // 添加累积的工具调用
             for (const toolCall of accumulatedToolCalls) {
               if (toolCall.function.name) {
+                const argsString = toolCall.function.arguments || '{}';
+                debugLogger.log(
+                  `Parsing tool call arguments for ${toolCall.function.name}:`,
+                  `Length: ${argsString.length}`,
+                  `Content: ${argsString}`,
+                );
+
+                // 处理累积了多个 JSON 对象的情况
+                // 例如: {"command": "curl www.baidu.com"}{}
+                // 我们只解析第一个有效的 JSON 对象
+                let args: Record<string, unknown> = {};
                 try {
-                  const args = JSON.parse(toolCall.function.arguments || '{}');
-                  candidate.content!.parts!.push({
-                    functionCall: {
-                      name: toolCall.function.name,
-                      args,
-                    },
-                  });
-                } catch (error) {
+                  // 尝试直接解析
+                  args = JSON.parse(argsString);
                   debugLogger.log(
-                    'Failed to parse tool call arguments:',
-                    error,
+                    `Successfully parsed tool call arguments for ${toolCall.function.name}:`,
+                    JSON.stringify(args, null, 2),
                   );
-                  candidate.content!.parts!.push({
-                    functionCall: {
-                      name: toolCall.function.name,
-                      args: {},
-                    },
-                  });
+                } catch (_error) {
+                  // 如果直接解析失败，尝试提取第一个有效的 JSON 对象
+                  debugLogger.log(
+                    `Direct parse failed, attempting to extract first valid JSON object`,
+                  );
+
+                  // 查找第一个完整的 JSON 对象
+                  let braceCount = 0;
+                  let inString = false;
+                  let escapeNext = false;
+                  let jsonEnd = -1;
+
+                  for (let i = 0; i < argsString.length; i++) {
+                    const char = argsString[i];
+
+                    if (escapeNext) {
+                      escapeNext = false;
+                      continue;
+                    }
+
+                    if (char === '\\') {
+                      escapeNext = true;
+                      continue;
+                    }
+
+                    if (char === '"') {
+                      inString = !inString;
+                      continue;
+                    }
+
+                    if (!inString) {
+                      if (char === '{') {
+                        braceCount++;
+                      } else if (char === '}') {
+                        braceCount--;
+                        if (braceCount === 0) {
+                          jsonEnd = i + 1;
+                          break;
+                        }
+                      }
+                    }
+                  }
+
+                  if (jsonEnd > 0) {
+                    const firstJson = argsString.substring(0, jsonEnd);
+                    debugLogger.log(`Extracted first JSON object:`, firstJson);
+                    args = JSON.parse(firstJson);
+                    debugLogger.log(
+                      `Successfully parsed extracted JSON for ${toolCall.function.name}:`,
+                      JSON.stringify(args, null, 2),
+                    );
+                  } else {
+                    debugLogger.log(
+                      `Failed to extract valid JSON from arguments string`,
+                    );
+                    args = {};
+                  }
                 }
+
+                candidate.content!.parts!.push({
+                  functionCall: {
+                    name: toolCall.function.name,
+                    args,
+                  },
+                });
               }
             }
 
